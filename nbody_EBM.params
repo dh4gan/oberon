@@ -1,0 +1,36 @@
+ParType Orbital
+OutputPrefix trial
+OutputFrequency	1.0e-3
+MaximumTime	2.0
+SystemName EarthSun
+Number_Bodies 2
+--
+BodyName Sun
+BodyType Star
+Mass 1.0
+Radius 1.0
+SemiMajorAxis 0.0
+Eccentricity 0.0
+Inclination 0.0
+LongAscend 0.0
+Periapsis 0.0
+MeanAnomaly 0.0
+Luminosity 1.0
+--
+BodyName Earth
+BodyType World
+Mass 1.0e-6
+Radius 1.0e-4
+SemiMajorAxis 1.0
+Eccentricity 0.0
+Inclination 0.0
+LongAscend 0.0
+Periapsis 0.0
+MeanAnomaly 0.0
+RotationPeriod 1.0  (days)
+Obliquity  23.7   (degrees)
+WinterSolstice 0.0	(longitude,degrees)
+OceanFraction 0.7
+InitialTemperature 288.0
+
+
