@@ -56,13 +56,17 @@ public:
 	void removeBody(int bodyindex);
 
 	void calcGlobalTimestep(vector<Body*> &bodyarray, double dtmax);
+	double calcCombinedTimestep();
 	void calcCOMFrame();
 	void transformToCOMFrame();
 	void calcTotalEnergy();
 	void calcTotalAngularMomentum();
 	void calcInitialProperties();
 	void calcForces(vector<Body*> &bodyarray);
+	vector<double> checkForEclipses(int bodyindex);
 	void evolveSystem(double tbegin, double tend);
+	void evolveSystem(double dt);
+	void evolveLEBMs(double &dt);
 
 protected:
 

@@ -75,6 +75,14 @@ System::~System()
 
     }
 
+double safeAcos(double x) {
+	if (x < -1.0)
+		x = -1.0;
+	else if (x > 1.0)
+		x = 1.0;
+	return acos(x);
+}
+
 /* Methods for Controlling Population of Bodies */
 
 void System::addBody(Body* &newBody)
@@ -360,6 +368,111 @@ void System::calcInitialProperties()
 
     }
 
+vector<double> System::checkForEclipses(int bodyIndex)
+{
+    /* Author: dh4gan
+     This method looks from the position of the body given by bodyindex
+     and checks whether any other bodies are obscured from view
+     It does this by looking at impact parameters from the relative
+     vector of a given body and bodyindex.  Any body which has an
+     impact parameter smaller than its radius, and is in front of
+     the given body, obscures it.
+
+     The method returns a vector of doubles, describing what fraction of the star is eclipsed [0,1]
+     */
+
+	double pi = 3.14159265285;
+
+	vector<double> eclipsefrac(bodyCount,0.0);
+	Vector3D vector_i, vector_j;
+	double mag_i, mag_j, idotj, b;
+	double rad_i, rad_j, rad_i2, rad_j2;
+	double angle1,angle2, area_i, area_j;
+
+	for(int i=0; i<bodyCount; i++)
+	{
+
+		// Body cannot eclipse itself
+		if(i==bodyIndex)
+		{
+			eclipsefrac[i]=0.0;
+			continue;
+		}
+
+		//calculate relative vector between i and bodyindex
+
+		vector_i = getBody(bodyIndex)->getPosition().relativeVector(getBody(i)->getPosition());
+		mag_i = vector_i.magVector();
+
+		// Get Radius of body i
+
+		rad_i = getBody(i)->getRadius();
+
+		// Now loop over other bodies to get impact parameters
+
+		for (int j=0; j <bodyCount; j++)
+		{
+			// Skip for bodies i and bodyIndex
+
+			if(j==i or j==bodyIndex)
+			{
+				continue;
+			}
+
+			// Calculate relative vector between body j and bodyIndex
+
+			vector_j = getBody(bodyIndex)->getPosition().relativeVector(getBody(j)->getPosition());
+			mag_j = vector_j.magVector();
+
+			// Get Radius of body j
+
+			rad_j = getBody(j)->getRadius();
+
+			// impact parameter = mag(vector_j)sin alpha = mag(vector_j)*sqrt(1-(vector_i.vector_j)^2)
+
+			if(mag_i*mag_j >0.0)
+			{
+				idotj = vector_i.dotProduct(vector_j)/(mag_i*mag_j);
+				b = mag_j*sqrt(1.0-idotj*idotj);
+
+				// If impact parameter less than radius, and i further away than j, eclipse of i!
+				// Calculate area covered during eclipse
+				// (sum of two circular segment areas, one for each circle)
+
+				if(b < (rad_i+rad_j) and mag_i > mag_j)
+				{
+
+					rad_i2 = rad_i*rad_i;
+					rad_j2 = rad_j*rad_j;
+					angle1 = 2.0*safeAcos((rad_i2 + b*b -rad_j2)/(2.0*b*rad_i));
+					angle2 = 2.0*safeAcos((rad_j2 + b*b -rad_i2)/(2.0*b*rad_j));
+
+					area_i = 0.5*rad_i2*(angle1 - sin(angle1));
+					area_j = 0.5*rad_j2*(angle2 - sin(angle2));
+
+					eclipsefrac[i] = (area_i+area_j)/(pi*rad_i*rad_i);
+
+					if(eclipsefrac[i]>1.0) {eclipsefrac[i] = 1.0;}
+					if(eclipsefrac[i]<0.0) {eclipsefrac[i] = 0.0;}
+					//cout << b <<"  " << area_i << "  " << rad_i << "  " << angle1 << endl;
+					//cout << area_j << "  " << rad_j << "  " << angle2 << endl;
+
+				}
+			}
+			else
+			{
+				continue;
+			}
+
+		}// End loop over j to get impact parameters
+
+	} //End loop over i to test eclipses
+
+	return eclipsefrac;
+
+}
+
+
 void System::evolveSystem(double tbegin, double tend)
     {
     /* Author: dh4gan
@@ -489,6 +602,73 @@ void System::evolveSystem(double tbegin, double tend)
 	delete predicted[i];
 	predicted[i]=0;
 	}
+
+    }
+
+void System::evolveSystem(double dt)
+    {
+
+    double tbegin = 0.0;
+    double tstop = dt;
+    evolveSystem(tbegin,tstop);
+    }
+    }
+
+void System::evolveLEBMs(double &dt)
+    {
+    /*
+     * Written 10/1/14 by dh4gan
+     * Checks for any World objects, and makes them update their LEBM models
+     *
+     */
+    vector<double>eclipsefrac;
+
+    for (int i=0; i< bodyCount; i++)
+	{
+	if(bodies[i]->getType()=="World")
+	    {
+	    eclipsefrac = checkForEclipses(i);
+	    bodies[i]->updateLEBM(bodies,eclipsefrac,dt);
+
+	    }
+
+	}
+    }
+
+
+
+double System::calcCombinedTimestep()
+    {
+    /*
+     * Written 10/1/14 by dh4gan
+     * Calculates the minimum of the N Body and LEBM timesteps in the system
+     *
+     */
+
+    double LEBMmin;
+    double twopi = 2.0*3.141592;
+    double tunit = 3.15e7/(twopi);
+
+    double nbodymin = 1.0e30;
+    // Calculate N Body minimum timestep in code units
+    calcGlobalTimestep(bodies, nbodymin);
+
+    // Calculate LEBM minimum timestep in seconds
+
+    for (int b; b<bodyCount; b++)
+	{
+	if(bodies[b]->getType()=="World")
+	    {
+	    LEBMmin = bodies[b]->getLEBMTimestep();
+	    LEBMmin =LEBMmin/tunit;
+
+	    if(LEBMmin < nbodymin)
+		{
+		nbodymin = LEBMmin;
+		}
+	    }
+	}
+return nbodymin;
 
     }
 

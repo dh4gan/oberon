@@ -19,9 +19,11 @@ class World: public Body
 public:
 
     World();
+
     World(string &namestring, string &typestring, double &m, double &rad,
-	    Vector3D &pos, Vector3D &vel, int &n, double &obliq, double &winter,
-	    double &ocean, double &T0);
+	    Vector3D &pos, Vector3D &vel, int n, double obliq, double winter,
+	    double ocean, double T0);
+
     World(string &namestring, string &typestring, double &m, double &rad,
 	    double semimaj, double ecc, double inc, double longascend,
 	    double argper, double meananom, double G, double totalMass,  int &n, double &obliq, double &winter,
@@ -31,13 +33,16 @@ public:
     /* Accessors */
 
     void setInsolationZero() {insol.assign(nPoints1,0.0);}
+    double getLEBMTimestep(){return dtLEBM;}
 
     // Calculation Methods
 
     void initialiseLEBM();
-    void calcInsolation(Star star); // TODO
-    void checkForEclipses(Star star, vector<Body*> bodies); // TODO
+    void updateLEBM(vector<Body*> bodies, vector<double>eclipsefrac);
+    void updateLEBM(vector<Body*> bodies, vector<double> eclipsefrac, double dt);
 
+
+    void calcInsolation(Body* star, double &eclipsefrac);
     void calcAlbedo();
     void calcHeatCapacity();
     void calcIce();
@@ -45,8 +50,11 @@ public:
     void calcCooling();
     void calcNetHeating();
     void calcHabitability(double &minT, double &maxT);
+    void calcLEBMTimestep();
 
-    void integrate(double &dt); //TODO
+    void integrate();
+
+
 
     // Standard cloning method
     virtual World* Clone()
@@ -66,6 +74,7 @@ protected:
     int nPoints,nPoints1;
 
     double nFloat;
+    double dtLEBM;
 
     vector<double> lat, x, deltax;
     vector<double> T, T_old, tau;

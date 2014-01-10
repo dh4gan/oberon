@@ -6,19 +6,21 @@
  */
 
 #include "World.h"
+#include "Constants.h"
 
-double pi = 3.141592;
 double freeze = 273.0;
 double boil = 373.0;
 double sigma_SB = 5.67e-5;
+
+double q0 = lsol/(4.0*pi*AU*AU);
 
 World::World() :
 	Body()
     {
     }
 World::World(string &namestring, string &typestring, double &m, double &rad,
-	Vector3D &pos, Vector3D &vel, int &n, double &obliq, double &winter,
-	double &ocean, double &T0) :
+	Vector3D &pos, Vector3D &vel, int n, double obliq, double winter,
+	double ocean, double T0) :
 	Body(namestring, typestring, m, rad, pos, vel)
     {
     nPoints = n;
@@ -95,7 +97,112 @@ void World::initialiseLEBM()
        deltax[i] = cos(lat[i])*dlat;
        }
 
-   // Set up diffusion constant TODO
+   // Set up diffusion constant
+
+   diffusion = 5.394e2 * rotationPeriod*rotationPeriod;
+
+    }
+
+
+void World::updateLEBM(vector<Body*> bodies, vector<double>eclipsefrac)
+    {
+    /*
+     * Written 10/1/14 by dh4gan
+     * This method is an umbrella method, using the other methods
+     * written here to advance the LEBM model by dt, for convenient use by other methods
+     *
+     */
+    setInsolationZero();
+
+    for (int b=0; b< bodies.size(); b++)
+	{
+	if (bodies[b]->getType()=="Star")
+	    {
+	    calcInsolation(bodies[b],eclipsefrac[b]);
+	    }
+	}
+    calcIce();
+    calcHeatCapacity();
+    calcOpticalDepth();
+    calcAlbedo();
+    calcCooling();
+    calcNetHeating();
+    calcHabitability(freeze,boil);
+
+    calcLEBMTimestep();
+
+    integrate();
+
+    }
+
+void World::updateLEBM(vector<Body*> bodies, vector<double> eclipsefrac, double dt)
+    {
+
+    dtLEBM = dt;
+    updateLEBM(bodies,eclipsefrac);
+
+    }
+
+
+void World::calcInsolation(Body* star, double &eclipsefrac)
+    {
+
+    /*
+     * Written by dh4gan, 10/1/14
+     * Calculates the flux received at each latitude from input star
+     * Given that eclipsefrac of the stellar light is blocked by other objects
+     */
+
+    vector<double> cos_H(nPoints1,0.0);
+
+    // Calculate stellar declination
+
+    // Get position of world relative to star
+    Vector3D worldpos = this->getPosition();
+    Vector3D starpos = star->getPosition();
+    Vector3D pos = (starpos).relativeVector(worldpos);
+    double magpos = pos.magVector();
+    Vector3D unitpos = pos.unitVector();
+
+    // Declination of the Sun - angle between planet's position vector and equator (at noon)
+
+    Vector3D decVector(unitpos.elements[0], unitpos.elements[1],
+			unitpos.elements[2]);
+
+    // Rotate this vector if world has non-zero obliquity
+    if (obliquity != 0.0) {
+	decVector.rotateX(obliquity);
+	}
+
+    // Obtain declination angle
+
+    double rdotn = unitpos.dotProduct(decVector);
+    double declination = safeAcos(rdotn);
+
+    double sind = sin(declination);
+    double cosd = cos(declination);
+    double tand = tan(declination);
+
+    // Insolation prefactor depends on luminosity and separation only
+
+    double lstar = star->getLuminosity();
+
+    // Rotate in y-axis if world's winter solstice longitude non-zero TODO
+
+    for (int i=0; i<nPoints1; i++)
+	{
+
+	// calculate the diurnally averaged hour angle
+
+	cos_H[i] = -tan(lat[i])*tand;
+
+	if(fabs(cos_H[i]) >1.0) cos_H[i] = cos_H[i]/fabs(cos_H[i]);
+
+	double H = acos(cos_H[i]);
+
+	insol[i] = insol[i]+q0*lstar*eclipsefrac/(pi*magpos*magpos)*(H*x[i]*sind + cos(lat[i])*cosd*sin(H));
+	}
+
 
     }
 
@@ -224,3 +331,101 @@ void World::calcHabitability(double &minT, double &maxT)
 	if(T[i]>=minT and T[i]<=maxT) hab[i]=1;
 	}
     }
+
+void World::calcLEBMTimestep()
+    {
+/*
+ * Written 10/1/14 by dh4gan
+ * Calculates the minimum timestep for the LEBM (in seconds)
+ *
+ */
+    double Dplus, timestep;
+
+    dtLEBM = 1.0e30;
+    for (int i=0; i<nPoints1; i++)
+	{
+	if(i==nPoints)
+	    {
+	    Dplus = diffusion*(1.0-x[i]*x[i]);
+	    }
+	else
+	    {
+	    Dplus = diffusion*0.5*((1.0-x[i]*x[i]) +(1.0-x[i+1]*x[i+1]));
+	    }
+
+	if(i>0 and i<nPoints)
+	    {
+	    timestep = deltax[i]*deltax[i]*C[i]/(2.0*Dplus);
+	    if (timestep < dtLEBM) {dtLEBM = timestep;}
+	    }
+	}
+
+
+    if(dtLEBM==1.0e30)
+	{
+	cout << "ERROR in LEBM Timestep calculation " << endl;
+	dtLEBM = -1.0;
+	}
+
+    }
+
+void World::integrate()
+    {
+    /*
+     * Written 10/1/14 by dh4gan
+     * Integrates the diffusion equation to drive the system forward
+     *
+     */
+    double Tminus1,Tplus1, Dplus,Dminus;
+    double T1,dx,dx1,Fj;
+
+
+    T_old = T;
+
+    for(int i=0; i<nPoints1; i++)
+	{
+	if(i==0){
+	    Tminus1 = T_old[i];
+	    Dminus = diffusion*(1.0-x[i]*x[i]);
+	}
+	if(i/=1){
+	    Tminus1 = T_old[i-1];
+	    Dminus = 0.5*diffusion*((1.0-x[i-1]*x[i-1]) + (1.0-x[i]*x[i]));
+	}
+
+	if(i==nPoints) {
+	    Tplus1=T_old[i];
+	    Dplus = diffusion*(1.0-x[i]*x[i]);
+	}
+
+	if(i/=nPoints) {
+	    Tplus1=T_old[i+1];
+	    Dminus = 0.5*diffusion*((1.0-x[i+1]*x[i+1]) + (1.0-x[i]*x[i]));
+	}
+
+	T1 = T_old[i];
+
+	if (i == 0)
+	    {
+	    dx1 = deltax[i];
+	    dx = 0.5 * (deltax[i + 1] + deltax[i]);
+	    }
+	else if (i == nPoints)
+	    {
+	    dx1 = 0.5 * (deltax[i - 1] + deltax[i]);
+	    dx = deltax[i];
+	    }
+	else
+	    {
+	    dx = 0.5 * (deltax[i] + deltax[i + 1]);
+	    dx1 = 0.5 * (deltax[i - 1] + deltax[i]);
+	    }
+
+	  Fj = (Dplus*(Tplus1-T1)/dx - Dminus*(T1-Tminus1)/dx1)/(0.5*(dx1+dx));
+	  T[i] = T1 + (dtLEBM/C[i])*(Q[i] +Fj);
+
+	}
+
+    }
+
+

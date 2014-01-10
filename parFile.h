@@ -29,6 +29,7 @@ public:
 	string SystemName;
 	string fileType;
 	int number_bodies;
+	int nPoints;
 	double outputFrequency;
 	double maximumTime;
 	double totalMass;

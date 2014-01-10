@@ -114,6 +114,13 @@ public:
 	void calcSnapCrackle(double G, vector<Body*> bodyarray, double softening_length); // Calculates next two derivatives of acceleration
 
 
+	double safeAcos(double x) {
+		if (x < -1.0)
+			x = -1.0;
+		else if (x > 1.0)
+			x = 1.0;
+		return acos(x);
+	}
 
 	// Virtual Methods for Derived Classes to call
 	// NEVER CALL THESE ON BODY OBJECTS! //
@@ -148,6 +155,10 @@ public:
 
 	// Methods for Planet Class
 
+	// Methods for World Class
+
+	void updateLEBM(vector<Body*> bodies, vector<double> eclipsefrac, double &dt){};
+	double getLEBMTimestep(){return -1.0;}
 	// Variables that are part of the Body Class and its derivations //
 protected:
 

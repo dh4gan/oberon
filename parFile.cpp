@@ -100,6 +100,21 @@ void parFile::readPosFile()
 	iss >> par;
 
 	cout << par << endl;
+
+	if(par=="OutputPrefix")
+		    {
+		    iss >> outputPrefix;
+		    }
+		if(par=="OutputFrequency")
+		    {
+		    iss >> outputFrequency;
+		    }
+
+		if(par =="MaximumTime")
+		    {
+		    iss >> maximumTime;
+		    }
+
 	if (par == "SystemName")
 	    {
 	    iss >> SystemName;
@@ -108,6 +123,10 @@ void parFile::readPosFile()
 	    {
 	    iss >> number_bodies;
 
+	    }
+	else if(par =="NGridPoints")
+	    {
+	    iss >> nPoints;
 	    }
 	else if (par == "BodyType")
 	    {
@@ -250,6 +269,11 @@ void parFile::readOrbFile()
 	    iss >> number_bodies;
 
 	    }
+
+	else if(par =="NGridPoints")
+		    {
+		    iss >> nPoints;
+		    }
 
 	else if (par == "BodyName")
 	    {

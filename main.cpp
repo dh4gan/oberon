@@ -18,7 +18,6 @@
 #include "Star.h"
 #include "Planet.h"
 #include "World.h"
-#include "Constants.h"
 #include "parFile.h"
 
 #include <fstream>
@@ -29,13 +28,18 @@ int main(int argc, char* argv[])
     {
 
     double G = 1;
+    double year = 3.15e7;
+    double pi = 3.141592654;
+    double twopi = 2.0*pi;
     int i, j, fileType;
 
     double tBegin, tStop;
-    double timeyr,timesec,dtsec,dtunit;
-    double tSnap = 0.1;
-    double tMax = 20.0;
+    double timeunit;
+    double dtsec,dtunit;
+    double tSnap, tMax;
     double totalEnergy;
+
+
 
     string body_i_name;
     double body_i_mass;
@@ -109,14 +113,15 @@ int main(int argc, char* argv[])
 				body_i_velocity));
 		}
 
-	    // If the Body is a World, add a World Object and set up LEBM TODO
+	    // If the Body is a World, add a World Object and set up LEBM
 
 	    if (input.BodyTypes[i] == "World")
 		{
 		BodyArray.push_back(
 			new World(input.BodyNames[i], input.BodyTypes[i],
 				input.Mass[i], input.Radius[i], body_i_position,
-				body_i_velocity));
+				body_i_velocity, input.nPoints, input.obliquity[i], input.winterSolstice[i],
+				input.oceanFraction[i], input.initialTemperature[i]));
 		}
 
 
@@ -151,7 +156,7 @@ int main(int argc, char* argv[])
 
 		}
 
-	    // If the Body is a World, add a World Object and set up LEBM TODO
+	    // If the Body is a World, add a World Object and set up LEBM
 	    if (input.BodyTypes[i] == "World")
 		{
 		BodyArray.push_back(
@@ -160,7 +165,8 @@ int main(int argc, char* argv[])
 				input.semiMajorAxis[i], input.eccentricity[i],
 				input.inclination[i], input.longAscend[i],
 				input.Periapsis[i], input.meanAnomaly[i], G,
-				input.totalMass));
+				input.totalMass,input.nPoints, input.obliquity[i], input.winterSolstice[i],
+				input.oceanFraction[i], input.initialTemperature[i]));
 		}
 
 	    }
@@ -186,30 +192,30 @@ int main(int argc, char* argv[])
     tStop = 0.0;
     tMax = tMax * 2.0 * pi;
 
-    // Calculate the minimum LEBM timestep for all worlds and NBody timestep TODO
+    // Timesteps will be calculated in NBody units, and converted back to seconds for LEBM
+
+    // Calculate the minimum LEBM timestep for all worlds and NBody timestep
+    dtunit = nBodySystem.calcCombinedTimestep();
+
+    dtsec = dtunit*twopi*3.15e7; // This will be the default timestep measure - derive dtunit = dtsec*2pi/(3.15e7)
 
 
-    // TODO figure out this timestep gubbins - which unit will I work with?
-    timeyr = 0.0;
-    timesec = 0.0;
-    dtsec = 1.0; // This will be the default timestep measure - derive dtunit = dtsec*2pi/(3.15e7)
-    dtunit = 1.0;
-
-    while (timeyr < tMax)
+    while (timeunit < tMax)
 	{
 	tBegin = tStop;
-	tStop = timeyr + tSnap;
+	tStop = timeunit + tSnap;
 
-	while (timeyr < tStop)
+	while (timeunit < tStop)
 	    {
-	    // Evolve the LEBMs in the system for a minimum timestep
-	    //nbodySystem.evolveLEBMs(dtsec); TODO
+	    // Evolve the LEBMs in the system for the minimum timestep in seconds
+	    nBodySystem.evolveLEBMs(dtsec);
 
-	    // Evolve the NBody particles for the given snapshot interval tSnap
+	    // Evolve the NBody particles for the minimum timestep in code units
+	    nBodySystem.evolveSystem(dtunit);
 
-	    nBodySystem.evolveSystem(timeyr, timeyr + dtunit);
-
-	    // Recalculate the minimum timestep TODO
+	    // Recalculate the minimum timestep
+	    dtunit = nBodySystem.calcCombinedTimestep();
+	    dtsec = dtunit*twopi*3.15e7;
 	    }
 
 	// Output files TODO
