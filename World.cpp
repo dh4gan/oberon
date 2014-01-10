@@ -7,6 +7,7 @@
 
 #include "World.h"
 #include "Constants.h"
+#include <fstream>
 
 double freeze = 273.0;
 double boil = 373.0;
@@ -113,8 +114,9 @@ void World::updateLEBM(vector<Body*> bodies, vector<double>eclipsefrac)
      *
      */
     setInsolationZero();
+    int bodyCount = bodies.size();
 
-    for (int b=0; b< bodies.size(); b++)
+    for (int b=0; b< bodyCount; b++)
 	{
 	if (bodies[b]->getType()=="Star")
 	    {
@@ -137,6 +139,10 @@ void World::updateLEBM(vector<Body*> bodies, vector<double>eclipsefrac)
 
 void World::updateLEBM(vector<Body*> bodies, vector<double> eclipsefrac, double dt)
     {
+    /*
+     * Written 10/1/14 by dh4gan
+     * Overloaded method, with dtLEBM enforced from above
+     */
 
     dtLEBM = dt;
     updateLEBM(bodies,eclipsefrac);
@@ -428,4 +434,29 @@ void World::integrate()
 
     }
 
+void World::initialiseOutputVariables()
+    {
+    /*
+     * Written 10/1/14 by dh4gan
+     * Sets up the log file for this World
+     *
+     */
+
+
+    string logFileName = getName()+".log";
+    logFile = fopen(logFileName.c_str(), "w");
+    }
+
+void World::outputLEBMData()
+    {
+    /*
+     * Written 10/1/14 by dh4gan
+     * Outputs a snapshot of the LEBM to file
+     * and adds a line to the log file
+     *
+     */
+
+    // TODO
+
+    }
 

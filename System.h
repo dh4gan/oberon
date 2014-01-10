@@ -68,6 +68,11 @@ public:
 	void evolveSystem(double dt);
 	void evolveLEBMs(double &dt);
 
+	// Output Methods
+
+	void outputNBodyData(FILE* outputfile, double &time);
+	void outputLEBMData();
+
 protected:
 
 	// Basic variables

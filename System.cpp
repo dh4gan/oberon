@@ -611,7 +611,7 @@ void System::evolveSystem(double dt)
     double tbegin = 0.0;
     double tstop = dt;
     evolveSystem(tbegin,tstop);
-    }
+
     }
 
 void System::evolveLEBMs(double &dt)
@@ -669,6 +669,67 @@ double System::calcCombinedTimestep()
 	    }
 	}
 return nbodymin;
+
+    }
+
+void System::outputNBodyData(FILE *outputfile, double &time)
+    {
+    /*
+     * Written 10/1/14 by dh4gan
+     * Method writes N Body information to
+     * already open file pointer
+     *
+     */
+
+
+
+
+	Vector3D position, velocity;
+	// Transform to the Centre of Mass Frame
+    	transformToCOMFrame();
+
+    	for (int j = 0; j < bodyCount; j++)
+    	    {
+
+    	    position = bodies[j]->getPosition();
+    	    velocity = bodies[j]->getVelocity();
+
+    	    //Write out the data
+    	    //Output format  CSV
+    	    // mass,position_x,position_y,position_z,velocity_x,velocity_y,velocity_z
+
+    	    fprintf(outputfile,
+    		    "%+.4E,%+.4E, %s,%+.4E,%+.4E,%+.4E,%+.4E,%+.4E,%+.4E,%+.4E,%+.4E\n",
+    		    time, totalEnergy, bodies[j]->getName().c_str(), bodies[j]->getMass(),
+    		    bodies[j]->getRadius(),position.elements[0],
+    		    position.elements[1], position.elements[2],
+    		    velocity.elements[0], velocity.elements[1],
+    		    velocity.elements[2]);
+
+    	    }
+    	fflush(outputfile);
+
+    }
+
+void System::outputLEBMData()
+    {
+
+    /*
+     * Written 10/1/14 by dh4gan
+     * Requires Worlds to write their LEBM data to files
+     *
+     */
+
+    for (int b=0; b < bodyCount; b++)
+	{
+	if(bodies[b]->getType()=="World")
+	    {
+
+	    bodies[b]->outputLEBMData();
+
+	    }
+
+	}
 
     }
 

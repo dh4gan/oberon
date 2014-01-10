@@ -159,6 +159,8 @@ public:
 
 	void updateLEBM(vector<Body*> bodies, vector<double> eclipsefrac, double &dt){};
 	double getLEBMTimestep(){return -1.0;}
+	void outputLEBMData(){};
+
 	// Variables that are part of the Body Class and its derivations //
 protected:
 

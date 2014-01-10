@@ -54,7 +54,10 @@ public:
 
     void integrate();
 
+    // Output Methods
 
+    void outputLEBMData();
+    void initialiseOutputVariables();
 
     // Standard cloning method
     virtual World* Clone()
@@ -80,6 +83,7 @@ protected:
     vector<double> T, T_old, tau;
     vector<double> iceFraction, C, hab;
     vector<double> infrared, Q, albedo, insol;
+    FILE *logFile, *snapshotFile;
 
     };
 

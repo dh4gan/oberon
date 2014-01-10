@@ -34,7 +34,7 @@ int main(int argc, char* argv[])
     int i, j, fileType;
 
     double tBegin, tStop;
-    double timeunit;
+    double timeunit,timeyr;
     double dtsec,dtunit;
     double tSnap, tMax;
     double totalEnergy;
@@ -198,7 +198,7 @@ int main(int argc, char* argv[])
     dtunit = nBodySystem.calcCombinedTimestep();
 
     dtsec = dtunit*twopi*3.15e7; // This will be the default timestep measure - derive dtunit = dtsec*2pi/(3.15e7)
-
+    timeunit = 0.0;
 
     while (timeunit < tMax)
 	{
@@ -218,43 +218,15 @@ int main(int argc, char* argv[])
 	    dtsec = dtunit*twopi*3.15e7;
 	    }
 
-	// Output files TODO
+	// Output data to files
+	timeyr = timeunit/twopi;
 
-	// Transform to the Centre of Mass Frame
-	nBodySystem.transformToCOMFrame();
-	Bodies = nBodySystem.getBodies();
+	// N Body data goes to a single file
+	nBodySystem.outputNBodyData(outputfile, timeyr);
 
-	totalEnergy = nBodySystem.getTotalEnergy();
+	// LEBM data goes to separate files for each World in the System
 
-	for (j = 0; j < input.number_bodies; j++)
-	    {
-
-	    body_i_name = Bodies[j]->getName();
-	    body_i_mass = Bodies[j]->getMass();
-	    body_i_radius = Bodies[j]->getRadius();
-
-	    body_i_position = Bodies[j]->getPosition();
-	    body_i_velocity = Bodies[j]->getVelocity();
-
-	    //Write out the data
-	    //Output format  CSV
-	    // mass,position_x,position_y,position_z,velocity_x,velocity_y,velocity_z
-
-	    fprintf(outputfile,
-		    "%+.4E,%+.4E, %s,%+.4E,%+.4E,%+.4E,%+.4E,%+.4E,%+.4E,%+.4E,%+.4E\n",
-		    tStop, totalEnergy, body_i_name.c_str(), body_i_mass,
-		    body_i_radius, body_i_position.elements[0],
-		    body_i_position.elements[1], body_i_position.elements[2],
-		    body_i_velocity.elements[0], body_i_velocity.elements[1],
-		    body_i_velocity.elements[2]);
-	    fflush(outputfile);
-	    }
-
-	fprintf(accelfile, "%+.4E %+.4E %+.4E %+.4E %+.4E\n", tStop,
-		nBodySystem.getTimestep(), totalEnergy,
-		Bodies[1]->getAcceleration().magVector(),
-		Bodies[1]->getJerk().magVector());
-	fflush(accelfile);
+	nBodySystem.outputLEBMData();
 	}
 
     //Close the file before returning
