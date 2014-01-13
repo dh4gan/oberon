@@ -30,7 +30,7 @@ int main(int argc, char* argv[])
     double G = 1;
     double pi = 3.141592654;
     double twopi = 2.0*pi;
-    double year = 3.15e7;
+    double year =  3.1556926e7;
     double unit2sec = year/twopi;
 
 
@@ -192,6 +192,7 @@ int main(int argc, char* argv[])
 
     tStop = 0.0;
     tMax = tMax * twopi; // Convert maximum time to code units
+    tSnap = tSnap*twopi; // Convert snapshot time to code units
 
     // Timesteps will be calculated in NBody units, and converted back to seconds for LEBM
 

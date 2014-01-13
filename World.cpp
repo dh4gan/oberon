@@ -10,6 +10,7 @@
 #include <fstream>
 #include <sstream>
 
+
 double freeze = 273.0;
 double boil = 373.0;
 double sigma_SB = 5.67e-5;
@@ -95,7 +96,7 @@ void World::initialiseLEBM()
 
    for (int i=0; i< nPoints1; i++)
        {
-       lat[i] = -pi/2.0 + i*dlat + 1.0e-5;
+       lat[i] = -pi/2.0 + i*dlat;
        x[i] = sin(lat[i]);
        deltax[i] = cos(lat[i])*dlat;
        }
@@ -199,20 +200,26 @@ void World::calcInsolation(Body* star, double &eclipsefrac)
 
     // Rotate this vector if world has non-zero obliquity
     if (obliquity != 0.0) {
-	decVector.rotateX(obliquity);
+	decVector.rotateX(-obliquity);
 	}
 
     // TODO - Check implementation Rotate in y-axis if world's winter solstice longitude non-zero
 
-    if(winterSolstice!=0.0)
-	{
-	decVector.rotateY(winterSolstice);
-	}
+    //if(winterSolstice!=0.0)
+//	{
+//	decVector.rotateY(winterSolstice);
+//	}
 
     // Obtain declination angle
 
     double rdotn = unitpos.dotProduct(decVector);
     double declination = safeAcos(rdotn);
+
+    // TODO - Check: is declination greater than pi?
+
+    if (decVector.elements[1] <0.0) declination = -1*declination;
+   // cout << decVector.elements[0] << "   " << decVector.elements[1] <<"   " << decVector.elements[2] << endl;
+
 
     double sind = sin(declination);
     double cosd = cos(declination);
@@ -488,7 +495,7 @@ void World::initialiseOutputVariables()
     cout << "Log file initialised " << logFile << endl;
     }
 
-void World::calcLEBMMeans(double &meanT, double &meanQ, double &meanA, double &meanIR, double &meanS,
+void World::calcLEBMMeans(double &minT, double &maxT, double &meanT, double &meanQ, double &meanA, double &meanIR, double &meanS,
 	double &meanhab)
     {
     /*
@@ -497,6 +504,8 @@ void World::calcLEBMMeans(double &meanT, double &meanQ, double &meanA, double &m
      *
      */
 
+    minT = 1.0e30;
+    maxT = -1.0e30;
     meanT = 0.0;
     meanQ = 0.0;
     meanA = 0.0;
@@ -512,6 +521,9 @@ void World::calcLEBMMeans(double &meanT, double &meanQ, double &meanA, double &m
 	meanIR = meanIR + infrared[i]*0.5*deltax[i];
 	meanS = meanS + insol[i]*0.5*deltax[i];
 	meanhab = meanhab + hab[i]*0.5*deltax[i];
+
+	if(T[i] < minT) minT = T[i];
+	if(T[i] > maxT) maxT = T[i];
 	}
 
 
@@ -526,14 +538,17 @@ void World::outputLEBMData(int &snapshotNumber, double &tSnap)
      *
      */
 
-    double meanT, meanQ, meanA, meanIR, meanS, meanhab;
+    double minT, maxT, meanT, meanQ, meanA, meanIR, meanS, meanhab;
 
 
     // Firstly, write line to log file
-    calcLEBMMeans(meanT, meanQ, meanA, meanIR,meanS, meanhab);
+    calcLEBMMeans(minT, maxT, meanT, meanQ, meanA, meanIR,meanS, meanhab);
 
-    fprintf(logFile, "%+.4E %+.4E %+.4E %+.4E %+.4E %+.4E %+.4E \n",tSnap, meanT,meanQ,meanA,
-	    meanIR,meanS,meanhab);
+    // Also include orbital data here
+    fprintf(logFile, "%+.4E %+.4E %+.4E %+.4E %+.4E %+.4E %+.4E %+.4E %+.4E %+.4E %+.4E %+.4E %+.4E %+4.E \n",
+	    tSnap, minT, maxT, meanT,meanQ,meanA,meanIR,meanS,meanhab,
+	    getSemiMajorAxis(), getEccentricity(), getInclination(),
+	    getArgumentPeriapsis(), getLongitudeAscendingNode(), getMeanAnomaly());
 
 
     // Now write snapshot of LEBM

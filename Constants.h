@@ -14,7 +14,7 @@ double Gsi = 6.67e-11;
 double Gmau = 1.0;  // Value of G for solar mass-AU units (time units...2pi units= 1 year)
 double AU = 1.496e11;
 double msol = 1.99e30;
-double lsol = 3.838e26;
+double lsol = 3.826e26;
 double rsol = 6.955e8;
 
 double fluxsol = lsol/(4.0*pi*AU*AU);

@@ -11,6 +11,7 @@
 #include <math.h>
 #include <string>
 
+
 parFile::parFile()
     {
     totalMass = 0.0;
@@ -176,6 +177,7 @@ void parFile::readPosFile()
 	else if (par == "Obliquity")
 	    {
 	    iss >> val_i;
+	    val_i = val_i *3.1415/180.0;
 	    obliquity.pop_back(); // Discard default
 	    obliquity.push_back(val_i);
 	    }
@@ -183,6 +185,7 @@ void parFile::readPosFile()
 	else if (par == "WinterSolstice")
 	    {
 	    iss >> val_i;
+	    val_i = val_i *3.1415/180.0;
 	    winterSolstice.pop_back(); // Discard default
 	    winterSolstice.push_back(val_i);
 	    }
@@ -359,13 +362,14 @@ void parFile::readOrbFile()
 	else if (par == "Obliquity")
 	    {
 	    iss >> val_i;
-
+	    val_i = val_i *3.1415/180.0;
 	    obliquity[bodyIndex] = val_i;
 	    }
 
 	else if (par == "WinterSolstice")
 	    {
 	    iss >> val_i;
+	    val_i = val_i *3.1415/180.0;
 	    winterSolstice[bodyIndex] = val_i;
 	    }
 
