@@ -1,8 +1,8 @@
 ParType Orbital
 OutputPrefix trial
-OutputFrequency	1.0e-3
+OutputFrequency	1.0e-1
 NGridPoints	144
-MaximumTime	2.0
+MaximumTime	100.0
 SystemName EarthSun
 Number_Bodies 2
 --

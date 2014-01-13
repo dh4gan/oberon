@@ -122,44 +122,55 @@ public:
 		return acos(x);
 	}
 
-	// Virtual Methods for Derived Classes to call
-	// NEVER CALL THESE ON BODY OBJECTS! //
-
+	/*
+	 *  Virtual Methods for Derived Classes to call
+	 *  NEVER CALL THESE ON BODY OBJECTS!
+	 *
+	 */
 
 	// Methods for Star Class
 	virtual void setLuminosity(double lum){};
 	virtual double getLuminosity() {return -1.0;}
-
-	void setTeff(double T){};
-	double getTeff() {return -1.0;}
-
-	void setLambdaMin(double l){}
-	double getLambdaMin() {return -1.0;}
-
-	void setLambdaMax(double l){}
-	double getLambdaMax() {return -1.0;}
-
-	void setNLambda(int n){}
-	int getNLambda(){return -1;}
-
-	void setInnerHZ(double r){}
-	double getInnerHZ(){return -1.0;}
-
-	void setOuterHZ(double r){}
-	double getOuterHZ(){return -1.0;}
-
-	vector<double> getILambda(){return vector<double>(1,-1.0);}
-
-	void calculateBlackbodySpectrum();
-	void calculateSingleHZ();
+	virtual void calcMainSequenceLuminosity(){}
 
 	// Methods for Planet Class
 
 	// Methods for World Class
 
-	void updateLEBM(vector<Body*> bodies, vector<double> eclipsefrac, double &dt){};
-	double getLEBMTimestep(){return -1.0;}
-	void outputLEBMData(){};
+    virtual void setInsolationZero()
+	{
+	}
+    virtual double getLEBMTimestep()
+	{
+	return -1.0;
+	}
+
+    // Calculation Methods
+
+    virtual void initialiseLEBM(){};
+    virtual void updateLEBM(vector<Body*> bodies, vector<double> eclipsefrac){};
+    virtual void updateLEBM(vector<Body*> bodies, vector<double> eclipsefrac,
+	    double dt){};
+
+    virtual void calcInsolation(Body* star, double &eclipsefrac){};
+    virtual void calcAlbedo(){};
+    virtual void calcHeatCapacity(){};
+    virtual void calcIce(){};
+    virtual void calcOpticalDepth(){};
+    virtual void calcCooling(){};
+    virtual void calcNetHeating(){};
+    virtual void calcHabitability(double &minT, double &maxT){};
+    virtual void calcLEBMTimestep(){};
+
+    virtual void integrate(){};
+
+    // Output Methods
+
+    virtual void outputLEBMData(int &snapshotNumber, double &tSnap){};
+    virtual void initialiseOutputVariables(){};
+    virtual void calcLEBMMeans(double &meanT, double &meanQ, double &meanA,
+	    double &meanIR, double &meanS, double &meanhab){};
+
 
 	// Variables that are part of the Body Class and its derivations //
 protected:

@@ -18,6 +18,7 @@ double lsol = 3.838e26;
 double rsol = 6.955e8;
 
 double fluxsol = lsol/(4.0*pi*AU*AU);
+double fluxsolcgs = fluxsol*1000;
 //double fluxsol = 1;
 
 

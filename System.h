@@ -71,7 +71,7 @@ public:
 	// Output Methods
 
 	void outputNBodyData(FILE* outputfile, double &time);
-	void outputLEBMData();
+	void outputLEBMData(int &snapshotNumber, double &tSnap);
 
 protected:
 

@@ -8,24 +8,25 @@
 #include "World.h"
 #include "Constants.h"
 #include <fstream>
+#include <sstream>
 
 double freeze = 273.0;
 double boil = 373.0;
 double sigma_SB = 5.67e-5;
 
-double q0 = lsol/(4.0*pi*AU*AU);
 
 World::World() :
 	Body()
     {
     }
-World::World(string &namestring, string &typestring, double &m, double &rad,
-	Vector3D &pos, Vector3D &vel, int n, double obliq, double winter,
+World::World(string namestring, string typestring, double m, double rad,
+	Vector3D pos, Vector3D vel, int n, double obliq, double rot, double winter,
 	double ocean, double T0) :
 	Body(namestring, typestring, m, rad, pos, vel)
     {
     nPoints = n;
     obliquity = obliq;
+    rotationPeriod = rot;
     winterSolstice = winter;
     oceanFraction = ocean;
     landFraction = 1.0-oceanFraction;
@@ -37,15 +38,16 @@ World::World(string &namestring, string &typestring, double &m, double &rad,
     initialiseLEBM();
 
     }
-World::World(string &namestring, string &typestring, double &m, double &rad,
+World::World(string namestring, string typestring, double m, double rad,
 	double semimaj, double ecc, double inc, double longascend,
-	double argper, double meananom, double G, double totalMass, int &n,
-	double &obliq, double &winter, double &ocean, double &T0) :
+	double argper, double meananom, double G, double totalMass, int n,
+	double obliq, double rot, double winter, double ocean, double T0) :
 	Body(namestring, typestring, m, rad, semimaj, ecc, inc, longascend,
 		argper, meananom, G, totalMass)
     {
     nPoints = n;
     obliquity = obliq;
+    rotationPeriod = rot;
     winterSolstice = winter;
     oceanFraction = ocean;
     landFraction = 1.0-oceanFraction;
@@ -93,7 +95,7 @@ void World::initialiseLEBM()
 
    for (int i=0; i< nPoints1; i++)
        {
-       lat[i] = -pi/2.0 + i*dlat;
+       lat[i] = -pi/2.0 + i*dlat + 1.0e-5;
        x[i] = sin(lat[i]);
        deltax[i] = cos(lat[i])*dlat;
        }
@@ -101,6 +103,22 @@ void World::initialiseLEBM()
    // Set up diffusion constant
 
    diffusion = 5.394e2 * rotationPeriod*rotationPeriod;
+
+   // Set up files
+
+   initialiseOutputVariables();
+   // Calculate initial parameters
+
+
+   calcIce();
+   calcHeatCapacity();
+   calcOpticalDepth();
+   calcAlbedo();
+   calcCooling();
+   calcNetHeating();
+   calcHabitability(freeze,boil);
+
+   calcLEBMTimestep();
 
     }
 
@@ -111,18 +129,21 @@ void World::updateLEBM(vector<Body*> bodies, vector<double>eclipsefrac)
      * Written 10/1/14 by dh4gan
      * This method is an umbrella method, using the other methods
      * written here to advance the LEBM model by dt, for convenient use by other methods
-     *
+     * This assumes the timestep has already been calculated
      */
     setInsolationZero();
     int bodyCount = bodies.size();
 
     for (int b=0; b< bodyCount; b++)
 	{
+
 	if (bodies[b]->getType()=="Star")
 	    {
 	    calcInsolation(bodies[b],eclipsefrac[b]);
 	    }
 	}
+
+
     calcIce();
     calcHeatCapacity();
     calcOpticalDepth();
@@ -131,7 +152,7 @@ void World::updateLEBM(vector<Body*> bodies, vector<double>eclipsefrac)
     calcNetHeating();
     calcHabitability(freeze,boil);
 
-    calcLEBMTimestep();
+
 
     integrate();
 
@@ -160,6 +181,7 @@ void World::calcInsolation(Body* star, double &eclipsefrac)
      */
 
     vector<double> cos_H(nPoints1,0.0);
+    double H;
 
     // Calculate stellar declination
 
@@ -180,6 +202,13 @@ void World::calcInsolation(Body* star, double &eclipsefrac)
 	decVector.rotateX(obliquity);
 	}
 
+    // TODO - Check implementation Rotate in y-axis if world's winter solstice longitude non-zero
+
+    if(winterSolstice!=0.0)
+	{
+	decVector.rotateY(winterSolstice);
+	}
+
     // Obtain declination angle
 
     double rdotn = unitpos.dotProduct(decVector);
@@ -193,8 +222,6 @@ void World::calcInsolation(Body* star, double &eclipsefrac)
 
     double lstar = star->getLuminosity();
 
-    // Rotate in y-axis if world's winter solstice longitude non-zero TODO
-
     for (int i=0; i<nPoints1; i++)
 	{
 
@@ -204,9 +231,10 @@ void World::calcInsolation(Body* star, double &eclipsefrac)
 
 	if(fabs(cos_H[i]) >1.0) cos_H[i] = cos_H[i]/fabs(cos_H[i]);
 
-	double H = acos(cos_H[i]);
+	H = acos(cos_H[i]);
 
-	insol[i] = insol[i]+q0*lstar*eclipsefrac/(pi*magpos*magpos)*(H*x[i]*sind + cos(lat[i])*cosd*sin(H));
+	insol[i] = insol[i]+fluxsolcgs*lstar*(1.0-eclipsefrac)/(pi*magpos*magpos)*(H*x[i]*sind + cos(lat[i])*cosd*sin(H));
+	//cout <<i << "   " << insol[i] << "  " <<cos_H[i] <<  "   " <<lat[i] << "  " << tan(lat[i]) << "  " <<  tand << endl;
 	}
 
 
@@ -276,6 +304,7 @@ void World:: calcIce()
     for (int i=0; i< nPoints1; i++)
 	{
 	iceFraction[i] = 1.0 - exp(-(freeze-T[i])/10.0);
+	if (iceFraction[i] <0.0) iceFraction[i]=0.0;
 	}
 
     }
@@ -348,6 +377,7 @@ void World::calcLEBMTimestep()
     double Dplus, timestep;
 
     dtLEBM = 1.0e30;
+
     for (int i=0; i<nPoints1; i++)
 	{
 	if(i==nPoints)
@@ -359,9 +389,11 @@ void World::calcLEBMTimestep()
 	    Dplus = diffusion*0.5*((1.0-x[i]*x[i]) +(1.0-x[i+1]*x[i+1]));
 	    }
 
+
 	if(i>0 and i<nPoints)
 	    {
 	    timestep = deltax[i]*deltax[i]*C[i]/(2.0*Dplus);
+	    //printf("%+.4E %+.4E %+.4E %+.4E %+.4E  \n", dtLEBM, T[i], C[i], diffusion, Dplus);
 	    if (timestep < dtLEBM) {dtLEBM = timestep;}
 	    }
 	}
@@ -370,7 +402,7 @@ void World::calcLEBMTimestep()
     if(dtLEBM==1.0e30)
 	{
 	cout << "ERROR in LEBM Timestep calculation " << endl;
-	dtLEBM = -1.0;
+	dtLEBM = -10.0;
 	}
 
     }
@@ -390,25 +422,31 @@ void World::integrate()
 
     for(int i=0; i<nPoints1; i++)
 	{
+
+	// Ifs ensure we use the correct ghost cells to do the integration
+	// Do the minimum value firsty
+
 	if(i==0){
 	    Tminus1 = T_old[i];
 	    Dminus = diffusion*(1.0-x[i]*x[i]);
 	}
-	if(i/=1){
+	else{
 	    Tminus1 = T_old[i-1];
 	    Dminus = 0.5*diffusion*((1.0-x[i-1]*x[i-1]) + (1.0-x[i]*x[i]));
 	}
+
+	// Now the maximum value
 
 	if(i==nPoints) {
 	    Tplus1=T_old[i];
 	    Dplus = diffusion*(1.0-x[i]*x[i]);
 	}
-
-	if(i/=nPoints) {
+	else {
 	    Tplus1=T_old[i+1];
-	    Dminus = 0.5*diffusion*((1.0-x[i+1]*x[i+1]) + (1.0-x[i]*x[i]));
+	    Dplus = 0.5*diffusion*((1.0-x[i+1]*x[i+1]) + (1.0-x[i]*x[i]));
 	}
 
+	// Now do the integration
 	T1 = T_old[i];
 
 	if (i == 0)
@@ -430,6 +468,8 @@ void World::integrate()
 	  Fj = (Dplus*(Tplus1-T1)/dx - Dminus*(T1-Tminus1)/dx1)/(0.5*(dx1+dx));
 	  T[i] = T1 + (dtLEBM/C[i])*(Q[i] +Fj);
 
+	 // cout <<" Integrate: "<<  i <<"   "<< T[i] <<"   "<< dtLEBM<<"   " << Q[i]<<"   " << Fj <<endl;
+
 	}
 
     }
@@ -445,9 +485,39 @@ void World::initialiseOutputVariables()
 
     string logFileName = getName()+".log";
     logFile = fopen(logFileName.c_str(), "w");
+    cout << "Log file initialised " << logFile << endl;
     }
 
-void World::outputLEBMData()
+void World::calcLEBMMeans(double &meanT, double &meanQ, double &meanA, double &meanIR, double &meanS,
+	double &meanhab)
+    {
+    /*
+     * Written 13/1/14 by dh4gan
+     * Calculates Latitudinally averaged means
+     *
+     */
+
+    meanT = 0.0;
+    meanQ = 0.0;
+    meanA = 0.0;
+    meanIR = 0.0;
+    meanS = 0.0;
+    meanhab = 0.0;
+
+    for (int i=0; i< nPoints1; i++)
+	{
+	meanT = meanT + T[i]*0.5*deltax[i];
+	meanQ = meanQ + Q[i]*0.5*deltax[i];
+	meanA = meanA + albedo[i]*0.5*deltax[i];
+	meanIR = meanIR + infrared[i]*0.5*deltax[i];
+	meanS = meanS + insol[i]*0.5*deltax[i];
+	meanhab = meanhab + hab[i]*0.5*deltax[i];
+	}
+
+
+    }
+
+void World::outputLEBMData(int &snapshotNumber, double &tSnap)
     {
     /*
      * Written 10/1/14 by dh4gan
@@ -456,7 +526,35 @@ void World::outputLEBMData()
      *
      */
 
-    // TODO
+    double meanT, meanQ, meanA, meanIR, meanS, meanhab;
+
+
+    // Firstly, write line to log file
+    calcLEBMMeans(meanT, meanQ, meanA, meanIR,meanS, meanhab);
+
+    fprintf(logFile, "%+.4E %+.4E %+.4E %+.4E %+.4E %+.4E %+.4E \n",tSnap, meanT,meanQ,meanA,
+	    meanIR,meanS,meanhab);
+
+
+    // Now write snapshot of LEBM
+
+    ostringstream convert;
+    convert << snapshotNumber;
+
+    string numString = convert.str();
+    string snapshotFileName = getName()+"."+numString;
+    snapshotFile = fopen(snapshotFileName.c_str(), "w");
+
+
+    //fprintf(snapshotFile, "%i %i %+.4E \n", snapshotNumber, nPoints, tSnap);
+
+    for (int i=0; i<nPoints; i++)
+	{
+	fprintf(snapshotFile, "%+.4E %+.4E %+.4E %+.4E %+.4E %+.4E %+.4E %+.4E %+.4E %+.4E %+.4E \n",
+		x[i], lat[i], T[i], C[i], Q[i], infrared[i],
+		albedo[i], insol[i], tau[i],iceFraction[i], hab[i]);
+	}
+    fclose(snapshotFile);
 
     }
 

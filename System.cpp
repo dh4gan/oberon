@@ -350,6 +350,7 @@ void System::calcInitialProperties()
 	totalMass += bodies[i]->getMass();
 	}
 
+
     // Put the system in the Centre of Mass Frame
     transformToCOMFrame();
 
@@ -357,9 +358,10 @@ void System::calcInitialProperties()
     calcForces(bodies);
 
     // Calculate Total Energy, and define initial value
-    calcTotalEnergy();
+
     initialEnergy = totalEnergy;
     deltaEnergy = 0.0;
+
 
     //Calculate Total Angular Momentum, and define initial value
     calcTotalAngularMomentum();
@@ -651,15 +653,21 @@ double System::calcCombinedTimestep()
 
     double nbodymin = 1.0e30;
     // Calculate N Body minimum timestep in code units
+    calcInitialProperties();
+    calcForces(bodies);
     calcGlobalTimestep(bodies, nbodymin);
+
+    nbodymin = getTimestep();
 
     // Calculate LEBM minimum timestep in seconds
 
-    for (int b; b<bodyCount; b++)
+    for (int b=0; b<bodyCount; b++)
 	{
-	if(bodies[b]->getType()=="World")
+
+	if(bodies[b]->getType() == "World")
 	    {
 	    LEBMmin = bodies[b]->getLEBMTimestep();
+
 	    LEBMmin =LEBMmin/tunit;
 
 	    if(LEBMmin < nbodymin)
@@ -680,9 +688,6 @@ void System::outputNBodyData(FILE *outputfile, double &time)
      * already open file pointer
      *
      */
-
-
-
 
 	Vector3D position, velocity;
 	// Transform to the Centre of Mass Frame
@@ -711,7 +716,7 @@ void System::outputNBodyData(FILE *outputfile, double &time)
 
     }
 
-void System::outputLEBMData()
+void System::outputLEBMData(int &snapshotNumber, double &tSnap)
     {
 
     /*
@@ -725,7 +730,7 @@ void System::outputLEBMData()
 	if(bodies[b]->getType()=="World")
 	    {
 
-	    bodies[b]->outputLEBMData();
+	    bodies[b]->outputLEBMData(snapshotNumber, tSnap);
 
 	    }
 

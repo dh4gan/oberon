@@ -20,14 +20,15 @@ public:
 
     World();
 
-    World(string &namestring, string &typestring, double &m, double &rad,
-	    Vector3D &pos, Vector3D &vel, int n, double obliq, double winter,
+    World(string namestring, string typestring, double m, double rad,
+	    Vector3D pos, Vector3D vel, int n, double obliq, double rot, double winter,
 	    double ocean, double T0);
 
-    World(string &namestring, string &typestring, double &m, double &rad,
+    World(string namestring, string typestring, double m, double rad,
 	    double semimaj, double ecc, double inc, double longascend,
-	    double argper, double meananom, double G, double totalMass,  int &n, double &obliq, double &winter,
-	    double &ocean, double &T0);
+	    double argper, double meananom, double G, double totalMass,
+	    int n, double obliq, double rot, double winter,
+	    double ocean, double T0);
     virtual ~World();
 
     /* Accessors */
@@ -56,8 +57,10 @@ public:
 
     // Output Methods
 
-    void outputLEBMData();
+    void outputLEBMData(int &snapshotNumber, double &tSnap);
     void initialiseOutputVariables();
+    void calcLEBMMeans(double &meanT, double &meanQ, double &meanA, double &meanIR, double &meanS,
+    	double &meanhab);
 
     // Standard cloning method
     virtual World* Clone()

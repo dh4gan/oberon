@@ -13,13 +13,13 @@
 
 parFile::parFile()
     {
-
+    totalMass = 0.0;
     }
 
 parFile::parFile(string name)
     {
     parFileName = name;
-
+    totalMass = 0.0;
     }
 
 Vector3D parFile::getBodyPosition(int index)
@@ -213,6 +213,7 @@ void parFile::readOrbFile()
     // First read in the user data file
     // Format must be,name of body followed by its parameters
 
+    int bodyIndex;
     string par;
     string line;
     string BodyType, BodyName;
@@ -225,19 +226,7 @@ void parFile::readOrbFile()
 
     ifstream myfile(inputfile);
 
-    // Set some handy defaults here if the input file is incomplete
 
-    longAscend.push_back(0.0);
-    inclination.push_back(0.0);
-    Periapsis.push_back(0.0);
-    meanAnomaly.push_back(0.0);
-
-    luminosity.push_back(0.0);
-    rotationPeriod.push_back(0.0);
-    obliquity.push_back(0.0);
-    winterSolstice.push_back(0.0);
-    oceanFraction.push_back(0.0);
-    initialTemperature.push_back(0.0);
 
     // Then loop through each line using getline and then
     //assign to vectors
@@ -268,6 +257,27 @@ void parFile::readOrbFile()
 	    {
 	    iss >> number_bodies;
 
+	    // Set up vectors to hold all data
+
+	    Mass.assign(number_bodies, 0.0);
+	    Radius.assign(number_bodies, 0.0);
+	    semiMajorAxis.assign(number_bodies, 0.0);
+	    eccentricity.assign(number_bodies, 0.0);
+	    inclination.assign(number_bodies, 0.0);
+
+	    longAscend.assign(number_bodies, 0.0);
+	    inclination.assign(number_bodies, 0.0);
+	    Periapsis.assign(number_bodies, 0.0);
+	    meanAnomaly.assign(number_bodies, 0.0);
+	    luminosity.assign(number_bodies, 0.0);
+	    rotationPeriod.assign(number_bodies, 0.0);
+	    obliquity.assign(number_bodies, 0.0);
+	    winterSolstice.assign(number_bodies, 0.0);
+	    oceanFraction.assign(number_bodies, 0.0);
+	    initialTemperature.assign(number_bodies, 0.0);
+	    bodyIndex = -1;
+
+
 	    }
 
 	else if(par =="NGridPoints")
@@ -289,89 +299,86 @@ void parFile::readOrbFile()
 	else if (par == "Mass")
 	    {
 	    iss >> val_i;
-	    Mass.push_back(val_i);
+	    bodyIndex++;
+	    Mass[bodyIndex] = val_i;
 	    totalMass += val_i;
+
 	    }
 	else if (par == "Radius")
 	    {
 	    iss >> val_i;
-	    Radius.push_back(val_i);
+	    Radius[bodyIndex] = val_i;
 	    }
 	else if (par == "SemiMajorAxis")
 	    {
 	    iss >> val_i;
-	    semiMajorAxis.push_back(val_i);
+	    semiMajorAxis[bodyIndex] = val_i;
 	    }
 	else if (par == "Eccentricity")
 	    {
 	    iss >> val_i;
-	    eccentricity.push_back(val_i);
+	    eccentricity[bodyIndex] = val_i;
 	    }
 	else if (par == "Inclination")
 	    {
 	    iss >> val_i;
-	    inclination.pop_back(); // Discard default
-	    inclination.push_back(val_i);
+	    inclination[bodyIndex] = val_i;
 	    }
 	else if (par == "LongAscend")
 	    {
 	    iss >> val_i;
-	    longAscend.pop_back(); // Discard default
-	    longAscend.push_back(val_i);
+	    longAscend[bodyIndex] = val_i;
 	    }
 
 	else if (par == "Periapsis")
 	    {
 	    iss >> val_i;
-	    Periapsis.pop_back(); // Discard default
-	    Periapsis.push_back(val_i);
+	    Periapsis[bodyIndex] = val_i;
+
 	    }
 	else if (par == "MeanAnomaly")
 	    {
 	    iss >> val_i;
-	    meanAnomaly.pop_back(); // Discard default
-	    meanAnomaly.push_back(val_i);
+	    meanAnomaly[bodyIndex] = val_i;
+
 	    }
 
 	else if (par == "Luminosity")
 	    {
 	    iss >> val_i;
-	    luminosity.pop_back(); // Discard default
-	    luminosity.push_back(val_i);
+	    luminosity[bodyIndex] = val_i;
 	    }
 
 	else if (par == "RotationPeriod")
 	    {
 	    iss >> val_i;
-	    rotationPeriod.pop_back(); // Discard default
-	    rotationPeriod.push_back(val_i);
+	    rotationPeriod[bodyIndex] = val_i;
+
 	    }
 
 	else if (par == "Obliquity")
 	    {
 	    iss >> val_i;
-	    obliquity.pop_back(); // Discard default
-	    obliquity.push_back(val_i);
+
+	    obliquity[bodyIndex] = val_i;
 	    }
 
 	else if (par == "WinterSolstice")
 	    {
 	    iss >> val_i;
-	    winterSolstice.pop_back(); // Discard default
-	    winterSolstice.push_back(val_i);
+	    winterSolstice[bodyIndex] = val_i;
 	    }
 
 	else if (par == "OceanFraction")
 	    {
 	    iss >> val_i;
-	    oceanFraction.pop_back(); // Discard default
-	    oceanFraction.push_back(val_i);
+
+	    oceanFraction[bodyIndex] = val_i;
 	    }
 	else if (par == "InitialTemperature")
 	    {
 	    iss >> val_i;
-	    initialTemperature.pop_back(); // Discard default
-	    initialTemperature.push_back(val_i);
+	    initialTemperature[bodyIndex] = val_i;
 	    }
 
 	}

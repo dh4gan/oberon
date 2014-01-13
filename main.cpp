@@ -28,22 +28,20 @@ int main(int argc, char* argv[])
     {
 
     double G = 1;
-    double year = 3.15e7;
     double pi = 3.141592654;
     double twopi = 2.0*pi;
-    int i, j, fileType;
+    double year = 3.15e7;
+    double unit2sec = year/twopi;
 
-    double tBegin, tStop;
+
+    int i, fileType, snapshotNumber;
+
+    double tStop;
     double timeunit,timeyr;
     double dtsec,dtunit;
     double tSnap, tMax;
-    double totalEnergy;
 
 
-
-    string body_i_name;
-    double body_i_mass;
-    double body_i_radius;
     Vector3D body_i_position;
     Vector3D body_i_velocity;
 
@@ -120,7 +118,7 @@ int main(int argc, char* argv[])
 		BodyArray.push_back(
 			new World(input.BodyNames[i], input.BodyTypes[i],
 				input.Mass[i], input.Radius[i], body_i_position,
-				body_i_velocity, input.nPoints, input.obliquity[i], input.winterSolstice[i],
+				body_i_velocity, input.nPoints, input.obliquity[i],input.rotationPeriod[i], input.winterSolstice[i],
 				input.oceanFraction[i], input.initialTemperature[i]));
 		}
 
@@ -128,11 +126,12 @@ int main(int argc, char* argv[])
 	    }
 	else if (fileType == 1)
 	    {
-	    cout << "setting up body with orbital parameters" << endl;
+	    cout << "setting up body with orbital parameters " << input.totalMass << endl;
 
 	    // If the Body is a Star, add a Star Object
 	    if (input.BodyTypes[i] == "Star")
 		{
+
 		BodyArray.push_back(
 			new Star(input.BodyNames[i], input.BodyTypes[i],
 				input.Mass[i], input.Radius[i],
@@ -159,13 +158,14 @@ int main(int argc, char* argv[])
 	    // If the Body is a World, add a World Object and set up LEBM
 	    if (input.BodyTypes[i] == "World")
 		{
+
 		BodyArray.push_back(
 			new World(input.BodyNames[i], input.BodyTypes[i],
 				input.Mass[i], input.Radius[i],
 				input.semiMajorAxis[i], input.eccentricity[i],
 				input.inclination[i], input.longAscend[i],
 				input.Periapsis[i], input.meanAnomaly[i], G,
-				input.totalMass,input.nPoints, input.obliquity[i], input.winterSolstice[i],
+				input.totalMass,input.nPoints, input.obliquity[i],input.rotationPeriod[i], input.winterSolstice[i],
 				input.oceanFraction[i], input.initialTemperature[i]));
 		}
 
@@ -179,6 +179,7 @@ int main(int argc, char* argv[])
 
     cout << "Setting up system " << input.SystemName << endl;
     nBodySystem = System(input.SystemName, BodyArray);
+    nBodySystem.calcInitialProperties();
 
     // Set up the outputs
 
@@ -190,35 +191,44 @@ int main(int argc, char* argv[])
     // Now loop over snap shots, outputting the system data each time
 
     tStop = 0.0;
-    tMax = tMax * 2.0 * pi;
+    tMax = tMax * twopi; // Convert maximum time to code units
 
     // Timesteps will be calculated in NBody units, and converted back to seconds for LEBM
 
     // Calculate the minimum LEBM timestep for all worlds and NBody timestep
     dtunit = nBodySystem.calcCombinedTimestep();
 
-    dtsec = dtunit*twopi*3.15e7; // This will be the default timestep measure - derive dtunit = dtsec*2pi/(3.15e7)
+    dtsec = dtunit*unit2sec; // This will be the default timestep measure - derive dtunit = dtsec*2pi/(3.15e7)
     timeunit = 0.0;
+    snapshotNumber = 0;
 
     while (timeunit < tMax)
 	{
-	tBegin = tStop;
 	tStop = timeunit + tSnap;
 
 	while (timeunit < tStop)
 	    {
+
+
+
 	    // Evolve the LEBMs in the system for the minimum timestep in seconds
 	    nBodySystem.evolveLEBMs(dtsec);
 
 	    // Evolve the NBody particles for the minimum timestep in code units
 	    nBodySystem.evolveSystem(dtunit);
 
+	    timeunit = timeunit + dtunit;
+
 	    // Recalculate the minimum timestep
 	    dtunit = nBodySystem.calcCombinedTimestep();
-	    dtsec = dtunit*twopi*3.15e7;
+
+	    dtsec = dtunit*unit2sec;
+
 	    }
 
+	printf("Time: %+.4E, Combined Timestep: %+.4E %+.4E \n",timeunit/twopi, dtsec, dtunit);
 	// Output data to files
+	snapshotNumber++;
 	timeyr = timeunit/twopi;
 
 	// N Body data goes to a single file
@@ -226,7 +236,7 @@ int main(int argc, char* argv[])
 
 	// LEBM data goes to separate files for each World in the System
 
-	nBodySystem.outputLEBMData();
+	nBodySystem.outputLEBMData(snapshotNumber, timeyr);
 	}
 
     //Close the file before returning
