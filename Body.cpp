@@ -209,6 +209,7 @@ void Body::calcOrbitFromVector(double G, double totmass)
 	nplane.elements[0] = magOrbitalAngularMomentum;
 	nplane.elements[1] = 0.0;
 	nplane.elements[2] = 0.0;
+	nscalar = nplane.magVector();
 
 	}
     else
@@ -277,16 +278,25 @@ void Body::calcOrbitFromVector(double G, double totmass)
 
     // Finally, calculate the longitude of periapsis - first calculate the argument of periapsis
 
-    edotn = eccentricityVector.dotProduct(nplane);
-    edotn = edotn / (nscalar * eccentricity);
-
-    argumentPeriapsis = acos(edotn);
-    if (eccentricityVector.elements[2] < 0.0)
+    if (eccentricity != 0.0)
 	{
-	argumentPeriapsis = 2.0 * pi - argumentPeriapsis;
-	}
 
-    longitudePeriapsis = argumentPeriapsis + longitudeAscendingNode;
+	edotn = eccentricityVector.dotProduct(nplane);
+	edotn = edotn / (nscalar * eccentricity);
+
+	argumentPeriapsis = acos(edotn);
+	if (eccentricityVector.elements[2] < 0.0)
+	    {
+	    argumentPeriapsis = 2.0 * pi - argumentPeriapsis;
+	    }
+
+	longitudePeriapsis = argumentPeriapsis + longitudeAscendingNode;
+	}
+    else
+	{
+	argumentPeriapsis = 0.0;
+	longitudePeriapsis = 0.0;
+	}
 
     }
 
