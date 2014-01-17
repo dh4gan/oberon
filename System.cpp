@@ -172,6 +172,40 @@ void System::transformToCOMFrame()
     //end of module
     }
 
+void System::transformToBodyFrame(int bodyIndex)
+    {
+    /* Author: dh4gan
+     * Transforms system to the frame where body bodyIndex is at rest*/
+
+
+    int i, j;
+    Vector3D pos, vel;
+
+    // Calculate Frame's vectors
+    Vector3D framepos = bodies[bodyIndex]->getPosition();
+    Vector3D framevel = bodies[bodyIndex]->getVelocity();
+
+
+    // Subtract these from Body vectors
+
+    for (i = 0; i < bodyCount; i++)
+	{
+	pos = bodies[i]->getPosition();
+	vel = bodies[i]->getVelocity();
+
+	for (j = 0; j < 3; j++)
+	    {
+	    pos.elements[j] = pos.elements[j] - framepos.elements[j];
+	    vel.elements[j] = vel.elements[j] - framevel.elements[j];
+
+	    }
+	bodies[i]->setPosition(pos);
+	bodies[i]->setVelocity(vel);
+
+	}
+    //end of module
+    }
+
 void System::calcTotalEnergy()
     {
     /* Author: David the legend Harvey
@@ -590,10 +624,7 @@ void System::evolveSystem(double tbegin, double tend)
 	calcTotalEnergy();
 	calcTotalAngularMomentum();
 
-	for (i = 0; i < bodyCount; i++)
-	    {
-	    bodies[i]->calcOrbitFromVector(G, totalMass);
-	    }
+
 
 	}
     // End of loop over time
@@ -689,30 +720,39 @@ void System::outputNBodyData(FILE *outputfile, double &time)
      *
      */
 
-	Vector3D position, velocity;
-	// Transform to the Centre of Mass Frame
-    	transformToCOMFrame();
+    Vector3D position, velocity;
+    // Transform to the Centre of Mass Frame
+    //transformToCOMFrame();
+    transformToBodyFrame(0);
 
-    	for (int j = 0; j < bodyCount; j++)
-    	    {
+    for (int j = 0; j < bodyCount; j++)
+	{
 
-    	    position = bodies[j]->getPosition();
-    	    velocity = bodies[j]->getVelocity();
 
-    	    //Write out the data
-    	    //Output format  CSV
-    	    // mass,position_x,position_y,position_z,velocity_x,velocity_y,velocity_z
 
-    	    fprintf(outputfile,
-    		    "%+.4E,%+.4E, %s,%+.4E,%+.4E,%+.4E,%+.4E,%+.4E,%+.4E,%+.4E,%+.4E\n",
-    		    time, totalEnergy, bodies[j]->getName().c_str(), bodies[j]->getMass(),
-    		    bodies[j]->getRadius(),position.elements[0],
-    		    position.elements[1], position.elements[2],
-    		    velocity.elements[0], velocity.elements[1],
-    		    velocity.elements[2]);
+	bodies[j]->calcOrbitFromVector(G, totalMass);
 
-    	    }
-    	fflush(outputfile);
+	position = bodies[j]->getPosition();
+	velocity = bodies[j]->getVelocity();
+
+	//Write out the data
+	//Output format  CSV
+	// mass,position_x,position_y,position_z,velocity_x,velocity_y,velocity_z
+
+	fprintf(outputfile,
+		"%+.4E,%+.4E, %s,%+.4E,%+.4E,%+.4E,%+.4E,%+.4E,%+.4E,%+.4E,%+.4E,"
+			"%+.4E,%+.4E,%+.4E,%+.4E,%+.4E,%+.4E\n", time,
+		totalEnergy, bodies[j]->getName().c_str(), bodies[j]->getMass(),
+		bodies[j]->getRadius(), position.elements[0],
+		position.elements[1], position.elements[2],
+		velocity.elements[0], velocity.elements[1],
+		velocity.elements[2], bodies[j]->getSemiMajorAxis(),
+		bodies[j]->getEccentricity(), bodies[j]->getInclination(),
+		bodies[j]->getLongitudeAscendingNode(),
+		bodies[j]->getArgumentPeriapsis(), bodies[j]->getMeanAnomaly());
+
+	}
+    fflush(outputfile);
 
     }
 

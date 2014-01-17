@@ -227,7 +227,7 @@ int main(int argc, char* argv[])
 
 	    }
 
-	printf("Time: %+.4E, Combined Timestep: %+.4E %+.4E \n",timeunit/twopi, dtsec, dtunit);
+	printf("Time: %+.4E yr, Combined Timestep: %+.4E s, %+.4E units\n",timeunit/twopi, dtsec, dtunit);
 	// Output data to files
 	snapshotNumber++;
 	timeyr = timeunit/twopi;

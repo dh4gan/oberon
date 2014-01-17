@@ -59,6 +59,7 @@ public:
 	double calcCombinedTimestep();
 	void calcCOMFrame();
 	void transformToCOMFrame();
+	void transformToBodyFrame(int bodyIndex);
 	void calcTotalEnergy();
 	void calcTotalAngularMomentum();
 	void calcInitialProperties();

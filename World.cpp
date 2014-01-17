@@ -215,7 +215,7 @@ void World::calcInsolation(Body* star, double &eclipsefrac)
     double rdotn = unitpos.dotProduct(decVector);
     double declination = safeAcos(rdotn);
 
-    // TODO - Check: is declination greater than pi?
+    // Check: is declination greater than pi?
 
     if (decVector.elements[1] <0.0) declination = -1*declination;
    // cout << decVector.elements[0] << "   " << decVector.elements[1] <<"   " << decVector.elements[2] << endl;
@@ -489,10 +489,8 @@ void World::initialiseOutputVariables()
      *
      */
 
-
     string logFileName = getName()+".log";
     logFile = fopen(logFileName.c_str(), "w");
-    cout << "Log file initialised " << logFile << endl;
     }
 
 void World::calcLEBMMeans(double &minT, double &maxT, double &meanT, double &meanQ, double &meanA, double &meanIR, double &meanS,
@@ -545,7 +543,7 @@ void World::outputLEBMData(int &snapshotNumber, double &tSnap)
     calcLEBMMeans(minT, maxT, meanT, meanQ, meanA, meanIR,meanS, meanhab);
 
     // Also include orbital data here
-    fprintf(logFile, "%+.4E %+.4E %+.4E %+.4E %+.4E %+.4E %+.4E %+.4E %+.4E %+.4E %+.4E %+.4E %+.4E %+4.E \n",
+    fprintf(logFile, "%+.4E %+.4E %+.4E %+.4E %+.4E %+.4E %+.4E %+.4E %+.4E %+.4E %+.4E %+.4E %+.4E %+.4E %+4.E \n",
 	    tSnap, minT, maxT, meanT,meanQ,meanA,meanIR,meanS,meanhab,
 	    getSemiMajorAxis(), getEccentricity(), getInclination(),
 	    getArgumentPeriapsis(), getLongitudeAscendingNode(), getMeanAnomaly());
@@ -561,7 +559,7 @@ void World::outputLEBMData(int &snapshotNumber, double &tSnap)
     snapshotFile = fopen(snapshotFileName.c_str(), "w");
 
 
-    //fprintf(snapshotFile, "%i %i %+.4E \n", snapshotNumber, nPoints, tSnap);
+    fprintf(snapshotFile, "%i %+.4E \n", nPoints, tSnap);
 
     for (int i=0; i<nPoints; i++)
 	{
