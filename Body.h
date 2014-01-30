@@ -106,6 +106,7 @@ public:
 	void calcOrbitFromVector(double G, double totmass); // Calculate orbital elements from position and velocity
 	void calcVectorFromOrbit(double G, double totmass); // Calculate position and velocity from orbital elements
 	double calcPeriod(double G, double totalMass);
+	void changeFrame(Vector3D framepos, Vector3D framevel);
 
 	// N Body Calculation Methods
 

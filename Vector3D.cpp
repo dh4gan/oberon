@@ -7,6 +7,7 @@
 
 
 #include "Vector3D.h"
+#include <iostream>
 
 Vector3D::Vector3D()
     {
@@ -136,6 +137,21 @@ Vector3D Vector3D::relativeVector(Vector3D b)
     return relative;
     }
 
+Vector3D Vector3D::subtractVector(Vector3D b)
+// Written by dh4gan 11/3/13
+// Simple method to find the relative vector b-a
+    {
+
+    Vector3D relative;
+
+    for (int i=0; i<3; i++)
+	{
+	relative.elements[i] = elements[i] - b.elements[i];
+	}
+
+    return relative;
+    }
+
 Vector3D Vector3D::crossProduct(Vector3D other)
     {
     // Written by dh4gan 16/3/13
@@ -152,6 +168,12 @@ Vector3D Vector3D::crossProduct(Vector3D other)
     }
 
 
+Vector3D Vector3D::zeroVector()
+    {
+    Vector3D zero;
+    return zero;
+
+    }
 
 void Vector3D::rotateX(double angle)
     {
@@ -192,3 +214,9 @@ void Vector3D::rotateZ(double angle)
 
     }
 
+void Vector3D::printVector()
+    {
+
+    cout << elements[0] << "  " << elements[1] << "   " << elements[2] << endl;
+
+    }

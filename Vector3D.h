@@ -29,12 +29,16 @@ class Vector3D{
 	Vector3D addVector(Vector3D b);
 	Vector3D addVector(Vector3D b, Vector3D c);
 	Vector3D addVector(Vector3D b, Vector3D c, Vector3D d);
+	Vector3D subtractVector(Vector3D b);
 	Vector3D relativeVector(Vector3D b);
 	Vector3D crossProduct(Vector3D other);
+	Vector3D zeroVector();
 
 	void rotateX(double angle);
 	void rotateY(double angle);
 	void rotateZ(double angle);
+
+	void printVector();
 
 	double elements [3];
 

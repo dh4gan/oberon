@@ -24,7 +24,7 @@ public:
 	parFile( );
 	parFile(string name);
 
-	string outputPrefix;
+	string NBodyFile;
 	string parFileName;
 	string SystemName;
 	string fileType;
@@ -59,7 +59,7 @@ public:
 	vector<double> oceanFraction;
 	vector<double> initialTemperature;
 
-
+	vector<int> orbitCentre;
 
 	Vector3D getBodyPosition(int index);
 	Vector3D getBodyVelocity(int index);

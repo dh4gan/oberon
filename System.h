@@ -55,11 +55,17 @@ public:
 	void addBody(Body* &newBody);
 	void removeBody(int bodyindex);
 
-	void calcGlobalTimestep(vector<Body*> &bodyarray, double dtmax);
+	void calcNBodyTimestep(vector<Body*> &bodyarray, double dtmax);
 	double calcCombinedTimestep();
+
+	void calcCOMFrame(vector<int> participants);
+	void transformToCOMFrame(vector<int> participants);
 	void calcCOMFrame();
 	void transformToCOMFrame();
 	void transformToBodyFrame(int bodyIndex);
+
+	void setupOrbits(vector<int> bodyCentre);
+
 	void calcTotalEnergy();
 	void calcTotalAngularMomentum();
 	void calcInitialProperties();

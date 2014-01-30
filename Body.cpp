@@ -475,6 +475,18 @@ void Body::calcVectorFromOrbit(double G, double totmass)
 
     }
 
+void Body::changeFrame(Vector3D framepos, Vector3D framevel)
+    {
+    /* Written 22/1/14 by dh4gan
+     *
+     * Code changes the reference frame of the body
+     *
+     */
+	position = position.subtractVector(framepos);
+	velocity = velocity.subtractVector(framevel);
+
+    }
+
 void Body::calcTimestep(double greekEta)
     {
     /* Author: Joao Ferreira

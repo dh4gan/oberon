@@ -111,11 +111,13 @@ void System::removeBody(int bodyindex)
 
 /* Calculation Methods */
 
-void System::calcCOMFrame()
+void System::calcCOMFrame(vector<int> participants)
     {/* Author: dh4gan
-     Calculates the position and velocity of the centre of mass */
+     * Calculates the position and velocity of the centre of mass
+     * for a limited range of participants
+     */
 
-    int i, j;
+    int i;
     double m;
     Vector3D pos, vel, zerovector;
 
@@ -124,53 +126,77 @@ void System::calcCOMFrame()
 
     for (i = 0; i < bodyCount; i++)
 	{
-
-	pos = bodies[i]->getPosition();
-	vel = bodies[i]->getVelocity();
-	m = bodies[i]->getMass();
-
-	for (j = 0; j < 3; j++)
+	if (participants[i] == 1)
 	    {
-	    positionCOM.elements[j] = positionCOM.elements[j] + m
-		    * pos.elements[j] / totalMass;
-	    velocityCOM.elements[j] = velocityCOM.elements[j] + m
-		    * vel.elements[j] / totalMass;
+	    pos = bodies[i]->getPosition();
+	    vel = bodies[i]->getVelocity();
+	    m = bodies[i]->getMass();
+
+	    positionCOM = positionCOM.addVector(pos.scaleVector(m/totalMass));
+	    velocityCOM = velocityCOM.addVector(vel.scaleVector(m/totalMass));
+
 	    }
 	}
 
     }
+
+
+
+void System::calcCOMFrame()
+    {/* Author: dh4gan
+     Calculates the position and velocity of the centre of mass
+     for all bodies */
+
+    vector<int> participants(bodyCount,1);
+
+    calcCOMFrame(participants);
+
+    }
+void System::transformToCOMFrame(vector<int> participants)
+    {
+    /* Author: dh4gan
+     * Calculates Centre of Mass Frame and transforms the system to it
+     * Calls the System method calcCOMFrame first */
+
+    int i;
+    Vector3D pos, vel;
+
+    // Calculate Centre of Mass Vectors
+
+    calcCOMFrame(participants);
+
+    // Subtract these from Body vectors
+
+    for (i = 0; i < bodyCount; i++)
+	{
+	if(participants[i]==1)
+	    {
+	pos = bodies[i]->getPosition();
+	vel = bodies[i]->getVelocity();
+
+	pos = pos.subtractVector(positionCOM);
+	vel = vel.subtractVector(velocityCOM);
+
+	bodies[i]->setPosition(pos);
+	bodies[i]->setVelocity(vel);
+	    }
+
+	}
+    //end of module
+    }
+
 void System::transformToCOMFrame()
     {
     /* Author: dh4gan
      * Calculates Centre of Mass Frame and transforms the system to it
      * Calls the System method calcCOMFrame first */
 
-    int i, j;
-    Vector3D pos, vel;
+    vector<int> participants(bodyCount,1);
 
-    // Calculate Centre of Mass Vectors
+    transformToCOMFrame(participants);
 
-    calcCOMFrame();
-
-    // Subtract these from Body vectors
-
-    for (i = 0; i < bodyCount; i++)
-	{
-	pos = bodies[i]->getPosition();
-	vel = bodies[i]->getVelocity();
-
-	for (j = 0; j < 3; j++)
-	    {
-	    pos.elements[j] = pos.elements[j] - positionCOM.elements[j];
-	    vel.elements[j] = vel.elements[j] - velocityCOM.elements[j];
-
-	    }
-	bodies[i]->setPosition(pos);
-	bodies[i]->setVelocity(vel);
-
-	}
-    //end of module
     }
+
 
 void System::transformToBodyFrame(int bodyIndex)
     {
@@ -314,7 +340,7 @@ void System::calcTotalAngularMomentum()
 
     }
 
-void System::calcGlobalTimestep(vector<Body*> &bodyarray, double dtmax)
+void System::calcNBodyTimestep(vector<Body*> &bodyarray, double dtmax)
     {/* Author: dh4gan
      Calls the calcTimestep method for every Body object in the System object,
      and finds the minimum value */
@@ -337,6 +363,61 @@ void System::calcGlobalTimestep(vector<Body*> &bodyarray, double dtmax)
     setTimestep(dtmax);
 
     }
+
+void System::setupOrbits(vector<int> orbitCentre)
+    {
+
+    /*
+     * Written 22/1/14 by dh4gan
+     * Given a list of orbit centres (i=0: CoM; i>0: body, i<0: (0,0,0))
+     *
+     */
+
+    vector <int> participants(bodyCount,0);
+
+    // Firstly, set up desired objects around centre of mass
+
+    for (int b = 0; b < bodyCount; b++)
+	{
+	if (orbitCentre[b] == 0)
+	    {
+	    participants[b] = 1;
+
+	    // Set up their orbits
+	    bodies[b]->calcVectorFromOrbit(G,totalMass);
+	    }
+	if(orbitCentre[b]<0)
+	    {
+
+	    bodies[b]->calcVectorFromOrbit(G,totalMass-bodies[b]->getMass());
+	    }
+
+
+	}
+
+    // Transform them to COM Frame
+    transformToCOMFrame(participants);
+
+    for (int b = 0; b < bodyCount; b++)
+	{
+	if (orbitCentre[b] > 0)
+	    {
+
+	    bodies[b]->calcVectorFromOrbit(G,
+		    bodies[orbitCentre[b] - 1]->getMass());
+
+	    Vector3D framepos =
+		    bodies[orbitCentre[b] - 1]->getPosition().scaleVector(-1.0);
+	    Vector3D framevel =
+		    bodies[orbitCentre[b] - 1]->getVelocity().scaleVector(-1.0);
+	    bodies[b]->changeFrame(framepos, framevel);
+
+
+	    }
+
+	}
+    }
+
 
 void System::calcForces(vector<Body*> &bodyarray)
     {
@@ -536,7 +617,7 @@ void System::evolveSystem(double tbegin, double tend)
 
     /* ii. Calculate initial global timestep, total energy and total angular momentum */
 
-    calcGlobalTimestep(bodies, dtmax);
+    calcNBodyTimestep(bodies, dtmax);
     calcTotalEnergy();
     calcTotalAngularMomentum();
 
@@ -620,7 +701,7 @@ void System::evolveSystem(double tbegin, double tend)
 	time = time + timeStep;
 
 	/* 6. Calculate new timestep, total energy, angular momentum and orbital data */
-	calcGlobalTimestep(bodies, dtmax);
+	calcNBodyTimestep(bodies, dtmax);
 	calcTotalEnergy();
 	calcTotalAngularMomentum();
 
@@ -686,7 +767,7 @@ double System::calcCombinedTimestep()
     // Calculate N Body minimum timestep in code units
     calcInitialProperties();
     calcForces(bodies);
-    calcGlobalTimestep(bodies, nbodymin);
+    calcNBodyTimestep(bodies, nbodymin);
 
     nbodymin = getTimestep();
 
@@ -722,8 +803,8 @@ void System::outputNBodyData(FILE *outputfile, double &time)
 
     Vector3D position, velocity;
     // Transform to the Centre of Mass Frame
-    //transformToCOMFrame();
-    transformToBodyFrame(0);
+    transformToCOMFrame();
+    //transformToBodyFrame(0);
 
     for (int j = 0; j < bodyCount; j++)
 	{

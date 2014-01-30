@@ -1,5 +1,5 @@
 ParType Orbital
-OutputPrefix trial
+NBodyOutput trial.txt
 OutputFrequency	1.0e-1
 NGridPoints	144
 MaximumTime	100.0
@@ -17,6 +17,7 @@ LongAscend 0.0
 Periapsis 0.0
 MeanAnomaly 0.0
 Luminosity 1.0
+OrbitCentre 0
 --
 BodyName Earth
 BodyType World
@@ -33,5 +34,5 @@ Obliquity  23.7   (degrees)
 WinterSolstice 0.0	(longitude,degrees)
 OceanFraction 0.7
 InitialTemperature 288.0
-
+OrbitCentre 0
 

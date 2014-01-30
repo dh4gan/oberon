@@ -50,7 +50,7 @@ int main(int argc, char* argv[])
     vector<Body*> Bodies;
 
     parFile input;
-    FILE * outputfile, *accelfile;
+    FILE * outputfile;
 
     printf("  \n");
     printf("*********************************************** \n");
@@ -126,7 +126,7 @@ int main(int argc, char* argv[])
 	    }
 	else if (fileType == 1)
 	    {
-	    cout << "setting up body with orbital parameters " << input.totalMass << endl;
+	    cout << "setting up body with orbital parameters " << endl;
 
 	    // If the Body is a Star, add a Star Object
 	    if (input.BodyTypes[i] == "Star")
@@ -179,14 +179,21 @@ int main(int argc, char* argv[])
 
     cout << "Setting up system " << input.SystemName << endl;
     nBodySystem = System(input.SystemName, BodyArray);
+
+    // If the System is created from orbital parameters, set up vectors here
+
+    if(fileType ==1)
+	{
+	nBodySystem.setupOrbits(input.orbitCentre);
+	}
+
+    // Calculate its initial properties
     nBodySystem.calcInitialProperties();
 
     // Set up the outputs
 
-    outputfile = fopen("nbody_output.txt", "w");
+    outputfile = fopen(input.NBodyFile.c_str(), "w");
     fprintf(outputfile, "Number of Bodies, %i \n", input.number_bodies);
-
-    accelfile = fopen("nbody_acc.txt", "w");
 
     // Now loop over snap shots, outputting the system data each time
 
@@ -243,7 +250,6 @@ int main(int argc, char* argv[])
     //Close the file before returning
 
     fclose(outputfile);
-    fflush(accelfile);
 
     return 0;
     }

@@ -71,13 +71,15 @@ void parFile::readPosFile()
 
     string par;
     string line;
-    string BodyType;
+    string BodyType,BodyName;
+
+    int bodyIndex;
 
     char inputfile[100];
 
-    double val_i;
-    double val_k;
-    double val_j;
+    double val_i, val_j, val_k;
+
+    NBodyFile = "nbody_output.txt";
 
     strcpy(inputfile, parFileName.c_str());
 
@@ -102,19 +104,19 @@ void parFile::readPosFile()
 
 	cout << par << endl;
 
-	if(par=="OutputPrefix")
-		    {
-		    iss >> outputPrefix;
-		    }
-		if(par=="OutputFrequency")
-		    {
-		    iss >> outputFrequency;
-		    }
+	if (par == "NBodyOutput")
+	    {
+	    iss >> NBodyFile;
+	    }
+	if (par == "OutputFrequency")
+	    {
+	    iss >> outputFrequency;
+	    }
 
-		if(par =="MaximumTime")
-		    {
-		    iss >> maximumTime;
-		    }
+	if (par == "MaximumTime")
+	    {
+	    iss >> maximumTime;
+	    }
 
 	if (par == "SystemName")
 	    {
@@ -124,83 +126,114 @@ void parFile::readPosFile()
 	    {
 	    iss >> number_bodies;
 
+	    // Set up vectors to hold all data
+
+	    BodyNames.assign(number_bodies,"");
+	    BodyTypes.assign(number_bodies,"");
+
+	    Mass.assign(number_bodies, 0.0);
+	    Radius.assign(number_bodies, 0.0);
+
+	    x_position.assign(number_bodies,0.0);
+	    y_position.assign(number_bodies,0.0);
+	    z_position.assign(number_bodies,0.0);
+
+	    x_velocity.assign(number_bodies,0.0);
+	    y_velocity.assign(number_bodies,0.0);
+	    z_velocity.assign(number_bodies,0.0);
+
+	    luminosity.assign(number_bodies, 0.0);
+	    rotationPeriod.assign(number_bodies, 0.0);
+	    obliquity.assign(number_bodies, 0.0);
+	    winterSolstice.assign(number_bodies, 0.0);
+	    oceanFraction.assign(number_bodies, 0.0);
+	    initialTemperature.assign(number_bodies, 0.0);
+	    orbitCentre.assign(number_bodies, 0.0);
+	    bodyIndex = -1;
+
 	    }
 	else if(par =="NGridPoints")
 	    {
 	    iss >> nPoints;
 	    }
+	else if(par=="BodyName")
+	    {
+	    iss >> BodyName;
+	    bodyIndex++;
+	    BodyNames[bodyIndex] = BodyName;
+
+	    }
 	else if (par == "BodyType")
 	    {
 	    iss >> BodyType;
-	    BodyTypes.push_back(BodyType);
+	    BodyTypes[bodyIndex]=BodyType;
 	    }
 	else if (par == "Mass")
 	    {
 	    iss >> val_i;
-	    Mass.push_back(val_i);
+	    Mass[bodyIndex]=val_i;
 	    totalMass += val_i;
 	    }
 	else if (par == "Radius")
 	    {
 	    iss >> val_i;
-	    Radius.push_back(val_i);
+	    Radius[bodyIndex]=val_i;
 	    }
 	else if (par == "Position")
 	    {
 	    iss >> val_i >> val_j >> val_k;
-	    x_position.push_back(val_i);
-	    y_position.push_back(val_j);
-	    z_position.push_back(val_k);
+	    x_position[bodyIndex]=val_i;
+	    y_position[bodyIndex]=val_j;
+	    z_position[bodyIndex]=val_k;
 	    }
 	else if (par == "Velocity")
 	    {
 	    iss >> val_i >> val_j >> val_k;
-	    x_velocity.push_back(val_i);
-	    y_velocity.push_back(val_j);
-	    z_velocity.push_back(val_k);
+	    x_velocity[bodyIndex]=val_i;
+	    y_velocity[bodyIndex]=val_j;
+	    z_velocity[bodyIndex]=val_k;
 	    }
 
 	else if (par == "Luminosity")
 	    {
 	    iss >> val_i;
-	    luminosity.pop_back(); // Discard default
-	    luminosity.push_back(val_i);
+	    luminosity[bodyIndex]=val_i;
+
 	    }
 
 	else if (par == "RotationPeriod")
 	    {
 	    iss >> val_i;
-	    rotationPeriod.pop_back(); // Discard default
-	    rotationPeriod.push_back(val_i);
+	    rotationPeriod[bodyIndex]=val_i;
+
 	    }
 
 	else if (par == "Obliquity")
 	    {
 	    iss >> val_i;
 	    val_i = val_i *3.1415/180.0;
-	    obliquity.pop_back(); // Discard default
-	    obliquity.push_back(val_i);
+	    obliquity[bodyIndex]=val_i;
+
 	    }
 
 	else if (par == "WinterSolstice")
 	    {
 	    iss >> val_i;
 	    val_i = val_i *3.1415/180.0;
-	    winterSolstice.pop_back(); // Discard default
-	    winterSolstice.push_back(val_i);
+	    winterSolstice[bodyIndex]=val_i;
+
 	    }
 
 	else if (par == "OceanFraction")
 	    {
 	    iss >> val_i;
-	    oceanFraction.pop_back(); // Discard default
-	    oceanFraction.push_back(val_i);
+	    oceanFraction[bodyIndex] = val_i;
+
 	    }
 	else if (par == "InitialTemperature")
 	    {
 	    iss >> val_i;
-	    initialTemperature.pop_back(); // Discard default
-	    initialTemperature.push_back(val_i);
+	    initialTemperature[bodyIndex] = val_i;
 	    }
 
 	}
@@ -221,6 +254,8 @@ void parFile::readOrbFile()
     string line;
     string BodyType, BodyName;
 
+    NBodyFile = "nbody_output.txt";
+
     char inputfile[100];
 
     double val_i;
@@ -238,9 +273,9 @@ void parFile::readOrbFile()
 	istringstream iss(line);
 	iss >> par;
 
-	if(par=="OutputPrefix")
+	if(par=="NBodyOutput")
 	    {
-	    iss >> outputPrefix;
+	    iss >> NBodyFile;
 	    }
 	if(par=="OutputFrequency")
 	    {
@@ -262,6 +297,8 @@ void parFile::readOrbFile()
 
 	    // Set up vectors to hold all data
 
+	    BodyNames.assign(number_bodies,"");
+	    BodyTypes.assign(number_bodies,"");
 	    Mass.assign(number_bodies, 0.0);
 	    Radius.assign(number_bodies, 0.0);
 	    semiMajorAxis.assign(number_bodies, 0.0);
@@ -278,6 +315,7 @@ void parFile::readOrbFile()
 	    winterSolstice.assign(number_bodies, 0.0);
 	    oceanFraction.assign(number_bodies, 0.0);
 	    initialTemperature.assign(number_bodies, 0.0);
+	    orbitCentre.assign(number_bodies,0.0);
 	    bodyIndex = -1;
 
 
@@ -291,18 +329,18 @@ void parFile::readOrbFile()
 	else if (par == "BodyName")
 	    {
 	    iss >> BodyName;
-	    BodyNames.push_back(BodyName);
+	    bodyIndex++;
+	    BodyNames[bodyIndex] = BodyName;
 	    }
 
 	else if (par == "BodyType")
 	    {
 	    iss >> BodyType;
-	    BodyTypes.push_back(BodyType);
+	    BodyTypes[bodyIndex] = BodyType;
 	    }
 	else if (par == "Mass")
 	    {
 	    iss >> val_i;
-	    bodyIndex++;
 	    Mass[bodyIndex] = val_i;
 	    totalMass += val_i;
 
@@ -345,6 +383,13 @@ void parFile::readOrbFile()
 	    meanAnomaly[bodyIndex] = val_i;
 
 	    }
+	else if(par == "OrbitCentre")
+	    {
+
+	    iss >> val_i;
+	    orbitCentre[bodyIndex] = val_i;
+	    }
+
 
 	else if (par == "Luminosity")
 	    {
