@@ -552,15 +552,20 @@ vector<double> System::checkForEclipses(int bodyIndex)
 				idotj = vector_i.dotProduct(vector_j)/(mag_i*mag_j);
 				b = mag_j*sqrt(1.0-idotj*idotj);
 
+
 				// If impact parameter less than radius, and i further away than j, eclipse of i!
 				// Calculate area covered during eclipse
 				// (sum of two circular segment areas, one for each circle)
 
-				if(b < (rad_i+rad_j) and mag_i > mag_j)
+				if(b < (rad_i+rad_j) and idotj < 0.0)
 				{
 
-					rad_i2 = rad_i*rad_i;
-					rad_j2 = rad_j*rad_j;
+				    //b = b/rad_i;
+				    //rad_i = 1.0;
+				    //rad_j = rad_j/rad_i;
+
+					rad_i2 = rad_i*rad_i/(mag_i*mag_i);
+					rad_j2 = rad_j*rad_j/(mag_j*mag_j);
 					angle1 = 2.0*safeAcos((rad_i2 + b*b -rad_j2)/(2.0*b*rad_i));
 					angle2 = 2.0*safeAcos((rad_j2 + b*b -rad_i2)/(2.0*b*rad_j));
 
@@ -571,8 +576,7 @@ vector<double> System::checkForEclipses(int bodyIndex)
 
 					if(eclipsefrac[i]>1.0) {eclipsefrac[i] = 1.0;}
 					if(eclipsefrac[i]<0.0) {eclipsefrac[i] = 0.0;}
-					//cout << b <<"  " << area_i << "  " << rad_i << "  " << angle1 << endl;
-					//cout << area_j << "  " << rad_j << "  " << angle2 << endl;
+
 
 				}
 			}

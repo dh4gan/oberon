@@ -11,6 +11,7 @@
 #include <math.h>
 #include <string>
 
+double solradToAU = 0.00467580213904;
 
 parFile::parFile()
     {
@@ -177,7 +178,7 @@ void parFile::readPosFile()
 	else if (par == "Radius")
 	    {
 	    iss >> val_i;
-	    Radius[bodyIndex]=val_i;
+	    Radius[bodyIndex]=val_i*solradToAU;
 	    }
 	else if (par == "Position")
 	    {
@@ -347,8 +348,9 @@ void parFile::readOrbFile()
 	    }
 	else if (par == "Radius")
 	    {
+	    // Radii given in solar radii --> convert them to AU
 	    iss >> val_i;
-	    Radius[bodyIndex] = val_i;
+	    Radius[bodyIndex] = val_i*solradToAU;
 	    }
 	else if (par == "SemiMajorAxis")
 	    {
