@@ -426,22 +426,34 @@ void System::calcForces(vector<Body*> &bodyarray)
      calculating accelerations, jerks, snaps and crackles of an array of bodies
      */
 
+    int i;
     int length = bodyarray.size();
     Vector3D zeroVector;
 
-    for (int i = 0; i < length; i++)
+#pragma omp parallel default(none) \
+	shared(bodyarray,length,zeroVector) \
+	private(i)
 	{
-	bodyarray[i]->setAcceleration(zeroVector);
-	bodyarray[i]->setJerk(zeroVector);
-	bodyarray[i]->calcAccelJerk(G, bodyarray, softeningLength);
+#pragma omp for schedule(runtime) ordered
+	for (i = 0; i < length; i++)
+	    {
+	    bodyarray[i]->setAcceleration(zeroVector);
+	    bodyarray[i]->setJerk(zeroVector);
+	    bodyarray[i]->calcAccelJerk(G, bodyarray, softeningLength);
 
+	    }
 	}
-
-    for (int i = 0; i < length; i++)
+#pragma omp parallel default(none) \
+	shared(bodyarray,length,zeroVector) \
+	private(i)
 	{
-	bodyarray[i]->setSnap(zeroVector);
-	bodyarray[i]->setCrackle(zeroVector);
-	bodyarray[i]->calcSnapCrackle(G, bodyarray, softeningLength);
+#pragma omp for schedule(runtime) ordered
+	for (i = 0; i < length; i++)
+	    {
+	    bodyarray[i]->setSnap(zeroVector);
+	    bodyarray[i]->setCrackle(zeroVector);
+	    bodyarray[i]->calcSnapCrackle(G, bodyarray, softeningLength);
+	    }
 	}
 
     }
