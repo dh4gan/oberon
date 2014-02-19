@@ -370,7 +370,10 @@ void World::calcHabitability(double &minT, double &maxT)
 
     for (int i=0; i< nPoints1; i++)
 	{
-	if(T[i]>=minT and T[i]<=maxT) hab[i]=1;
+	if(T[i]>=minT and T[i]<=maxT)
+	    {hab[i]=1;}
+	else
+	    {hab[i]=0.0;}
 	}
     }
 
