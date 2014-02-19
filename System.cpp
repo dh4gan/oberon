@@ -808,13 +808,13 @@ return nbodymin;
 
     }
 
-void System::outputNBodyData(FILE *outputfile, double &time)
+void System::outputNBodyData(FILE *outputfile, double &time, vector<int> orbitCentre)
     {
     /*
      * Written 10/1/14 by dh4gan
      * Method writes N Body information to
      * already open file pointer
-     *
+     * orbitCentre vector determines where the orbits are calculated from
      */
 
     Vector3D position, velocity;
@@ -825,9 +825,16 @@ void System::outputNBodyData(FILE *outputfile, double &time)
     for (int j = 0; j < bodyCount; j++)
 	{
 
+	if(orbitCentre[j]>0)
+	    {
+	    cout << "Calculating orbit for Body " << bodies[j]->getName() << "  " << orbitCentre[j] <<  endl;
+	    bodies[j]->calcOrbitFromVector(G, bodies, orbitCentre[j]);
+	    }
 
-
-	bodies[j]->calcOrbitFromVector(G, totalMass);
+	else
+	    {
+	    bodies[j]->calcOrbitFromVector(G, totalMass);
+	    }
 
 	position = bodies[j]->getPosition();
 	velocity = bodies[j]->getVelocity();

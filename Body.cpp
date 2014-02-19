@@ -300,6 +300,32 @@ void Body::calcOrbitFromVector(double G, double totmass)
 
     }
 
+void Body::calcOrbitFromVector(double G, vector<Body*> bodies, int orbitCentre)
+    {
+    /*
+     * Written 19/2/14 by dh4gan
+     * Calculates orbit of body around another body (identified by orbitCentre)
+     *
+     */
+
+    Vector3D framepos = bodies[orbitCentre-1]->getPosition();
+    Vector3D framevel = bodies[orbitCentre-1]->getVelocity();
+
+    // Change into frame where body is at the centre
+    changeFrame(framepos, framevel);
+
+    // Calculate orbit around the body
+    calcOrbitFromVector(G, bodies[orbitCentre-1]->getMass());
+
+    // Change back into previous frame
+    framepos = framepos.scaleVector(-1.0);
+    framevel = framevel.scaleVector(-1.0);
+
+    changeFrame(framepos,framevel);
+
+
+    }
+
 double Body::calcPeriod(double G, double totalMass)
 	    {
     double pi = 3.1415926585;

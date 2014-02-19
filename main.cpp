@@ -240,7 +240,7 @@ int main(int argc, char* argv[])
 	timeyr = timeunit/twopi;
 
 	// N Body data goes to a single file
-	nBodySystem.outputNBodyData(outputfile, timeyr);
+	nBodySystem.outputNBodyData(outputfile, timeyr, input.orbitCentre);
 
 	// LEBM data goes to separate files for each World in the System
 

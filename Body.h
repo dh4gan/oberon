@@ -108,6 +108,8 @@ public:
 	double calcPeriod(double G, double totalMass);
 	void changeFrame(Vector3D framepos, Vector3D framevel);
 
+	void calcOrbitFromVector(double G, vector<Body*> bodies, int orbitCentre); // Calculate orbit around a specific Body
+
 	// N Body Calculation Methods
 
 	void calcTimestep(double greekEta); // Calculates the preferred timestep given Body's state vectors
