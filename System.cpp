@@ -219,12 +219,9 @@ void System::transformToBodyFrame(int bodyIndex)
 	pos = bodies[i]->getPosition();
 	vel = bodies[i]->getVelocity();
 
-	for (j = 0; j < 3; j++)
-	    {
-	    pos.elements[j] = pos.elements[j] - framepos.elements[j];
-	    vel.elements[j] = vel.elements[j] - framevel.elements[j];
+	pos = pos.subtractVector(framepos);
+	vel = vel.subtractVector(framevel);
 
-	    }
 	bodies[i]->setPosition(pos);
 	bodies[i]->setVelocity(vel);
 

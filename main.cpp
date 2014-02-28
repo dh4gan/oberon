@@ -78,7 +78,7 @@ int main(int argc, char* argv[])
     // Record parameter data
 
     tMax = input.maximumTime;
-    tSnap = input.outputFrequency;
+    tSnap = input.snapshotTime;
 
     //First loop through each of the bodies in the system and set them up
     //adding them to the BodyArray
