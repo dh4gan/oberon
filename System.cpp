@@ -827,8 +827,7 @@ void System::outputNBodyData(FILE *outputfile, double &time, vector<int> orbitCe
 
 	if(orbitCentre[j]>0)
 	    {
-	    cout << "Calculating orbit for Body " << bodies[j]->getName() << "  " << orbitCentre[j] <<  endl;
-	    bodies[j]->calcOrbitFromVector(G, bodies, orbitCentre[j]);
+	    bodies[j]->calcOrbitFromVector(G, bodies[orbitCentre[j]-1]);
 	    }
 
 	else

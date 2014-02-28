@@ -126,7 +126,7 @@ int main(int argc, char* argv[])
 	    }
 	else if (fileType == 1)
 	    {
-	    cout << "setting up body with orbital parameters " << endl;
+	   	printf("setting up body with orbital parameters \n");
 
 	    // If the Body is a Star, add a Star Object
 	    if (input.BodyTypes[i] == "Star")
@@ -171,13 +171,14 @@ int main(int argc, char* argv[])
 
 	    }
 
-	cout << "body " << BodyArray.back()->getName() << " set up" << endl;
+	printf("body %s set up \n", BodyArray.back()->getName().c_str());
 
 	}
 
     // Set up System object using BodyArray
 
-    cout << "Setting up system " << input.SystemName << endl;
+    printf("Setting up system %s \n", input.SystemName.c_str());
+
     nBodySystem = System(input.SystemName, BodyArray);
 
     // If the System is created from orbital parameters, set up vectors here
@@ -210,14 +211,13 @@ int main(int argc, char* argv[])
     timeunit = 0.0;
     snapshotNumber = 0;
 
+    printf("System set up: Running ");
     while (timeunit < tMax)
 	{
 	tStop = timeunit + tSnap;
 
 	while (timeunit < tStop)
 	    {
-
-
 
 	    // Evolve the LEBMs in the system for the minimum timestep in seconds
 	    nBodySystem.evolveLEBMs(dtsec);

@@ -109,9 +109,9 @@ void parFile::readPosFile()
 	    {
 	    iss >> NBodyFile;
 	    }
-	if (par == "OutputFrequency")
+	if (par == "SnapshotTime")
 	    {
-	    iss >> outputFrequency;
+	    iss >> snapshotTime;
 	    }
 
 	if (par == "MaximumTime")
@@ -278,9 +278,9 @@ void parFile::readOrbFile()
 	    {
 	    iss >> NBodyFile;
 	    }
-	if(par=="OutputFrequency")
+	if(par=="SnapshotTime")
 	    {
-	    iss >> outputFrequency;
+	    iss >> snapshotTime;
 	    }
 
 	if(par =="MaximumTime")

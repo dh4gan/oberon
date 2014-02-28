@@ -30,7 +30,7 @@ public:
 	string fileType;
 	int number_bodies;
 	int nPoints;
-	double outputFrequency;
+	double snapshotTime;
 	double maximumTime;
 	double totalMass;
 
