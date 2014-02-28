@@ -550,6 +550,7 @@ void World::outputLEBMData(int &snapshotNumber, double &tSnap)
 	    tSnap, minT, maxT, meanT,meanQ,meanA,meanIR,meanS,meanhab,
 	    getSemiMajorAxis(), getEccentricity(), getInclination(),
 	    getArgumentPeriapsis(), getLongitudeAscendingNode(), getMeanAnomaly());
+    fflush(logFile);
 
 
     // Now write snapshot of LEBM
