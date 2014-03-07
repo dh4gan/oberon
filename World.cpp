@@ -7,6 +7,7 @@
 
 #include "World.h"
 #include "Constants.h"
+#include <stdlib.h>
 #include <fstream>
 #include <sstream>
 
@@ -403,7 +404,6 @@ void World::calcLEBMTimestep()
 	if(i>0 and i<nPoints)
 	    {
 	    timestep = deltax[i]*deltax[i]*C[i]/(2.0*Dplus);
-	    //printf("%+.4E %+.4E %+.4E %+.4E %+.4E  \n", dtLEBM, T[i], C[i], diffusion, Dplus);
 	    if (timestep < dtLEBM) {dtLEBM = timestep;}
 	    }
 	}
@@ -411,7 +411,9 @@ void World::calcLEBMTimestep()
 
     if(dtLEBM==1.0e30)
 	{
-	cout << "ERROR in LEBM Timestep calculation " << endl;
+	cout << "ERROR in LEBM Timestep calculation for World " << getName() <<  endl;
+	cout << dtLEBM << "  " << diffusion << endl;
+	exit(EXIT_FAILURE);
 	dtLEBM = -10.0;
 	}
 

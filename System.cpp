@@ -392,6 +392,7 @@ void System::setupOrbits(vector<int> orbitCentre)
 
 	}
 
+
     // Transform them to COM Frame
     transformToCOMFrame(participants);
 
@@ -474,12 +475,12 @@ void System::calcInitialProperties()
 	totalMass += bodies[i]->getMass();
 	}
 
-
     // Put the system in the Centre of Mass Frame
     transformToCOMFrame();
 
     // Calculate initial forces
     calcForces(bodies);
+
 
     // Calculate Total Energy, and define initial value
 
@@ -491,6 +492,7 @@ void System::calcInitialProperties()
     calcTotalAngularMomentum();
     initialAngularMomentum = totalAngularMomentum;
     deltaAngularMomentum = 0.0;
+
 
     }
 

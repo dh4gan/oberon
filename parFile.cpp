@@ -81,6 +81,7 @@ void parFile::readPosFile()
     double val_i, val_j, val_k;
 
     NBodyFile = "nbody_output.txt";
+    nPoints = 0;
 
     strcpy(inputfile, parFileName.c_str());
 
@@ -266,6 +267,7 @@ void parFile::readOrbFile()
     ifstream myfile(inputfile);
 
 
+    nPoints = 0;
 
     // Then loop through each line using getline and then
     //assign to vectors
@@ -434,6 +436,7 @@ void parFile::readOrbFile()
 
 	}
     myfile.close();
+
     }
 int parFile::parType()
     {

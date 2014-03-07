@@ -75,6 +75,12 @@ int main(int argc, char* argv[])
 	    }
 	}
 
+    if(input.nPoints==0)
+	{
+	printf("ERROR! LEBM grid points not defined\n Is NGridPoints defined in paramsfile?\n");
+	return -1;
+	}
+
     // Record parameter data
 
     tMax = input.maximumTime;
@@ -115,11 +121,20 @@ int main(int argc, char* argv[])
 
 	    if (input.BodyTypes[i] == "World")
 		{
+		// Code will halt if initial temperature zero
+		// this stops incomplete params files running successfully
+
+		if(input.initialTemperature[i]==0.0)
+		    {
+		    printf("ERROR in World %s Setup: initial T zero \nIs World fully specified in params file? ", input.BodyNames[i].c_str());
+		    return -1;
+		    }
 		BodyArray.push_back(
 			new World(input.BodyNames[i], input.BodyTypes[i],
 				input.Mass[i], input.Radius[i], body_i_position,
 				body_i_velocity, input.nPoints, input.obliquity[i],input.rotationPeriod[i], input.winterSolstice[i],
 				input.oceanFraction[i], input.initialTemperature[i]));
+
 		}
 
 
@@ -159,6 +174,13 @@ int main(int argc, char* argv[])
 	    if (input.BodyTypes[i] == "World")
 		{
 
+		if (input.initialTemperature[i] == 0.0)
+		    {
+		    printf(
+			    "ERROR in World %s Setup: initial T zero \nIs World fully specified in params file? \n",
+			    input.BodyNames[i].c_str());
+		    return -1;
+		    }
 		BodyArray.push_back(
 			new World(input.BodyNames[i], input.BodyTypes[i],
 				input.Mass[i], input.Radius[i],
@@ -211,7 +233,7 @@ int main(int argc, char* argv[])
     timeunit = 0.0;
     snapshotNumber = 0;
 
-    printf("System set up: Running ");
+    printf("System set up: Running \n");
     while (timeunit < tMax)
 	{
 	tStop = timeunit + tSnap;
