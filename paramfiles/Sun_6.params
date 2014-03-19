@@ -1,0 +1,96 @@
+ParType   Orbital 
+NBodyOutput Sun_6nbody.output
+OutputFrequency 1.0e-1
+NGridPoints 144
+MaximumTime 100.0
+SystemName  Sun_6
+Number_Bodies   7
+--
+BodyName Sun
+BodyType   Star
+Mass   1.0
+Radius   1.0
+SemiMajorAxis 0.0
+Eccentricity 0.0
+Inclination 0.0
+LongAscend 0.0
+Periapsis 0.0
+MeanAnomaly 0.0
+OrbitCentre -1
+--
+BodyName   Mercury
+BodyType   Planet
+Mass   1.65978288284e-07
+Radius   0.000356708981395
+SemiMajorAxis   0.38709843
+Eccentricity 0.20563661
+Inclination 0.122270683631
+LongAscend 0.843685473721
+Periapsis 0.508206716425
+MeanAnomaly 4.40262201774
+OrbitCentre 1
+--
+BodyName Venus
+BodyType   Planet
+Mass   2.44731661095e-06
+Radius   0.000884731743491
+SemiMajorAxis   0.72332102
+Eccentricity 0.00676399
+Inclination 0.0593023672397
+LongAscend 1.33818954092
+Periapsis 0.961588116018
+MeanAnomaly 3.17614499912
+OrbitCentre 1
+--
+BodyName  Earth
+BodyType   World
+Mass   3.00284946052e-06
+Radius   0.00093139199123
+SemiMajorAxis   1.00000018
+Eccentricity 0.0
+Inclination 0.0
+LongAscend 0.0
+Periapsis 0.0
+MeanAnomaly 1.75347842114
+OrbitCentre 1
+RotationPeriod 1.0  (days)
+Obliquity  23.7   (degrees)
+WinterSolstice 0.0	(longitude,degrees)
+OceanFraction 0.7
+InitialTemperature 288.0
+--
+BodyName Mars
+BodyType   Planet
+Mass   3.22646351613e-07
+Radius   0.000495579876465
+SemiMajorAxis   1.52371243
+Eccentricity 0.09336511
+Inclination 0.0323203324151
+LongAscend 0.867659169942
+Periapsis -1.28509737212
+MeanAnomaly -0.0797289356231
+OrbitCentre 1
+--
+BodyName Jupiter
+BodyType   Planet
+Mass   0.000954588419846
+Radius   0.0102204431737
+SemiMajorAxis   5.20248019
+Eccentricity 0.0485359
+Inclination 0.0226650921911
+LongAscend 1.75043999184
+Periapsis -1.50129507795
+MeanAnomaly 0.599255143779
+OrbitCentre 1
+--
+BodyName   Saturn
+BodyType   Planet
+Mass   0.000285421937534
+Radius   0.00851305681887
+SemiMajorAxis   9.54149883
+Eccentricity 0.05550825
+Inclination 0.0435327169582
+LongAscend 1.9833918817
+Periapsis -0.362655434725
+MeanAnomaly 0.873986048523
+OrbitCentre 1

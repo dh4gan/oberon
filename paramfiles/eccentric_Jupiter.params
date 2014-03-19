@@ -1,0 +1,49 @@
+ParType   Orbital 
+NBodyOutput testwalkaway.output
+SnapshotTime 1.0e0
+MaximumTime 1.0e6
+NGridPoints 144
+SystemName  walkaway_test
+Number_Bodies   3
+--
+BodyName Sun
+BodyType   Star
+Mass   1.0
+Radius   1.0
+SemiMajorAxis 0.0
+Eccentricity 0.0
+Inclination 0.0
+LongAscend 0.0
+Periapsis 0.0
+MeanAnomaly 0.0
+Luminosity 1.0
+OrbitCentre -1
+--
+BodyName  Earth
+BodyType   World
+Mass   3.00284946052e-06
+Radius   0.00093139199123
+SemiMajorAxis   1.00000018
+Eccentricity 0.0
+Inclination 0.0
+LongAscend 0.0
+Periapsis 0.0
+MeanAnomaly 1.75347842114
+RotationPeriod 1 (days)
+Obliquity 23.7 (degrees)
+WinterSolstice 0.0 (longitude, degrees)
+OceanFraction 0.7
+InitialTemperature 288.0
+OrbitCentre 1
+--
+BodyName Jupiter
+BodyType   Planet
+Mass   0.00954588419846
+Radius   0.0102204431737
+SemiMajorAxis   30.0
+Eccentricity 0.925
+Inclination 0.0
+LongAscend 1.75043999184
+Periapsis -1.50129507795
+MeanAnomaly 0.599255143779
+OrbitCentre 1
