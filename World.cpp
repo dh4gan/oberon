@@ -10,7 +10,7 @@
 #include <stdlib.h>
 #include <fstream>
 #include <sstream>
-
+#include <algorithm>
 
 double freeze = 273.0;
 double boil = 373.0;
@@ -395,29 +395,46 @@ void World::calcLEBMTimestep()
  * Calculates the minimum timestep for the LEBM (in seconds)
  *
  */
-    double Dplus, timestep;
+    int i;
+    vector<double> timestep(nPoints,0);
+    double Dplus;
 
     dtLEBM = 1.0e30;
 
-    for (int i=0; i<nPoints1; i++)
+
+// Calculate the timestep at every latitude on the World
+
+#pragma omp parallel default(none) \
+	shared(timestep)\
+	private(i,Dplus)
 	{
-	if(i==nPoints)
+#pragma omp for schedule(runtime) ordered
+	for (i = 0; i < nPoints1; i++)
 	    {
-	    Dplus = diffusion*(1.0-x[i]*x[i]);
-	    }
-	else
-	    {
-	    Dplus = diffusion*0.5*((1.0-x[i]*x[i]) +(1.0-x[i+1]*x[i+1]));
-	    }
+	    if (i == nPoints)
+		{
+		Dplus = diffusion * (1.0 - x[i] * x[i]);
+		}
+	    else
+		{
+		Dplus = diffusion * 0.5
+			* ((1.0 - x[i] * x[i]) + (1.0 - x[i + 1] * x[i + 1]));
+		}
 
+	    timestep[i] = 1.0e30;
 
-	if(i>0 and i<nPoints)
-	    {
-	    timestep = deltax[i]*deltax[i]*C[i]/(2.0*Dplus);
-	    if (timestep < dtLEBM) {dtLEBM = timestep;}
+	    if (i > 0 and i < nPoints)
+		{
+		timestep[i] = deltax[i] * deltax[i] * C[i] / (2.0 * Dplus);
+		}
 	    }
 	}
 
+// Now find the minimum timestep
+
+
+
+    dtLEBM = *(min_element(timestep.begin(), timestep.end()));
 
     if(dtLEBM==1.0e30)
 	{

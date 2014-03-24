@@ -204,7 +204,7 @@ void System::transformToBodyFrame(int bodyIndex)
      * Transforms system to the frame where body bodyIndex is at rest*/
 
 
-    int i, j;
+    int i;
     Vector3D pos, vel;
 
     // Calculate Frame's vectors
