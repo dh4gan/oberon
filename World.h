@@ -44,12 +44,12 @@ public:
 
 
     void calcInsolation(Body* star, double &eclipsefrac);
-    void calcAlbedo();
-    void calcHeatCapacity();
-    void calcIce();
-    void calcOpticalDepth();
-    void calcCooling();
-    void calcNetHeating();
+    void calcAlbedo(int iLatitude);
+    void calcHeatCapacity(int iLatitude);
+    void calcIce(int iLatitude);
+    void calcOpticalDepth(int iLatitude);
+    void calcCooling(int iLatitude);
+    void calcNetHeating(int iLatitude);
     void calcHabitability(double &minT, double &maxT);
     void calcLEBMTimestep();
 

@@ -111,15 +111,17 @@ void World::initialiseLEBM()
    initialiseOutputVariables();
    // Calculate initial parameters
 
+   for (int i=0; i<nPoints1; i++)
+       {
+	calcIce(i);
+	calcHeatCapacity(i);
+	calcOpticalDepth(i);
+	calcAlbedo(i);
+	calcCooling(i);
+	calcNetHeating(i);
+       }
 
-   calcIce();
-   calcHeatCapacity();
-   calcOpticalDepth();
-   calcAlbedo();
-   calcCooling();
-   calcNetHeating();
    calcHabitability(freeze,boil);
-
    calcLEBMTimestep();
 
     }
@@ -145,17 +147,17 @@ void World::updateLEBM(vector<Body*> bodies, vector<double>eclipsefrac)
 	    }
 	}
 
+    for (int i = 0; i < nPoints1; i++)
+	{
+	calcIce(i);
+	calcHeatCapacity(i);
+	calcOpticalDepth(i);
+	calcAlbedo(i);
+	calcCooling(i);
+	calcNetHeating(i);
+	}
 
-    calcIce();
-    calcHeatCapacity();
-    calcOpticalDepth();
-    calcAlbedo();
-    calcCooling();
-    calcNetHeating();
     calcHabitability(freeze,boil);
-
-
-
     integrate();
 
     }
@@ -180,6 +182,9 @@ void World::calcInsolation(Body* star, double &eclipsefrac)
      * Written by dh4gan, 10/1/14
      * Calculates the flux received at each latitude from input star
      * Given that eclipsefrac of the stellar light is blocked by other objects
+     * This is the only calculation that has its own for loop in the updateLEBM algorithm
+     * Mainly because there is a good deal of pre-calculation required to determine declinations
+     * etc
      */
 
     vector<double> cos_H(nPoints1,0.0);
@@ -249,7 +254,7 @@ void World::calcInsolation(Body* star, double &eclipsefrac)
     }
 
 
-void World::calcAlbedo()
+void World::calcAlbedo(int iLatitude)
     {
     /*
      * Written 9/1/14 by dh4gan
@@ -257,15 +262,11 @@ void World::calcAlbedo()
      *
      */
 
-
-    for (int i=0; i< nPoints1; i++)
-	{
-	albedo[i] = 0.525 - 0.245* tanh((T[i]-freeze+5.0)/5.0);
-	}
+    albedo[iLatitude] = 0.525 - 0.245 * tanh((T[iLatitude] - freeze + 5.0) / 5.0);
 
     }
 
-void World::calcHeatCapacity()
+void World::calcHeatCapacity(int iLatitude)
     {
     /*
      * Written 9/1/14 by dh4gan
@@ -276,31 +277,28 @@ void World::calcHeatCapacity()
     double C_land = 5.25e9;
     double C_ocean = 40.0 * C_land;
 
-    for (int i = 0; i < nPoints1; i++)
+    if (T[iLatitude] >= freeze)
 	{
-	if (T[i] >= freeze)
-	    {
-	    C_ice = 0.0;
-	    }
-	else if (T[i] < freeze and T[i] > freeze - 10.0)
-	    {
-	    C_ice = 9.2 * C_land;
-	    }
-
-	else if (T[i] <= freeze - 10)
-	    {
-	    C_ice = 2.0 * C_land;
-	    }
-
-	C[i] = landFraction * C_land
-		+ oceanFraction*(iceFraction[i] * C_ice
-		+ (1.0 - iceFraction[i]) * C_ocean);
-
+	C_ice = 0.0;
 	}
+    else if (T[iLatitude] < freeze and T[iLatitude] > freeze - 10.0)
+	{
+	C_ice = 9.2 * C_land;
+	}
+
+    else if (T[iLatitude] <= freeze - 10)
+	{
+	C_ice = 2.0 * C_land;
+	}
+
+    C[iLatitude] = landFraction * C_land
+	    + oceanFraction
+		    * (iceFraction[iLatitude] * C_ice
+			    + (1.0 - iceFraction[iLatitude]) * C_ocean);
 
     }
 
-void World:: calcIce()
+void World:: calcIce(int iLatitude)
     {
 
     /*
@@ -309,43 +307,32 @@ void World:: calcIce()
      *
      */
 
-    for (int i=0; i< nPoints1; i++)
-	{
-	iceFraction[i] = 1.0 - exp(-(freeze-T[i])/10.0);
-	if (iceFraction[i] <0.0) iceFraction[i]=0.0;
-	}
+	iceFraction[iLatitude] = 1.0 - exp(-(freeze-T[iLatitude])/10.0);
+	if (iceFraction[iLatitude] <0.0) iceFraction[iLatitude]=0.0;
 
     }
 
-void World::calcOpticalDepth()
+void World::calcOpticalDepth(int iLatitude)
     {
     /*
      * Written 9/1/14 by dh4gan
      * Calculates the optical depth of the atmosphere
      */
 
-    for (int i=0; i<nPoints1; i++)
-	{
-	tau[i] = 0.79*pow(T[i]/freeze,3);
-	}
+	tau[iLatitude] = 0.79*pow(T[iLatitude]/freeze,3);
     }
 
-void World::calcCooling()
+void World::calcCooling(int iLatitude)
     {
     /*
      * Written 9/1/14 by dh4gan
      * Calculates the Infrared Cooling as a function of optical depth and temperature
      *
      */
-
-    for(int i=0; i<nPoints1; i++)
-	{
-	infrared[i] = sigma_SB*pow(T[i],4)/(1.0+0.75*tau[i]);
-	}
-
+	infrared[iLatitude] = sigma_SB*pow(T[iLatitude],4)/(1.0+0.75*tau[iLatitude]);
     }
 
-void World::calcNetHeating()
+void World::calcNetHeating(int iLatitude)
     {
     /*
      * Written 9/1/14 by dh4gan
@@ -353,10 +340,7 @@ void World::calcNetHeating()
      *
      */
 
-    for (int i=0; i< nPoints1; i++)
-	{
-	Q[i] = insol[i]*(1.0-albedo[i]) - infrared[i];
-	}
+	Q[iLatitude] = insol[iLatitude]*(1.0-albedo[iLatitude]) - infrared[iLatitude];
     }
 
 void World::calcHabitability(double &minT, double &maxT)
@@ -366,7 +350,6 @@ void World::calcHabitability(double &minT, double &maxT)
      *
      * Calculates a habitability index based on a specified set of
      * minimum and maximum temperatures for life
-     * for life
      */
 
     for (int i=0; i< nPoints1; i++)
