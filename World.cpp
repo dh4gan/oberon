@@ -137,8 +137,9 @@ void World::updateLEBM(vector<Body*> bodies, vector<double>eclipsefrac)
      */
     setInsolationZero();
     int bodyCount = bodies.size();
+    int i,b;
 
-    for (int b=0; b< bodyCount; b++)
+    for (b=0; b< bodyCount; b++)
 	{
 
 	if (bodies[b]->getType()=="Star")
@@ -147,14 +148,19 @@ void World::updateLEBM(vector<Body*> bodies, vector<double>eclipsefrac)
 	    }
 	}
 
-    for (int i = 0; i < nPoints1; i++)
+#pragma omp parallel default(none) \
+	private(i)
 	{
-	calcIce(i);
-	calcHeatCapacity(i);
-	calcOpticalDepth(i);
-	calcAlbedo(i);
-	calcCooling(i);
-	calcNetHeating(i);
+#pragma omp for schedule(runtime) ordered
+	for (i = 0; i < nPoints1; i++)
+	    {
+	    calcIce(i);
+	    calcHeatCapacity(i);
+	    calcOpticalDepth(i);
+	    calcAlbedo(i);
+	    calcCooling(i);
+	    calcNetHeating(i);
+	    }
 	}
 
     calcHabitability(freeze,boil);
