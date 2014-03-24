@@ -436,62 +436,76 @@ void World::integrate()
      * Integrates the diffusion equation to drive the system forward
      *
      */
+    int i;
     double Tminus1,Tplus1, Dplus,Dminus;
     double T1,dx,dx1,Fj;
 
 
     T_old = T;
 
-    for(int i=0; i<nPoints1; i++)
+#pragma omp parallel default(none) \
+	private(i,Tminus1,Dminus,Tplus1,Dplus)\
+	private(T1,dx,dx1, Fj)
 	{
-
-	// Ifs ensure we use the correct ghost cells to do the integration
-	// Do the minimum value firsty
-
-	if(i==0){
-	    Tminus1 = T_old[i];
-	    Dminus = diffusion*(1.0-x[i]*x[i]);
-	}
-	else{
-	    Tminus1 = T_old[i-1];
-	    Dminus = 0.5*diffusion*((1.0-x[i-1]*x[i-1]) + (1.0-x[i]*x[i]));
-	}
-
-	// Now the maximum value
-
-	if(i==nPoints) {
-	    Tplus1=T_old[i];
-	    Dplus = diffusion*(1.0-x[i]*x[i]);
-	}
-	else {
-	    Tplus1=T_old[i+1];
-	    Dplus = 0.5*diffusion*((1.0-x[i+1]*x[i+1]) + (1.0-x[i]*x[i]));
-	}
-
-	// Now do the integration
-	T1 = T_old[i];
-
-	if (i == 0)
+#pragma omp for schedule(runtime) ordered
+	for (i = 0; i < nPoints1; i++)
 	    {
-	    dx1 = deltax[i];
-	    dx = 0.5 * (deltax[i + 1] + deltax[i]);
-	    }
-	else if (i == nPoints)
-	    {
-	    dx1 = 0.5 * (deltax[i - 1] + deltax[i]);
-	    dx = deltax[i];
-	    }
-	else
-	    {
-	    dx = 0.5 * (deltax[i] + deltax[i + 1]);
-	    dx1 = 0.5 * (deltax[i - 1] + deltax[i]);
-	    }
 
-	  Fj = (Dplus*(Tplus1-T1)/dx - Dminus*(T1-Tminus1)/dx1)/(0.5*(dx1+dx));
-	  T[i] = T1 + (dtLEBM/C[i])*(Q[i] +Fj);
+	    // Ifs ensure we use the correct ghost cells to do the integration
+	    // Do the minimum value first
 
-	 // cout <<" Integrate: "<<  i <<"   "<< T[i] <<"   "<< dtLEBM<<"   " << Q[i]<<"   " << Fj <<endl;
+	    if (i == 0)
+		{
+		Tminus1 = T_old[i];
+		Dminus = diffusion * (1.0 - x[i] * x[i]);
+		}
+	    else
+		{
+		Tminus1 = T_old[i - 1];
+		Dminus = 0.5 * diffusion
+			* ((1.0 - x[i - 1] * x[i - 1]) + (1.0 - x[i] * x[i]));
+		}
 
+	    // Now the maximum value
+
+	    if (i == nPoints)
+		{
+		Tplus1 = T_old[i];
+		Dplus = diffusion * (1.0 - x[i] * x[i]);
+		}
+	    else
+		{
+		Tplus1 = T_old[i + 1];
+		Dplus = 0.5 * diffusion
+			* ((1.0 - x[i + 1] * x[i + 1]) + (1.0 - x[i] * x[i]));
+		}
+
+	    // Now do the integration
+	    T1 = T_old[i];
+
+	    if (i == 0)
+		{
+		dx1 = deltax[i];
+		dx = 0.5 * (deltax[i + 1] + deltax[i]);
+		}
+	    else if (i == nPoints)
+		{
+		dx1 = 0.5 * (deltax[i - 1] + deltax[i]);
+		dx = deltax[i];
+		}
+	    else
+		{
+		dx = 0.5 * (deltax[i] + deltax[i + 1]);
+		dx1 = 0.5 * (deltax[i - 1] + deltax[i]);
+		}
+
+	    Fj = (Dplus * (Tplus1 - T1) / dx - Dminus * (T1 - Tminus1) / dx1)
+		    / (0.5 * (dx1 + dx));
+	    T[i] = T1 + (dtLEBM / C[i]) * (Q[i] + Fj);
+
+	    // cout <<" Integrate: "<<  i <<"   "<< T[i] <<"   "<< dtLEBM<<"   " << Q[i]<<"   " << Fj <<endl;
+
+	    }
 	}
 
     }
