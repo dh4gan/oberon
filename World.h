@@ -50,7 +50,7 @@ public:
     void calcOpticalDepth(int iLatitude);
     void calcCooling(int iLatitude);
     void calcNetHeating(int iLatitude);
-    void calcHabitability(double &minT, double &maxT);
+    void calcHabitability(int iLatitude,double &minT, double &maxT);
     void calcLEBMTimestep();
 
     void integrate();

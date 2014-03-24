@@ -73,6 +73,7 @@ void World::initialiseLEBM()
      * Sets up the LEBM vectors for computation
      */
 
+    int i;
     // Set length of vectors
 
    lat.resize(nPoints1,0.0);
@@ -95,7 +96,7 @@ void World::initialiseLEBM()
 
    double dlat = pi/nFloat;
 
-   for (int i=0; i< nPoints1; i++)
+   for (i=0; i< nPoints1; i++)
        {
        lat[i] = -pi/2.0 + i*dlat;
        x[i] = sin(lat[i]);
@@ -111,17 +112,22 @@ void World::initialiseLEBM()
    initialiseOutputVariables();
    // Calculate initial parameters
 
-   for (int i=0; i<nPoints1; i++)
-       {
-	calcIce(i);
-	calcHeatCapacity(i);
-	calcOpticalDepth(i);
-	calcAlbedo(i);
-	calcCooling(i);
-	calcNetHeating(i);
-       }
-
-   calcHabitability(freeze,boil);
+#pragma omp parallel default(none) \
+	shared(freeze,boil)\
+	private(i)
+	{
+#pragma omp for schedule(runtime) ordered
+	for (i = 0; i < nPoints1; i++)
+	    {
+	    calcIce(i);
+	    calcHeatCapacity(i);
+	    calcOpticalDepth(i);
+	    calcAlbedo(i);
+	    calcCooling(i);
+	    calcNetHeating(i);
+	    calcHabitability(i,freeze,boil);
+	    }
+	}
    calcLEBMTimestep();
 
     }
@@ -149,6 +155,7 @@ void World::updateLEBM(vector<Body*> bodies, vector<double>eclipsefrac)
 	}
 
 #pragma omp parallel default(none) \
+	shared(freeze,boil)\
 	private(i)
 	{
 #pragma omp for schedule(runtime) ordered
@@ -160,10 +167,11 @@ void World::updateLEBM(vector<Body*> bodies, vector<double>eclipsefrac)
 	    calcAlbedo(i);
 	    calcCooling(i);
 	    calcNetHeating(i);
+	    calcHabitability(i,freeze,boil);
 	    }
 	}
 
-    calcHabitability(freeze,boil);
+
     integrate();
 
     }
@@ -193,7 +201,8 @@ void World::calcInsolation(Body* star, double &eclipsefrac)
      * etc
      */
 
-    vector<double> cos_H(nPoints1,0.0);
+    int i;
+    double cos_H;
     double H;
 
     // Calculate stellar declination
@@ -241,22 +250,32 @@ void World::calcInsolation(Body* star, double &eclipsefrac)
 
     double lstar = star->getLuminosity();
 
-    for (int i=0; i<nPoints1; i++)
+
+#pragma omp parallel default(none) \
+	shared(sind,cosd,tand,fluxsolcgs)\
+	shared(pi,magpos,lstar,eclipsefrac)\
+	private(i,cos_H,H)
 	{
+#pragma omp for schedule(runtime) ordered
+	for (i = 0; i < nPoints1; i++)
+	    {
 
-	// calculate the diurnally averaged hour angle
+	    // calculate the diurnally averaged hour angle
 
-	cos_H[i] = -tan(lat[i])*tand;
+	    cos_H = -tan(lat[i]) * tand;
 
-	if(fabs(cos_H[i]) >1.0) cos_H[i] = cos_H[i]/fabs(cos_H[i]);
+	    if (fabs(cos_H) > 1.0)
+		cos_H = cos_H / fabs(cos_H);
 
-	H = acos(cos_H[i]);
+	    H = acos(cos_H);
 
-	insol[i] = insol[i]+fluxsolcgs*lstar*(1.0-eclipsefrac)/(pi*magpos*magpos)*(H*x[i]*sind + cos(lat[i])*cosd*sin(H));
-	//cout <<i << "   " << insol[i] << "  " <<cos_H[i] <<  "   " <<lat[i] << "  " << tan(lat[i]) << "  " <<  tand << endl;
+	    insol[i] = insol[i]
+		    + fluxsolcgs * lstar * (1.0 - eclipsefrac)
+			    / (pi * magpos * magpos)
+			    * (H * x[i] * sind + cos(lat[i]) * cosd * sin(H));
+	    }
+
 	}
-
-
     }
 
 
@@ -349,7 +368,7 @@ void World::calcNetHeating(int iLatitude)
 	Q[iLatitude] = insol[iLatitude]*(1.0-albedo[iLatitude]) - infrared[iLatitude];
     }
 
-void World::calcHabitability(double &minT, double &maxT)
+void World::calcHabitability(int iLatitude, double &minT, double &maxT)
     {
     /*
      * Written 9/1/14 by dh4gan
@@ -358,13 +377,15 @@ void World::calcHabitability(double &minT, double &maxT)
      * minimum and maximum temperatures for life
      */
 
-    for (int i=0; i< nPoints1; i++)
+    if (T[iLatitude] >= minT and T[iLatitude] <= maxT)
 	{
-	if(T[i]>=minT and T[i]<=maxT)
-	    {hab[i]=1;}
-	else
-	    {hab[i]=0.0;}
+	hab[iLatitude] = 1;
 	}
+    else
+	{
+	hab[iLatitude] = 0.0;
+	}
+
     }
 
 void World::calcLEBMTimestep()
