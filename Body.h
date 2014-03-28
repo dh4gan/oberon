@@ -46,6 +46,7 @@ public:
 	Vector3D getCrackle() { return crackle;}
 
 	double getSemiMajorAxis(){return semiMajorAxis;}
+	double getPeriod(){return period;}
 
 	Vector3D getOrbitalAngularMomentum(){ return orbitalAngularMomentum;}
 	double getMagOrbitalAngularMomentum(){ return magOrbitalAngularMomentum;}
@@ -105,7 +106,7 @@ public:
 	void calcTrueAnomaly();
 	void calcOrbitFromVector(double G, double totmass); // Calculate orbital elements from position and velocity
 	void calcVectorFromOrbit(double G, double totmass); // Calculate position and velocity from orbital elements
-	double calcPeriod(double G, double totalMass);
+	double calcPeriod(double G, double totalMass); // This method is virtual as it is used by World
 	void changeFrame(Vector3D framepos, Vector3D framevel);
 
 	void calcOrbitFromVector(double G, Body* parentBody); // Calculate orbit around a specific Body
@@ -199,6 +200,7 @@ protected:
 	// Orbital Elements
 
 	double semiMajorAxis;
+	double period;
 
 	Vector3D eccentricityVector;  // Eccentricity Vector
 	double eccentricity; 	  // Eccentricity = Absolute Magnitude of Eccentricity Vector

@@ -107,6 +107,10 @@ void World::initialiseLEBM()
 
    diffusion = 5.394e2 * rotationPeriod*rotationPeriod;
 
+   // Set up variables to handle ice melting
+   meltTime.resize(nPoints1,0.0);
+   melting.resize(nPoints1,false);
+
    // Set up files
 
    initialiseOutputVariables();
@@ -451,14 +455,16 @@ void World::integrate()
     /*
      * Written 10/1/14 by dh4gan
      * Integrates the diffusion equation to drive the system forward
-     *
+     * This method includes an ice melting algorithm
      */
     int i;
     double Tminus1,Tplus1, Dplus,Dminus;
-    double T1,dx,dx1,Fj;
+    double T1,dx,dx1,Fj, period;
+    double year = 3.15e7;
 
-
+    bool activateMelt = true;
     T_old = T;
+
 
 #pragma omp parallel default(none) \
 	private(i,Tminus1,Dminus,Tplus1,Dplus)\
@@ -467,6 +473,15 @@ void World::integrate()
 #pragma omp for schedule(runtime) ordered
 	for (i = 0; i < nPoints1; i++)
 	    {
+
+	    // If ice melting algorithm began in a previous timestep, modify albedo
+	    // melting ice has a slightly lower albedo (Spiegel et al 2010)
+
+	    if(melting[i])
+	    	{
+
+	    	albedo[i] = albedo[i]*0.8;
+	    	}
 
 	    // Ifs ensure we use the correct ghost cells to do the integration
 	    // Do the minimum value first
@@ -520,6 +535,52 @@ void World::integrate()
 		    / (0.5 * (dx1 + dx));
 	    T[i] = T1 + (dtLEBM / C[i]) * (Q[i] + Fj);
 
+	    // If this temperature brings a cold world to the freezing point, then begin ice
+	    // melting algorithm
+
+	    // Need to ensure melting algorithm activated in one way only
+
+	    if(T[i]>=freeze and T_old[i] < freeze and activateMelt)
+		{
+		melting[i]=true;
+		//cout << "MELTING " << i << "  " << nPoints1 << endl;
+		}
+
+	    // If this latitude is currently melting and net heating is positive,
+	    // then ice sheet continues to melt
+
+	    if (melting[i])
+		{
+		if (Q[i] >= 0.0)
+		    {
+		    meltTime[i] = meltTime[i] + dtLEBM;
+		    }
+		else
+		    {
+		    meltTime[i] = 0.0;
+		    }
+
+		// Find period by calling the Base class method
+		period = Body::getPeriod();
+
+		// Convert into seconds
+		// WARNING - THIS DEPENDS ON CHOICE OF G, and mass and distance units
+		// CANONICAL UNITS USED IN THIS CODE: G=1, M = Msol, d = AU ==> t = 2 pi units/year
+
+		period = period*year/(2.0*pi);
+
+		// If melting process continues for more than one orbit, then ice sheet has melted
+		if (meltTime[i] < period)
+		    {
+		    T[i] = freeze-1.0e-2;
+		    }
+
+		if(meltTime[i]>=period)
+		    {
+		    melting[i] = false;
+		    }
+
+		}
 	    // cout <<" Integrate: "<<  i <<"   "<< T[i] <<"   "<< dtLEBM<<"   " << Q[i]<<"   " << Fj <<endl;
 
 	    }

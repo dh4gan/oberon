@@ -77,6 +77,9 @@ protected:
     double initialTemperature;
     double diffusion;
 
+    vector<bool> melting;
+    vector<double> meltTime;
+
     int nPoints,nPoints1;
 
     double nFloat;

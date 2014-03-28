@@ -187,6 +187,8 @@ void Body::calcOrbitFromVector(double G, double totmass)
     semiMajorAxis = magOrbitalAngularMomentum * magOrbitalAngularMomentum / (G
 	    * (totmass) * (1 - eccentricity * eccentricity));
 
+    period = calcPeriod(G,totmass);
+
     // Calculate Orbital Inclination
 
     if (magOrbitalAngularMomentum > 0.0)
