@@ -647,6 +647,12 @@ void System::evolveSystem(double tbegin, double tend)
     while (time < tend)
 	{
 
+
+#pragma omp parallel default(none) \
+	shared(predicted)\
+	private(i,pos,vel,acc,jerk,pos_p,vel_p)
+	{
+#pragma omp for schedule(runtime) ordered
 	/* Calculate predicted positions and velocities */
 	for (i = 0; i < bodyCount; i++)
 	    {
@@ -671,11 +677,21 @@ void System::evolveSystem(double tbegin, double tend)
 	    predicted[i]->setVelocity(vel_p);
 
 	    }
+	}
 
 	/* 2. Use predicted positions and velocities to calculate
 	 * predicted accelerations, jerks, snaps and crackles */
 	calcForces(predicted);
 
+
+
+#pragma omp parallel default(none) \
+	shared(predicted)\
+	private(i,pos,vel,acc,jerk)\
+	private(pos_p,vel_p,acc_p,jerk_p)\
+	private(velterm,accterm,jerkterm,vel_c,pos_c)
+	{
+#pragma omp for schedule(runtime) ordered
 	for (i = 0; i < bodyCount; i++)
 	    {
 
@@ -707,6 +723,7 @@ void System::evolveSystem(double tbegin, double tend)
 	    bodies[i]->setVelocity(vel_c);
 
 	    }
+	}
 
 	/* 5. Calculate acceleration, jerk, snap and crackle for next step */
 
