@@ -8,6 +8,7 @@
 #include "System.h"
 #include <iostream>
 #include <stdio.h>
+#include <algorithm>
 
 System::System()
     {
@@ -343,21 +344,23 @@ void System::calcNBodyTimestep(vector<Body*> &bodyarray, double dtmax)
      and finds the minimum value */
 
     int i;
-    double dt;
+    vector<double> dt;
 
-    for (i = 0; i < bodyCount; i++)
+#pragma omp parallel default(none) \
+	shared(bodyarray,dt) \
+	private(i)
 	{
-	bodyarray[i]->calcTimestep(timeControl);
-
-	dt = bodyarray[i]->getTimestep();
-
-	if (dt < dtmax and dt > 0.0)
+	for (i = 0; i < bodyCount; i++)
 	    {
-	    dtmax = dt;
+	    bodyarray[i]->calcTimestep(timeControl);
+
+	    dt[i] = bodyarray[i]->getTimestep();
 	    }
 	}
 
-    setTimestep(dtmax);
+    dtmax = *max_element(dt.begin(), dt.end());
+    cout << dtmax << endl;
+    timeStep = dtmax;
 
     }
 
