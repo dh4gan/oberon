@@ -344,7 +344,7 @@ void System::calcNBodyTimestep(vector<Body*> &bodyarray, double dtmax)
      and finds the minimum value */
 
     int i;
-    vector<double> dt;
+    vector<double> dt(bodyCount,0.0);
 
 #pragma omp parallel default(none) \
 	shared(bodyarray,dt) \
@@ -352,14 +352,14 @@ void System::calcNBodyTimestep(vector<Body*> &bodyarray, double dtmax)
 	{
 	for (i = 0; i < bodyCount; i++)
 	    {
+
 	    bodyarray[i]->calcTimestep(timeControl);
 
 	    dt[i] = bodyarray[i]->getTimestep();
 	    }
-	}
 
-    dtmax = *max_element(dt.begin(), dt.end());
-    cout << dtmax << endl;
+	}
+    dtmax = *(max_element(dt.begin(), dt.end()));
     timeStep = dtmax;
 
     }
