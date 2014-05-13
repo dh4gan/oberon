@@ -111,6 +111,7 @@ void parFile::readPosFile()
 	    if (restartChoice == "T")
 		{
 		restart = true;
+		cout << "This run is a restart" << endl;
 		}
 	    }
 
@@ -308,7 +309,8 @@ void parFile::readOrbFile()
 	    iss >> restartChoice;
 	    if(restartChoice == "T")
 		{
-		restart==true;
+		restart=true;
+		cout << "This run is a restart" << endl;
 		}
 	    }
 
@@ -696,7 +698,15 @@ void parFile::setupRestartOrbits()
 	if(iline>numLines - number_bodies)
 	    {
 
-	    ibody = numLines - iline;
+	    ibody = numLines-iline;
+	    ibody = number_bodies - ibody-1;
+
+	    // Strip commas from line
+	    while(line.find(",")!=line.npos)
+		{
+	    line.replace(line.find(","),1, " ");
+
+		}
 	    istringstream iss(line);
 
 	    iss >> systemTime;

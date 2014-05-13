@@ -707,10 +707,10 @@ void World::outputLEBMData(int &snapshotNumber, double &tSnap)
     string numString = convert.str();
     string snapshotFileName = getName()+"."+numString;
 
-    cout << tSnap << endl;
+    snapshotFile = fopen(snapshotFileName.c_str(), "w");
 
     fprintf(snapshotFile, "%i %+.4E \n", nPoints, tSnap);
-    cout << "Here" << endl;
+
 
     for (int i=0; i<nPoints; i++)
 	{
@@ -719,7 +719,7 @@ void World::outputLEBMData(int &snapshotNumber, double &tSnap)
 		albedo[i], insol[i], tau[i],iceFraction[i], hab[i]);
 	}
     fclose(snapshotFile);
-    cout << snapshotFileName << endl;
+
     }
 
 int World::findRestartTemperature()

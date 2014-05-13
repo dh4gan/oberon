@@ -224,8 +224,16 @@ int main(int argc, char* argv[])
 
     // Set up the outputs
 
-    outputfile = fopen(input.NBodyFile.c_str(), "w");
-    fprintf(outputfile, "Number of Bodies, %i \n", input.number_bodies);
+    if (input.restart)
+	{
+	outputfile = fopen(input.NBodyFile.c_str(), "a");
+	}
+    else
+	{
+	outputfile = fopen(input.NBodyFile.c_str(), "w");
+	fprintf(outputfile, "Number of Bodies, %i \n", input.number_bodies);
+	}
+
 
     // Now loop over snap shots, outputting the system data each time
 
