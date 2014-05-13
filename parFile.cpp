@@ -72,7 +72,7 @@ void parFile::readPosFile()
 
     string par;
     string line;
-    string BodyType,BodyName, meltChoice;
+    string BodyType,BodyName, meltChoice, restartChoice;
 
     int bodyIndex;
 
@@ -81,6 +81,7 @@ void parFile::readPosFile()
     double val_i, val_j, val_k;
 
     NBodyFile = "nbody_output.txt";
+    snapshotNumber = 0;
     nPoints = 0;
 
     strcpy(inputfile, parFileName.c_str());
@@ -104,7 +105,14 @@ void parFile::readPosFile()
 	istringstream iss(line);
 	iss >> par;
 
-	cout << par << endl;
+	if (par == "Restart")
+	    {
+	    iss >> restartChoice;
+	    if (restartChoice == "T")
+		{
+		restart = true;
+		}
+	    }
 
 	if (par == "NBodyOutput")
 	    {
@@ -250,6 +258,13 @@ void parFile::readPosFile()
 
 	}
     myfile.close();
+
+    systemTime = 0.0;
+    if(restart)
+	{
+	setupRestartPositions();
+	}
+
     }
 void parFile::readOrbFile()
     {
@@ -264,9 +279,11 @@ void parFile::readOrbFile()
     int bodyIndex;
     string par;
     string line;
-    string BodyType, BodyName, meltChoice;
+    string BodyType, BodyName, meltChoice,restartChoice;
 
     NBodyFile = "nbody_output.txt";
+    snapshotNumber = 0;
+    restart = false;
 
     char inputfile[100];
 
@@ -285,6 +302,15 @@ void parFile::readOrbFile()
 	{
 	istringstream iss(line);
 	iss >> par;
+
+	if(par=="Restart")
+	    {
+	    iss >> restartChoice;
+	    if(restartChoice == "T")
+		{
+		restart==true;
+		}
+	    }
 
 	if(par=="NBodyOutput")
 	    {
@@ -456,6 +482,14 @@ void parFile::readOrbFile()
 	}
     myfile.close();
 
+    systemTime = 0.0;
+
+    if(restart)
+	{
+	setupRestartOrbits();
+	}
+
+
     }
 int parFile::parType()
     {
@@ -609,3 +643,102 @@ int parFile::readParFile(string filename)
     return type;
     }
 
+void parFile::setupRestartOrbits()
+/*
+ * Written 13/5/14 by dh4gan
+ * If the system is restarting from a previous dump, this method
+ * generates the correct orbits
+ */
+    {
+
+    int numLines = 0;
+    int ibody;
+    double blank;
+    string line,name;
+
+    // Read Last N Lines of NBody File for time, orbital elements
+
+    cout << "Generating Orbits for system restart " << endl;
+    cout << "Reading input from file " << NBodyFile << endl;
+    cout << "Reading data for " << number_bodies << " bodies " << endl;
+
+    ifstream myfile(NBodyFile.c_str());
+
+    if(myfile)
+	{
+
+	// First, get number of lines in total
+
+	while(getline(myfile,line))
+	    {
+	    numLines++;
+	    }
+
+	cout << "Number of Lines is " << numLines << endl;
+
+	}
+    else
+	{
+	cout << "Error: File "<< NBodyFile << "not found" << endl;
+	return;
+	}
+
+    // Now read final N lines
+    myfile.close();
+    myfile.open(NBodyFile.c_str());
+
+    int iline = 0;
+    while(getline(myfile,line))
+	{
+	iline++;
+
+	// If at last lines of file, then read information
+	if(iline>numLines - number_bodies)
+	    {
+
+	    ibody = numLines - iline;
+	    istringstream iss(line);
+
+	    iss >> systemTime;
+	    iss >> blank;
+	    iss >> name;
+
+	    if(name !=BodyNames[ibody]){
+		cout << "WARNING! Body Names Mismatch: " << name << "  " << BodyNames[ibody] << endl;
+	    }
+
+	    // Mass, Radius
+	    iss >> Mass[ibody];
+	    iss >> Radius[ibody];
+
+	    // X, Y, Z, VX, VY, VZ
+
+	    iss >> blank;
+	    iss >> blank;
+	    iss >> blank;
+
+	    iss >> blank;
+	    iss >> blank;
+	    iss >> blank;
+
+	    // Orbital Parameters
+
+	    iss >> semiMajorAxis[ibody];
+	    iss >> eccentricity[ibody];
+	    iss >> inclination[ibody];
+	    iss >> longAscend[ibody];
+	    iss >> Periapsis[ibody];
+	    iss >> meanAnomaly[ibody];
+
+
+	    }
+	}
+
+
+
+    }
+
+void parFile::setupRestartPositions()
+    {
+
+    }

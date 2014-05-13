@@ -22,19 +22,22 @@ public:
 
     World(string namestring, string typestring, double m, double rad,
 	    Vector3D pos, Vector3D vel, int n, double obliq, double rot, double winter,
-	    double ocean, double T0, bool melt);
+	    double ocean, double T0, bool melt, bool start);
 
     World(string namestring, string typestring, double m, double rad,
 	    double semimaj, double ecc, double inc, double longascend,
 	    double argper, double meananom, double G, double totalMass,
 	    int n, double obliq, double rot, double winter,
-	    double ocean, double T0, bool melt);
+	    double ocean, double T0, bool melt, bool start);
     virtual ~World();
 
     /* Accessors */
 
     void setInsolationZero() {insol.assign(nPoints1,0.0);}
+    void setTemperature(vector<double> temp);
+
     double getLEBMTimestep(){return dtLEBM;}
+
 
     // Calculation Methods
 
@@ -58,9 +61,11 @@ public:
     // Output Methods
 
     void outputLEBMData(int &snapshotNumber, double &tSnap);
-    void initialiseOutputVariables();
+    void initialiseOutputVariables(bool restart);
     void calcLEBMMeans(double &minT, double &maxT, double &meanT, double &meanQ, double &meanA, double &meanIR, double &meanS,
     	double &meanhab);
+
+    int findRestartTemperature();
 
     // Standard cloning method
     virtual World* Clone()
@@ -92,6 +97,7 @@ protected:
 
     FILE *logFile, *snapshotFile;
     bool activateMelt;
+    bool restart;
 
     };
 

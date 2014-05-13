@@ -11,6 +11,7 @@
 #include <fstream>
 #include <sstream>
 #include <algorithm>
+#include <numeric>
 
 double freeze = 273.0;
 double boil = 373.0;
@@ -23,7 +24,7 @@ World::World() :
     }
 World::World(string namestring, string typestring, double m, double rad,
 	Vector3D pos, Vector3D vel, int n, double obliq, double rot, double winter,
-	double ocean, double T0,bool melt) :
+	double ocean, double T0,bool melt, bool start) :
 	Body(namestring, typestring, m, rad, pos, vel)
     {
     nPoints = n;
@@ -37,6 +38,7 @@ World::World(string namestring, string typestring, double m, double rad,
 
     nPoints1 = nPoints+1;
     activateMelt = melt;
+    restart = start;
 
     initialiseLEBM();
 
@@ -44,7 +46,7 @@ World::World(string namestring, string typestring, double m, double rad,
 World::World(string namestring, string typestring, double m, double rad,
 	double semimaj, double ecc, double inc, double longascend,
 	double argper, double meananom, double G, double totalMass, int n,
-	double obliq, double rot, double winter, double ocean, double T0, bool melt) :
+	double obliq, double rot, double winter, double ocean, double T0, bool melt, bool start) :
 	Body(namestring, typestring, m, rad, semimaj, ecc, inc, longascend,
 		argper, meananom, G, totalMass)
     {
@@ -58,6 +60,7 @@ World::World(string namestring, string typestring, double m, double rad,
     nFloat = float(nPoints);
     nPoints1 = nPoints+1;
     activateMelt = melt;
+    restart = start;
 
     initialiseLEBM();
 
@@ -114,7 +117,7 @@ void World::initialiseLEBM()
 
    // Set up files
 
-   initialiseOutputVariables();
+   initialiseOutputVariables(restart);
    // Calculate initial parameters
 
 #pragma omp parallel default(none) \
@@ -134,6 +137,37 @@ void World::initialiseLEBM()
 	    }
 	}
    calcLEBMTimestep();
+
+    }
+
+void World::setTemperature(vector<double>temp){
+
+    int i;
+	for(i=0; i<nPoints; i++)
+	    {
+	    T[i] = temp[i];
+	    }
+	T[nPoints] = T[nPoints-1];
+
+	   // Calculate initial parameters
+
+	#pragma omp parallel default(none) \
+		shared(freeze,boil)\
+		private(i)
+		{
+	#pragma omp for schedule(runtime) ordered
+		for (i = 0; i < nPoints1; i++)
+		    {
+		    calcIce(i);
+		    calcHeatCapacity(i);
+		    calcOpticalDepth(i);
+		    calcAlbedo(i);
+		    calcCooling(i);
+		    calcNetHeating(i);
+		    calcHabitability(i,freeze,boil);
+		    }
+		}
+	   calcLEBMTimestep();
 
     }
 
@@ -588,7 +622,7 @@ void World::integrate()
 
     }
 
-void World::initialiseOutputVariables()
+void World::initialiseOutputVariables(bool restart)
     {
     /*
      * Written 10/1/14 by dh4gan
@@ -597,7 +631,15 @@ void World::initialiseOutputVariables()
      */
 
     string logFileName = getName()+".log";
-    logFile = fopen(logFileName.c_str(), "w");
+
+    if(restart)
+	{
+	logFile = fopen(logFileName.c_str(), "a");
+	}
+    else
+	{
+	logFile = fopen(logFileName.c_str(), "w");
+	}
     }
 
 void World::calcLEBMMeans(double &minT, double &maxT, double &meanT, double &meanQ, double &meanA, double &meanIR, double &meanS,
@@ -664,10 +706,11 @@ void World::outputLEBMData(int &snapshotNumber, double &tSnap)
 
     string numString = convert.str();
     string snapshotFileName = getName()+"."+numString;
-    snapshotFile = fopen(snapshotFileName.c_str(), "w");
 
+    cout << tSnap << endl;
 
     fprintf(snapshotFile, "%i %+.4E \n", nPoints, tSnap);
+    cout << "Here" << endl;
 
     for (int i=0; i<nPoints; i++)
 	{
@@ -676,6 +719,89 @@ void World::outputLEBMData(int &snapshotNumber, double &tSnap)
 		albedo[i], insol[i], tau[i],iceFraction[i], hab[i]);
 	}
     fclose(snapshotFile);
-
+    cout << snapshotFileName << endl;
     }
+
+int World::findRestartTemperature()
+    {
+
+    /*
+     * written by dh4gan 13/5/14
+     * Reads last temperature snapshot file for restart purposes
+     *
+     */
+
+    // Read log file to determine how many snapshots there have been
+
+    string logFileName = getName()+".log";
+    string line;
+    int nSnap = 0;
+    double blank;
+    ifstream lfile(logFileName.c_str());
+
+    if(lfile)
+   	{
+
+   	while(getline(lfile,line))
+   	    {
+   	    nSnap++;
+   	    }
+
+   	cout << "Number of Snapshots is " << nSnap << endl;
+
+   	}
+       else
+   	{
+   	cout << "Error: File "<< logFileName << "not found" << endl;
+   	return -1;
+   	}
+
+    lfile.close();
+
+    ostringstream convert;
+    convert << nSnap;
+
+    string numString = convert.str();
+    string worldFile = getName()+"."+numString;
+
+    ifstream wfile(worldFile.c_str());
+
+    // Read header (number of grid points, time)
+    getline(wfile,line);
+
+    int i=0;
+
+    while (getline(wfile, line))
+	{
+	istringstream iss(line);
+	iss >> blank;
+	if (i < nPoints1)
+	    {
+	    iss >> T[i];
+	    }
+	i++;
+	}
+
+#pragma omp parallel default(none) \
+	shared(freeze,boil)\
+	private(i)
+	{
+#pragma omp for schedule(runtime) ordered
+	for (i = 0; i < nPoints1; i++)
+	    {
+	    calcIce(i);
+	    calcHeatCapacity(i);
+	    calcOpticalDepth(i);
+	    calcAlbedo(i);
+	    calcCooling(i);
+	    calcNetHeating(i);
+	    calcHabitability(i,freeze,boil);
+	    }
+	}
+   calcLEBMTimestep();
+
+   return nSnap;
+    }
+
+
 

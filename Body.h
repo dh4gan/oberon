@@ -149,6 +149,11 @@ public:
 	return -1.0;
 	}
 
+    virtual int findRestartTemperature()
+	{
+	return -1;
+	}
+
     // Calculation Methods
 
     virtual void initialiseLEBM(){};

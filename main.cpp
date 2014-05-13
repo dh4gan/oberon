@@ -34,7 +34,8 @@ int main(int argc, char* argv[])
     double unit2sec = year/twopi;
 
 
-    int i, fileType, snapshotNumber;
+    int i, fileType;
+    int snapshotNumber=0;
 
     double tStop;
     double timeunit,timeyr;
@@ -133,7 +134,11 @@ int main(int argc, char* argv[])
 			new World(input.BodyNames[i], input.BodyTypes[i],
 				input.Mass[i], input.Radius[i], body_i_position,
 				body_i_velocity, input.nPoints, input.obliquity[i],input.rotationPeriod[i], input.winterSolstice[i],
-				input.oceanFraction[i], input.initialTemperature[i], input.activateMelt[i]));
+				input.oceanFraction[i], input.initialTemperature[i], input.activateMelt[i], input.restart));
+		if(input.restart)
+		    {
+		    snapshotNumber = BodyArray.back()->findRestartTemperature();
+		    }
 
 		}
 
@@ -188,7 +193,11 @@ int main(int argc, char* argv[])
 				input.inclination[i], input.longAscend[i],
 				input.Periapsis[i], input.meanAnomaly[i], G,
 				input.totalMass,input.nPoints, input.obliquity[i],input.rotationPeriod[i], input.winterSolstice[i],
-				input.oceanFraction[i], input.initialTemperature[i], input.activateMelt[i]));
+				input.oceanFraction[i], input.initialTemperature[i], input.activateMelt[i], input.restart));
+		if (input.restart)
+		    {
+		    snapshotNumber = BodyArray.back()->findRestartTemperature();
+		    }
 		}
 
 	    }
@@ -230,8 +239,8 @@ int main(int argc, char* argv[])
     dtunit = nBodySystem.calcCombinedTimestep();
 
     dtsec = dtunit*unit2sec; // This will be the default timestep measure - derive dtunit = dtsec*2pi/(3.15e7)
-    timeunit = 0.0;
-    snapshotNumber = 0;
+    timeunit = input.systemTime*twopi;
+
 
     printf("System set up: Running \n");
     while (timeunit < tMax)

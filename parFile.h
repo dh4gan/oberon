@@ -28,10 +28,15 @@ public:
 	string parFileName;
 	string SystemName;
 	string fileType;
+
+	bool restart;
+
 	int number_bodies;
 	int nPoints;
+	int snapshotNumber;
 	double snapshotTime;
 	double maximumTime;
+	double systemTime;
 	double totalMass;
 
 	vector<string> parameters;
@@ -72,6 +77,9 @@ public:
 	void readOrbFile();
 	int parType();
 	int parType(string fileName);
+
+	void setupRestartPositions();
+	void setupRestartOrbits();
 
 
 };

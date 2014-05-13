@@ -5,6 +5,7 @@ NGridPoints	144
 MaximumTime	100.0
 SystemName EarthSun
 Number_Bodies 2
+Restart F
 --
 BodyName Sun
 BodyType Star
