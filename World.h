@@ -22,13 +22,13 @@ public:
 
     World(string namestring, string typestring, double m, double rad,
 	    Vector3D pos, Vector3D vel, int n, double obliq, double rot, double winter,
-	    double ocean, double T0);
+	    double ocean, double T0, bool melt);
 
     World(string namestring, string typestring, double m, double rad,
 	    double semimaj, double ecc, double inc, double longascend,
 	    double argper, double meananom, double G, double totalMass,
 	    int n, double obliq, double rot, double winter,
-	    double ocean, double T0);
+	    double ocean, double T0, bool melt);
     virtual ~World();
 
     /* Accessors */
@@ -89,7 +89,9 @@ protected:
     vector<double> T, T_old, tau;
     vector<double> iceFraction, C, hab;
     vector<double> infrared, Q, albedo, insol;
+
     FILE *logFile, *snapshotFile;
+    bool activateMelt;
 
     };
 

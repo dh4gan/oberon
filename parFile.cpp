@@ -72,7 +72,7 @@ void parFile::readPosFile()
 
     string par;
     string line;
-    string BodyType,BodyName;
+    string BodyType,BodyName, meltChoice;
 
     int bodyIndex;
 
@@ -151,6 +151,7 @@ void parFile::readPosFile()
 	    oceanFraction.assign(number_bodies, 0.0);
 	    initialTemperature.assign(number_bodies, 0.0);
 	    orbitCentre.assign(number_bodies, 0.0);
+	    activateMelt.assign(number_bodies,false);
 	    bodyIndex = -1;
 
 	    }
@@ -237,6 +238,15 @@ void parFile::readPosFile()
 	    iss >> val_i;
 	    initialTemperature[bodyIndex] = val_i;
 	    }
+	else if(par == "IceMeltingOn")
+	    {
+	    iss >> meltChoice;
+	    if(meltChoice=="T")
+		{
+		activateMelt[bodyIndex] = true;
+		}
+
+	    }
 
 	}
     myfile.close();
@@ -254,7 +264,7 @@ void parFile::readOrbFile()
     int bodyIndex;
     string par;
     string line;
-    string BodyType, BodyName;
+    string BodyType, BodyName, meltChoice;
 
     NBodyFile = "nbody_output.txt";
 
@@ -319,6 +329,7 @@ void parFile::readOrbFile()
 	    oceanFraction.assign(number_bodies, 0.0);
 	    initialTemperature.assign(number_bodies, 0.0);
 	    orbitCentre.assign(number_bodies,0.0);
+	    activateMelt.assign(number_bodies,false);
 	    bodyIndex = -1;
 
 
@@ -433,7 +444,15 @@ void parFile::readOrbFile()
 	    iss >> val_i;
 	    initialTemperature[bodyIndex] = val_i;
 	    }
+	else if(par == "IceMeltingOn")
+	    {
+	    iss >> meltChoice;
+	    if(meltChoice=="T")
+		{
+		activateMelt[bodyIndex] = true;
+		}
 
+	    }
 	}
     myfile.close();
 

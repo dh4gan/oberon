@@ -35,4 +35,5 @@ WinterSolstice 0.0	(longitude,degrees)
 OceanFraction 0.7
 InitialTemperature 288.0
 OrbitCentre 0
+IceMeltingOn T
 

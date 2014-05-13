@@ -23,7 +23,7 @@ World::World() :
     }
 World::World(string namestring, string typestring, double m, double rad,
 	Vector3D pos, Vector3D vel, int n, double obliq, double rot, double winter,
-	double ocean, double T0) :
+	double ocean, double T0,bool melt) :
 	Body(namestring, typestring, m, rad, pos, vel)
     {
     nPoints = n;
@@ -36,6 +36,7 @@ World::World(string namestring, string typestring, double m, double rad,
     nFloat = float(nPoints);
 
     nPoints1 = nPoints+1;
+    activateMelt = melt;
 
     initialiseLEBM();
 
@@ -43,7 +44,7 @@ World::World(string namestring, string typestring, double m, double rad,
 World::World(string namestring, string typestring, double m, double rad,
 	double semimaj, double ecc, double inc, double longascend,
 	double argper, double meananom, double G, double totalMass, int n,
-	double obliq, double rot, double winter, double ocean, double T0) :
+	double obliq, double rot, double winter, double ocean, double T0, bool melt) :
 	Body(namestring, typestring, m, rad, semimaj, ecc, inc, longascend,
 		argper, meananom, G, totalMass)
     {
@@ -55,8 +56,8 @@ World::World(string namestring, string typestring, double m, double rad,
     landFraction = 1.0-oceanFraction;
     initialTemperature = T0;
     nFloat = float(nPoints);
-
     nPoints1 = nPoints+1;
+    activateMelt = melt;
 
     initialiseLEBM();
 
@@ -462,7 +463,6 @@ void World::integrate()
     double T1,dx,dx1,Fj, period;
     double year = 3.15e7;
 
-    bool activateMelt = true;
     T_old = T;
 
 

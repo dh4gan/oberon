@@ -58,6 +58,7 @@ public:
 	vector<double> winterSolstice;
 	vector<double> oceanFraction;
 	vector<double> initialTemperature;
+	vector<bool> activateMelt;
 
 	vector<int> orbitCentre;
 
