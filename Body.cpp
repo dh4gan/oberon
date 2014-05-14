@@ -538,6 +538,7 @@ void Body::calcTimestep(double greekEta)
 	{
 	cout << "warning in calcTimestep: numerator zero for Body " << name
 		<< endl;
+	cout << position.magVector() << "  " << velocity.magVector() << endl;
 	setTimestep(0.0);
 	}
 

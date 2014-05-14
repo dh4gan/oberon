@@ -775,6 +775,7 @@ int World::findRestartTemperature()
 	{
 	istringstream iss(line);
 	iss >> blank;
+	iss >> blank;
 	if (i < nPoints1)
 	    {
 	    iss >> T[i];

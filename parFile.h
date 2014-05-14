@@ -79,7 +79,6 @@ public:
 	int parType(string fileName);
 
 	void setupRestartPositions();
-	void setupRestartOrbits();
 
 
 };

@@ -87,17 +87,25 @@ int main(int argc, char* argv[])
     tMax = input.maximumTime;
     tSnap = input.snapshotTime;
 
+    if(input.restart)
+	{
+		cout << "Restart - Using vector data from nbody output" << endl;
+	}
+
     //First loop through each of the bodies in the system and set them up
     //adding them to the BodyArray
     for (i = 0; i < input.number_bodies; i++)
 	{
-	if (fileType == 0)
+	if (fileType == 0 or input.restart)
 	    {
+
+
 
 	    cout << "setting up body from vectors" << endl;
 
 	    body_i_position = input.getBodyPosition(i);
 	    body_i_velocity = input.getBodyVelocity(i);
+
 
 	    // If the Body is a Star, add a Star Object
 
@@ -137,6 +145,7 @@ int main(int argc, char* argv[])
 				input.oceanFraction[i], input.initialTemperature[i], input.activateMelt[i], input.restart));
 		if(input.restart)
 		    {
+		    cout << "Reading Temperature data for World " << BodyArray.back()->getName() << endl;
 		    snapshotNumber = BodyArray.back()->findRestartTemperature();
 		    }
 
@@ -144,7 +153,7 @@ int main(int argc, char* argv[])
 
 
 	    }
-	else if (fileType == 1)
+	else if (fileType == 1 and input.restart==false)
 	    {
 	   	printf("setting up body with orbital parameters \n");
 
@@ -194,10 +203,6 @@ int main(int argc, char* argv[])
 				input.Periapsis[i], input.meanAnomaly[i], G,
 				input.totalMass,input.nPoints, input.obliquity[i],input.rotationPeriod[i], input.winterSolstice[i],
 				input.oceanFraction[i], input.initialTemperature[i], input.activateMelt[i], input.restart));
-		if (input.restart)
-		    {
-		    snapshotNumber = BodyArray.back()->findRestartTemperature();
-		    }
 		}
 
 	    }
@@ -214,7 +219,7 @@ int main(int argc, char* argv[])
 
     // If the System is created from orbital parameters, set up vectors here
 
-    if(fileType ==1)
+    if(fileType ==1 and input.restart==false)
 	{
 	nBodySystem.setupOrbits(input.orbitCentre);
 	}
@@ -224,7 +229,7 @@ int main(int argc, char* argv[])
 
     // Set up the outputs
 
-    if (input.restart)
+    if (input.restart and snapshotNumber !=0)
 	{
 	outputfile = fopen(input.NBodyFile.c_str(), "a");
 	}

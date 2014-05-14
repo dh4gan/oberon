@@ -486,9 +486,10 @@ void parFile::readOrbFile()
 
     systemTime = 0.0;
 
+    cout << BodyNames[0] << endl;
     if(restart)
 	{
-	setupRestartOrbits();
+	setupRestartPositions();
 	}
 
 
@@ -645,33 +646,44 @@ int parFile::readParFile(string filename)
     return type;
     }
 
-void parFile::setupRestartOrbits()
-/*
- * Written 13/5/14 by dh4gan
- * If the system is restarting from a previous dump, this method
- * generates the correct orbits
- */
+void parFile::setupRestartPositions()
     {
+    /*
+     * Written 13/5/14 by dh4gan
+     * If the system is restarting from a previous dump, this method
+     * generates the correct starting positions and velocities
+     */
 
     int numLines = 0;
     int ibody;
     double blank;
-    string line,name;
+    string line, name;
+
+    Mass.assign(number_bodies, 0.0);
+    Radius.assign(number_bodies, 0.0);
+
+    x_position.assign(number_bodies, 0.0);
+    y_position.assign(number_bodies, 0.0);
+    z_position.assign(number_bodies, 0.0);
+
+    x_velocity.assign(number_bodies, 0.0);
+    y_velocity.assign(number_bodies, 0.0);
+    z_velocity.assign(number_bodies, 0.0);
 
     // Read Last N Lines of NBody File for time, orbital elements
 
-    cout << "Generating Orbits for system restart " << endl;
+    cout << "Generating Positions for system restart " << endl;
     cout << "Reading input from file " << NBodyFile << endl;
     cout << "Reading data for " << number_bodies << " bodies " << endl;
 
     ifstream myfile(NBodyFile.c_str());
 
-    if(myfile)
+    if (myfile)
 	{
 
 	// First, get number of lines in total
 
-	while(getline(myfile,line))
+	while (getline(myfile, line))
 	    {
 	    numLines++;
 	    }
@@ -681,7 +693,7 @@ void parFile::setupRestartOrbits()
 	}
     else
 	{
-	cout << "Error: File "<< NBodyFile << "not found" << endl;
+	cout << "Error: File " << NBodyFile << " not found" << endl;
 	return;
 	}
 
@@ -690,21 +702,22 @@ void parFile::setupRestartOrbits()
     myfile.open(NBodyFile.c_str());
 
     int iline = 0;
-    while(getline(myfile,line))
+    while (getline(myfile, line))
 	{
 	iline++;
 
 	// If at last lines of file, then read information
-	if(iline>numLines - number_bodies)
+	if (iline > numLines - number_bodies)
 	    {
 
-	    ibody = numLines-iline;
-	    ibody = number_bodies - ibody-1;
+	    ibody = numLines - iline;
+	    ibody = number_bodies - ibody - 1;
 
+	    cout << line << endl;
 	    // Strip commas from line
-	    while(line.find(",")!=line.npos)
+	    while (line.find(",") != line.npos)
 		{
-	    line.replace(line.find(","),1, " ");
+		line.replace(line.find(","), 1, " ");
 
 		}
 	    istringstream iss(line);
@@ -713,9 +726,15 @@ void parFile::setupRestartOrbits()
 	    iss >> blank;
 	    iss >> name;
 
-	    if(name !=BodyNames[ibody]){
-		cout << "WARNING! Body Names Mismatch: " << name << "  " << BodyNames[ibody] << endl;
-	    }
+	    cout << line << endl;
+	    cout << ibody << endl;
+	    cout << BodyNames[ibody] << endl;
+
+	    if (name != BodyNames[ibody])
+		{
+		cout << "WARNING! Body Names Mismatch: " << name << "  "
+			<< BodyNames[ibody] << endl;
+		}
 
 	    // Mass, Radius
 	    iss >> Mass[ibody];
@@ -723,13 +742,13 @@ void parFile::setupRestartOrbits()
 
 	    // X, Y, Z, VX, VY, VZ
 
-	    iss >> blank;
-	    iss >> blank;
-	    iss >> blank;
+	    iss >> x_position[ibody];
+	    iss >> y_position[ibody];
+	    iss >> z_position[ibody];
 
-	    iss >> blank;
-	    iss >> blank;
-	    iss >> blank;
+	    iss >> x_velocity[ibody];
+	    iss >> y_velocity[ibody];
+	    iss >> z_velocity[ibody];
 
 	    // Orbital Parameters
 
@@ -740,15 +759,7 @@ void parFile::setupRestartOrbits()
 	    iss >> Periapsis[ibody];
 	    iss >> meanAnomaly[ibody];
 
-
 	    }
 	}
-
-
-
-    }
-
-void parFile::setupRestartPositions()
-    {
 
     }
