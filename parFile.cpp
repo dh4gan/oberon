@@ -659,17 +659,6 @@ void parFile::setupRestartPositions()
     double blank;
     string line, name;
 
-    Mass.assign(number_bodies, 0.0);
-    Radius.assign(number_bodies, 0.0);
-
-    x_position.assign(number_bodies, 0.0);
-    y_position.assign(number_bodies, 0.0);
-    z_position.assign(number_bodies, 0.0);
-
-    x_velocity.assign(number_bodies, 0.0);
-    y_velocity.assign(number_bodies, 0.0);
-    z_velocity.assign(number_bodies, 0.0);
-
     // Read Last N Lines of NBody File for time, orbital elements
 
     cout << "Generating Positions for system restart " << endl;
@@ -693,12 +682,28 @@ void parFile::setupRestartPositions()
 	}
     else
 	{
-	cout << "Error: File " << NBodyFile << " not found" << endl;
+	cout << "Warning: File " << NBodyFile << " not found" << endl;
+	cout << "Assuming that is not a restart!" << endl;
+	restart=false;
 	return;
 	}
 
-    // Now read final N lines
     myfile.close();
+
+    // Now read final N lines
+
+
+    Mass.assign(number_bodies, 0.0);
+    Radius.assign(number_bodies, 0.0);
+
+    x_position.assign(number_bodies, 0.0);
+    y_position.assign(number_bodies, 0.0);
+    z_position.assign(number_bodies, 0.0);
+
+    x_velocity.assign(number_bodies, 0.0);
+    y_velocity.assign(number_bodies, 0.0);
+    z_velocity.assign(number_bodies, 0.0);
+
     myfile.open(NBodyFile.c_str());
 
     int iline = 0;
@@ -725,10 +730,6 @@ void parFile::setupRestartPositions()
 	    iss >> systemTime;
 	    iss >> blank;
 	    iss >> name;
-
-	    cout << line << endl;
-	    cout << ibody << endl;
-	    cout << BodyNames[ibody] << endl;
 
 	    if (name != BodyNames[ibody])
 		{

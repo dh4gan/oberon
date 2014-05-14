@@ -147,6 +147,12 @@ int main(int argc, char* argv[])
 		    {
 		    cout << "Reading Temperature data for World " << BodyArray.back()->getName() << endl;
 		    snapshotNumber = BodyArray.back()->findRestartTemperature();
+
+		    if(snapshotNumber==-1)
+			{
+			printf("ERROR in World %s temperature setup \n",input.BodyNames[i].c_str() );
+			return -1;
+			}
 		    }
 
 		}
@@ -259,7 +265,6 @@ int main(int argc, char* argv[])
     while (timeunit < tMax)
 	{
 	tStop = timeunit + tSnap;
-
 	while (timeunit < tStop)
 	    {
 
