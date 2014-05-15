@@ -663,7 +663,7 @@ void parFile::setupRestartPositions()
 
     cout << "Generating Positions for system restart " << endl;
     cout << "Reading input from file " << NBodyFile << endl;
-    cout << "Reading data for " << number_bodies << " bodies " << endl;
+    cout << "Attempting data read for " << number_bodies << " bodies " << endl;
 
     ifstream myfile(NBodyFile.c_str());
 
@@ -677,7 +677,7 @@ void parFile::setupRestartPositions()
 	    numLines++;
 	    }
 
-	cout << "Number of Lines is " << numLines << endl;
+	cout << "N Body output file has " << numLines << " lines " << endl;
 
 	}
     else
@@ -718,7 +718,6 @@ void parFile::setupRestartPositions()
 	    ibody = numLines - iline;
 	    ibody = number_bodies - ibody - 1;
 
-	    cout << line << endl;
 	    // Strip commas from line
 	    while (line.find(",") != line.npos)
 		{
