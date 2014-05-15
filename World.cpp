@@ -499,8 +499,17 @@ void World::integrate()
 
     T_old = T;
 
+	// For melting algorithm, find period by calling the Base class method
+	period = Body::getPeriod();
+
+	// Convert into seconds
+	// WARNING - THIS DEPENDS ON CHOICE OF G, and mass and distance units
+	// CANONICAL UNITS USED IN THIS CODE: G=1, M = Msol, d = AU ==> t = 2 pi units/year
+
+	period = period*year/(2.0*pi);
 
 #pragma omp parallel default(none) \
+	shared(freeze,period) \
 	private(i,Tminus1,Dminus,Tplus1,Dplus)\
 	private(T1,dx,dx1, Fj)
 	{
@@ -594,14 +603,7 @@ void World::integrate()
 		    meltTime[i] = 0.0;
 		    }
 
-		// Find period by calling the Base class method
-		period = Body::getPeriod();
 
-		// Convert into seconds
-		// WARNING - THIS DEPENDS ON CHOICE OF G, and mass and distance units
-		// CANONICAL UNITS USED IN THIS CODE: G=1, M = Msol, d = AU ==> t = 2 pi units/year
-
-		period = period*year/(2.0*pi);
 
 		// If melting process continues for more than one orbit, then ice sheet has melted
 		if (meltTime[i] < period)
