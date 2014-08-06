@@ -115,7 +115,7 @@ void parFile::readPosFile()
 		}
 	    }
 
-	if (par == "NBodyOutput")
+	if (par == "NBodyOutput" or par == "OutputFile")
 	    {
 	    iss >> NBodyFile;
 	    }

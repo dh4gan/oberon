@@ -337,7 +337,7 @@ void World::calcHeatCapacity(int iLatitude)
      * Calculation of Heat Capacity of the atmosphere as a function of the local temperature
      *
      */
-    double C_ice;
+    double C_ice = 0.0;
     double C_land = 5.25e9;
     double C_ocean = 40.0 * C_land;
 

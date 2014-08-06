@@ -162,13 +162,13 @@ public:
 	    double dt){};
 
     virtual void calcInsolation(Body* star, double &eclipsefrac){};
-    virtual void calcAlbedo(){};
-    virtual void calcHeatCapacity(){};
-    virtual void calcIce(){};
-    virtual void calcOpticalDepth(){};
-    virtual void calcCooling(){};
-    virtual void calcNetHeating(){};
-    virtual void calcHabitability(double &minT, double &maxT){};
+    virtual void calcAlbedo(int iLatitude){};
+    virtual void calcHeatCapacity(int iLatitude){};
+    virtual void calcIce(int iLatitude){};
+    virtual void calcOpticalDepth(int iLatitude){};
+    virtual void calcCooling(int iLatitude){};
+    virtual void calcNetHeating(int iLatitude){};
+    virtual void calcHabitability(int iLatitude,double &minT, double &maxT){};
     virtual void calcLEBMTimestep(){};
 
     virtual void integrate(){};
@@ -176,7 +176,7 @@ public:
     // Output Methods
 
     virtual void outputLEBMData(int &snapshotNumber, double &tSnap){};
-    virtual void initialiseOutputVariables(){};
+    virtual void initialiseOutputVariables(bool restart){};
     virtual void calcLEBMMeans(double &minT, double &maxT, double &meanT, double &meanQ, double &meanA,
 	    double &meanIR, double &meanS, double &meanhab){};
 
