@@ -769,6 +769,59 @@ void System::evolveSystem(double dt)
 
     }
 
+void System::calcPlanetaryEquilibriumTemperatures()
+    {
+    /*
+     * Written 11/8/14 by dh4gan
+     * Takes all Planets in the System, and calculates their equilibrium temperature
+     * given the Stars in the System
+     * Also calculates reflected starlight and thermal luminosity
+     */
+
+    double sep, temp, lum, rad, albedo;
+    double pi = 3.141592653;
+    double sigma_SB = 5.67e-5;
+
+    for (int j=0; j< bodyCount; j++)
+	{
+	if(bodies[j]->getType()=="Planet")
+	    {
+	    rad = bodies[j]->getRadius();
+	    albedo = bodies[j]->getAlbedo();
+	    for (int i=0; i<bodyCount; i++)
+		{
+		if(bodies[i]->getType() =="Star")
+		    {
+		    // Calculate separation between each star and planet
+		    sep = bodies[j]->getPosition().subtractVector(bodies[i]->getPosition()).magVector();
+
+		    // Add contribution to equilibrium temperature
+		    temp = temp+ bodies[i]->getLuminosity()/(16.0*pi*sigma_SB*sep*sep);
+
+		    //Calculate reflected starlight
+		    lum = lum + bodies[i]->getLuminosity()*rad*rad*albedo/(sep*sep);
+
+	// TODO - check units
+		    }
+		}
+
+	    // Set Planet's Equilibrium temperature
+	    bodies[j]->setEquilibriumTemperature(temp);
+
+	    // Set Planet's Reflective Luminosity
+	    bodies[j]->setReflectiveLuminosity(lum);
+
+	    // Calculate its total luminosity
+	    bodies[j]->calcLuminosity();
+
+	    }
+
+	}
+
+
+
+    }
+
 void System::evolveLEBMs(double &dt)
     {
     /*

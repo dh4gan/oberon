@@ -187,7 +187,7 @@ void World::updateLEBM(vector<Body*> bodies, vector<double>eclipsefrac)
     for (b=0; b< bodyCount; b++)
 	{
 
-	if (bodies[b]->getType()=="Star")
+	if (bodies[b]->getType()=="Star" or bodies[b]->getType()=="Planet")
 	    {
 	    calcInsolation(bodies[b],eclipsefrac[b]);
 	    }

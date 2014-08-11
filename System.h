@@ -73,6 +73,8 @@ public:
 	vector<double> checkForEclipses(int bodyindex);
 	void evolveSystem(double tbegin, double tend);
 	void evolveSystem(double dt);
+
+	void calcPlanetaryEquilibriumTemperatures();
 	void evolveLEBMs(double &dt);
 
 	// Output Methods

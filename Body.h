@@ -138,6 +138,15 @@ public:
 	virtual void calcMainSequenceLuminosity(){}
 
 	// Methods for Planet Class
+	virtual void setEquilibriumTemperature(double temp){};
+	virtual double getEquilibriumTemperature(){return -1.0;}
+
+	virtual void setReflectiveLuminosity(double lum){}
+
+	virtual void calcLuminosity(){};
+
+	virtual void setAlbedo(double alb){}
+	virtual double getAlbedo(){return -1.0;}
 
 	// Methods for World Class
 

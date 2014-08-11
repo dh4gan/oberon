@@ -27,3 +27,19 @@ Planet::~Planet()
     {
     }
 
+
+void Planet::calcLuminosity()
+    {
+/*
+ * Written 11/8/14 by dh4gan
+ * Calculates the luminosity of the Planet, given its temperature and reflected starlight
+ *
+ */
+    double pi = 3.141592653;
+    double sigma_SB =5.67e-5;
+
+    luminosity = 4.0*pi*getRadius()*getRadius()*sigma_SB*temperature*temperature*temperature*temperature;
+
+    luminosity = luminosity + reflectiveLuminosity;
+
+    }
