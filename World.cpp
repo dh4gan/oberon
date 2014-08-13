@@ -17,7 +17,6 @@ double freeze = 273.0;
 double boil = 373.0;
 double sigma_SB = 5.67e-5;
 
-
 World::World() :
 	Body()
     {

@@ -99,8 +99,6 @@ int main(int argc, char* argv[])
 	if (fileType == 0 or input.restart)
 	    {
 
-
-
 	    cout << "setting up body from vectors" << endl;
 
 	    body_i_position = input.getBodyPosition(i);
@@ -123,7 +121,7 @@ int main(int argc, char* argv[])
 		BodyArray.push_back(
 			new Planet(input.BodyNames[i], input.BodyTypes[i],
 				input.Mass[i], input.Radius[i], body_i_position,
-				body_i_velocity));
+				body_i_velocity, input.albedo[i]));
 		}
 
 	    // If the Body is a World, add a World Object and set up LEBM
@@ -186,7 +184,7 @@ int main(int argc, char* argv[])
 				input.semiMajorAxis[i], input.eccentricity[i],
 				input.inclination[i], input.longAscend[i],
 				input.Periapsis[i], input.meanAnomaly[i], G,
-				input.totalMass));
+				input.totalMass, input.albedo[i]));
 
 		}
 
@@ -223,6 +221,8 @@ int main(int argc, char* argv[])
 
     nBodySystem = System(input.SystemName, BodyArray);
 
+
+
     // If the System is created from orbital parameters, set up vectors here
 
     if(fileType ==1 and input.restart==false)
@@ -232,6 +232,10 @@ int main(int argc, char* argv[])
 
     // Calculate its initial properties
     nBodySystem.calcInitialProperties();
+
+    // Switch Planetary Illumination on/off
+    nBodySystem.setIllumination(input.illumination);
+
 
     // Set up the outputs
 

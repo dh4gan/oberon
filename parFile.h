@@ -30,6 +30,8 @@ public:
 	string fileType;
 
 	bool restart;
+	bool illumination;
+	bool tidal;
 
 	int number_bodies;
 	int nPoints;
@@ -45,19 +47,25 @@ public:
 
 	vector<double> Mass;
 	vector<double> Radius;
+
 	vector<double> x_position;
 	vector<double> y_position;
 	vector<double> z_position;
+
 	vector<double> x_velocity;
 	vector<double> y_velocity;
 	vector<double> z_velocity;
+
 	vector<double> semiMajorAxis;
 	vector<double> eccentricity;
 	vector<double> inclination;
 	vector<double> longAscend;
 	vector<double> Periapsis;
 	vector<double> meanAnomaly;
+
 	vector<double> luminosity;
+	vector<double> albedo;
+
 	vector<double> rotationPeriod;
 	vector<double> obliquity;
 	vector<double> winterSolstice;

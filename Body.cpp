@@ -35,6 +35,10 @@ Body::Body()
 
     inclination = 0.0;
     trueAnomaly = 0.0;
+
+    eccentricAnomaly = 0.0;
+
+    argumentPeriapsis = 0.0;
     longitudePeriapsis = 0.0;
     longitudeAscendingNode = 0.0;
 
@@ -68,6 +72,9 @@ Body::Body(string &namestring, string &typestring, double &m, double &rad, Vecto
 
     inclination = 0.0;
     trueAnomaly = 0.0;
+    eccentricAnomaly = 0.0;
+
+    argumentPeriapsis = 0.0;
     longitudePeriapsis = 0.0;
     longitudeAscendingNode = 0.0;
 

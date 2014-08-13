@@ -17,9 +17,9 @@ class Planet: public Body {
 public:
 
 	Planet();
-	Planet(string &namestring, string &typestring, double &m, double &rad, Vector3D  &pos, Vector3D  &vel);
+	Planet(string &namestring, string &typestring, double &m, double &rad, Vector3D  &pos, Vector3D  &vel, double &alb);
 	Planet(string &namestring, string &typestring, double &m, double &rad, double semimaj, double ecc, double inc,
-			double longascend, double argper, double meananom, double G, double totalMass);
+			double longascend, double argper, double meananom, double G, double totalMass, double &alb);
 	virtual ~Planet();
 
 	/* Accessors */

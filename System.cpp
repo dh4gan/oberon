@@ -6,6 +6,7 @@
  */
 
 #include "System.h"
+//#include "Constants.h"
 #include <iostream>
 #include <stdio.h>
 #include <algorithm>
@@ -32,6 +33,8 @@ System::System()
     positionCOM = zeroVector;
     velocityCOM = zeroVector;
     accelerationCOM = zeroVector;
+
+    planetaryIllumination = false;
 
     }
 
@@ -63,6 +66,7 @@ System::System(string &namestring, vector<Body*> &bodyarray)
     velocityCOM = zeroVector;
     accelerationCOM = zeroVector;
 
+    planetaryIllumination = false;
     }
 
 System::~System()
@@ -782,11 +786,15 @@ void System::calcPlanetaryEquilibriumTemperatures()
     double pi = 3.141592653;
     double sigma_SB = 5.67e-5;
 
+    double AU = 1.496e11;
+    double lsol = 3.826e26;
+    double rsol = 6.955e8;
+
     for (int j=0; j< bodyCount; j++)
 	{
 	if(bodies[j]->getType()=="Planet")
 	    {
-	    rad = bodies[j]->getRadius();
+	    rad = bodies[j]->getRadius()*rsol/AU;
 	    albedo = bodies[j]->getAlbedo();
 	    for (int i=0; i<bodyCount; i++)
 		{
@@ -796,22 +804,21 @@ void System::calcPlanetaryEquilibriumTemperatures()
 		    sep = bodies[j]->getPosition().subtractVector(bodies[i]->getPosition()).magVector();
 
 		    // Add contribution to equilibrium temperature
-		    temp = temp+ bodies[i]->getLuminosity()/(16.0*pi*sigma_SB*sep*sep);
+		    temp = temp+ bodies[i]->getLuminosity()*lsol/(16.0*pi*sigma_SB*sep*sep*AU*AU);
 
 		    //Calculate reflected starlight
 		    lum = lum + bodies[i]->getLuminosity()*rad*rad*albedo/(sep*sep);
-
-	// TODO - check units
 		    }
 		}
 
+	    temp = pow(temp,0.25);
 	    // Set Planet's Equilibrium temperature
 	    bodies[j]->setEquilibriumTemperature(temp);
 
 	    // Set Planet's Reflective Luminosity
 	    bodies[j]->setReflectiveLuminosity(lum);
 
-	    // Calculate its total luminosity
+	    // Calculate Planet's total luminosity
 	    bodies[j]->calcLuminosity();
 
 	    }

@@ -10,18 +10,30 @@
 Planet::Planet() :
 	Body()
     {
+    albedo = 0.0;
+    temperature = 0.0;
+    reflectiveLuminosity = 0.0;
+    luminosity = 0.0;
     }
 Planet::Planet(string &namestring, string &typestring, double &m, double &rad,
-	Vector3D &pos, Vector3D &vel) :
+	Vector3D &pos, Vector3D &vel, double &alb) :
 	Body(namestring, typestring, m, rad, pos, vel)
     {
+    albedo = alb;
+    temperature = 0.0;
+    reflectiveLuminosity = 0.0;
+    luminosity = 0.0;
     }
 Planet::Planet(string &namestring, string &typestring, double &m, double &rad,
 	double semimaj, double ecc, double inc, double longascend,
-	double argper, double meananom, double G, double totalMass) :
+	double argper, double meananom, double G, double totalMass, double &alb) :
 	Body(namestring, typestring, m, rad, semimaj, ecc, inc, longascend,
 		argper, meananom, G, totalMass)
     {
+    albedo = alb;
+    temperature = 0.0;
+    reflectiveLuminosity = 0.0;
+    luminosity = 0.0;
     }
 Planet::~Planet()
     {

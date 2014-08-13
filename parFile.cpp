@@ -72,7 +72,7 @@ void parFile::readPosFile()
 
     string par;
     string line;
-    string BodyType,BodyName, meltChoice, restartChoice;
+    string BodyType,BodyName, meltChoice, restartChoice, illumChoice;
 
     int bodyIndex;
 
@@ -83,6 +83,9 @@ void parFile::readPosFile()
     NBodyFile = "nbody_output.txt";
     snapshotNumber = 0;
     nPoints = 0;
+
+    restart = false;
+    illumination = false;
 
     strcpy(inputfile, parFileName.c_str());
 
@@ -112,6 +115,16 @@ void parFile::readPosFile()
 		{
 		restart = true;
 		cout << "This run is a restart" << endl;
+		}
+	    }
+
+	if (par == "PlanetaryIllumination")
+	    {
+	    iss >> illumChoice;
+	    if (illumChoice == "T")
+		{
+		illumination = true;
+		cout << "Planetary Illumination Active" << endl;
 		}
 	    }
 
@@ -154,6 +167,9 @@ void parFile::readPosFile()
 	    z_velocity.assign(number_bodies,0.0);
 
 	    luminosity.assign(number_bodies, 0.0);
+	    albedo.assign(number_bodies,0.0);
+
+
 	    rotationPeriod.assign(number_bodies, 0.0);
 	    obliquity.assign(number_bodies, 0.0);
 	    winterSolstice.assign(number_bodies, 0.0);
@@ -210,6 +226,13 @@ void parFile::readPosFile()
 	    {
 	    iss >> val_i;
 	    luminosity[bodyIndex]=val_i;
+
+	    }
+
+	else if (par == "Albedo")
+	    {
+	    iss >> val_i;
+	    albedo[bodyIndex]=val_i;
 
 	    }
 
@@ -280,11 +303,12 @@ void parFile::readOrbFile()
     int bodyIndex;
     string par;
     string line;
-    string BodyType, BodyName, meltChoice,restartChoice;
+    string BodyType, BodyName, meltChoice,restartChoice, illumChoice;
 
     NBodyFile = "nbody_output.txt";
     snapshotNumber = 0;
     restart = false;
+    illumination = false;
 
     char inputfile[100];
 
@@ -311,6 +335,16 @@ void parFile::readOrbFile()
 		{
 		restart=true;
 		cout << "This run is a restart" << endl;
+		}
+	    }
+
+	if (par == "PlanetaryIllumination")
+	    {
+	    iss >> illumChoice;
+	    if (illumChoice == "T")
+		{
+		illumination = true;
+		cout << "Planetary Illumination Active" << endl;
 		}
 	    }
 
@@ -350,7 +384,10 @@ void parFile::readOrbFile()
 	    inclination.assign(number_bodies, 0.0);
 	    Periapsis.assign(number_bodies, 0.0);
 	    meanAnomaly.assign(number_bodies, 0.0);
+
 	    luminosity.assign(number_bodies, 0.0);
+	    albedo.assign(number_bodies,0.0);
+
 	    rotationPeriod.assign(number_bodies, 0.0);
 	    obliquity.assign(number_bodies, 0.0);
 	    winterSolstice.assign(number_bodies, 0.0);
@@ -433,11 +470,16 @@ void parFile::readOrbFile()
 	    orbitCentre[bodyIndex] = val_i;
 	    }
 
-
 	else if (par == "Luminosity")
 	    {
 	    iss >> val_i;
 	    luminosity[bodyIndex] = val_i;
+	    }
+
+	else if (par == "Albedo")
+	    {
+	    iss >> val_i;
+	    albedo[bodyIndex]=val_i;
 	    }
 
 	else if (par == "RotationPeriod")
