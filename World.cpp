@@ -20,10 +20,11 @@ double sigma_SB = 5.67e-5;
 World::World() :
 	Body()
     {
+    tidalOn = false;
     }
 World::World(string namestring, string typestring, double m, double rad,
 	Vector3D pos, Vector3D vel, int n, double obliq, double rot, double winter,
-	double ocean, double T0,bool melt, bool start) :
+	double ocean, double T0,bool melt, bool start, bool tide) :
 	Body(namestring, typestring, m, rad, pos, vel)
     {
     nPoints = n;
@@ -35,17 +36,22 @@ World::World(string namestring, string typestring, double m, double rad,
     initialTemperature = T0;
     nFloat = float(nPoints);
 
+    rho_moon = 5.0; // density in g cm^-3 (TODO change me!)
+    rigid = 4e10;
+    Qtidal = 100.0;
+    hostBody = 0;
+
     nPoints1 = nPoints+1;
     activateMelt = melt;
     restart = start;
-
+    tidalOn = tide;
     initialiseLEBM();
 
     }
 World::World(string namestring, string typestring, double m, double rad,
 	double semimaj, double ecc, double inc, double longascend,
 	double argper, double meananom, double G, double totalMass, int n,
-	double obliq, double rot, double winter, double ocean, double T0, bool melt, bool start) :
+	double obliq, double rot, double winter, double ocean, double T0, bool melt, bool start, bool tide) :
 	Body(namestring, typestring, m, rad, semimaj, ecc, inc, longascend,
 		argper, meananom, G, totalMass)
     {
@@ -60,6 +66,12 @@ World::World(string namestring, string typestring, double m, double rad,
     nPoints1 = nPoints+1;
     activateMelt = melt;
     restart = start;
+    tidalOn = tide;
+
+    rho_moon = 5.0; // density in g cm^-3 (TODO change me!)
+    rigid = 4e10;
+    Qtidal = 100.0;
+    hostBody = 0;
 
     initialiseLEBM();
 
@@ -88,6 +100,7 @@ void World::initialiseLEBM()
    Q.resize(nPoints1,0.0);
    albedo.resize(nPoints1,0.0);
    insol.resize(nPoints1,0.0);
+   tidal.resize(nPoints1,0.0);
    tau.resize(nPoints1,0.0);
    C.resize(nPoints1,0.0);
 
@@ -132,6 +145,9 @@ void World::initialiseLEBM()
 	    calcAlbedo(i);
 	    calcCooling(i);
 	    calcNetHeating(i);
+
+	    if(tidalOn){calcTidalHeating(i);}
+
 	    calcHabitability(i,freeze,boil);
 	    }
 	}
@@ -162,6 +178,7 @@ void World::setTemperature(vector<double>temp){
 		    calcOpticalDepth(i);
 		    calcAlbedo(i);
 		    calcCooling(i);
+		    if(tidalOn) {calcTidalHeating(i);}
 		    calcNetHeating(i);
 		    calcHabitability(i,freeze,boil);
 		    }
@@ -395,6 +412,29 @@ void World::calcCooling(int iLatitude)
 	infrared[iLatitude] = sigma_SB*pow(T[iLatitude],4)/(1.0+0.75*tau[iLatitude]);
     }
 
+void World::calcTidalHeating(int iLatitude)
+    {
+    /*
+     * Written 13/8/14 by dh4gan
+     * Calculates the tidal heating on the World given the orbital elements
+     *
+     */
+
+
+    // Calculate the current orbit of the World around the host
+    calcOrbitFromVector(Gmau, hostBody);
+
+    // TODO - check units
+
+    double hostMass = hostBody->getMass();
+    double G = Gsi * 1000; // cgs units
+
+    tidal[iLatitude] = 21 * (pow(G * hostMass * msol, 2.5))
+	    * pow(3 * mass / (4.0 * pi), 1.666) * eccentricity * eccentricity
+	    * pow(rho_moon, 0.333);
+    tidal[iLatitude] = tidal[iLatitude] / (38.0 * rigid * Qtidal * pow(semiMajorAxis * AU, 7.5));
+    }
+
 void World::calcNetHeating(int iLatitude)
     {
     /*
@@ -403,7 +443,7 @@ void World::calcNetHeating(int iLatitude)
      *
      */
 
-	Q[iLatitude] = insol[iLatitude]*(1.0-albedo[iLatitude]) - infrared[iLatitude];
+	Q[iLatitude] = insol[iLatitude]*(1.0-albedo[iLatitude]) + tidal[iLatitude]- infrared[iLatitude];
     }
 
 void World::calcHabitability(int iLatitude, double &minT, double &maxT)

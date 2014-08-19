@@ -1,10 +1,13 @@
 ParType Orbital
-OutputPrefix trial
-OutputFrequency	1.0e-1
+NBodyOutput nbody.output
+SnapshotTime	1.0e-1
+MaximumTime 	100.0
 NGridPoints	144
-MaximumTime	100.0
 SystemName EarthSun
 Number_Bodies 2
+Restart F
+PlanetaryIllumination F
+TidalHeating F
 --
 BodyName Sun
 BodyType Star

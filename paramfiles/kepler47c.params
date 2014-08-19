@@ -1,10 +1,11 @@
 ParType Orbital
-OutputPrefix trial
-OutputFrequency	1.0e-3
+NBodyOutput kepler47c_nbody.output
+SnapshotTime	1.0e-3
 NGridPoints	144
 MaximumTime	100.0
 SystemName Kepler47
 Number_Bodies 3
+Restart F
 --
 BodyName Kepler47A
 BodyType Star

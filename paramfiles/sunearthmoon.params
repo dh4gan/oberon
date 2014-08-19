@@ -1,10 +1,13 @@
 ParType Orbital
 NBodyOutput moon.txt
-OutputFrequency	1.0e-2
-NGridPoints	144
+SnapshotTime	1.0e-2
 MaximumTime	100.0
+NGridPoints	144
 SystemName EarthSunMoon
 Number_Bodies 3
+Restart F
+PlanetaryIllumination F
+TidalHeating F
 --
 BodyName Sun
 BodyType Star

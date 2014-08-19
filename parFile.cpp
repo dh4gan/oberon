@@ -72,7 +72,7 @@ void parFile::readPosFile()
 
     string par;
     string line;
-    string BodyType,BodyName, meltChoice, restartChoice, illumChoice;
+    string BodyType,BodyName, meltChoice, restartChoice, illumChoice, tidalChoice;
 
     int bodyIndex;
 
@@ -125,6 +125,16 @@ void parFile::readPosFile()
 		{
 		illumination = true;
 		cout << "Planetary Illumination Active" << endl;
+		}
+	    }
+
+	if (par == "TidalHeating")
+	    {
+	    iss >> tidalChoice;
+	    if (tidalChoice == "T")
+		{
+		tidal = true;
+		cout << "Tidal Heating Active" << endl;
 		}
 	    }
 
@@ -303,7 +313,7 @@ void parFile::readOrbFile()
     int bodyIndex;
     string par;
     string line;
-    string BodyType, BodyName, meltChoice,restartChoice, illumChoice;
+    string BodyType, BodyName, meltChoice,restartChoice, illumChoice, tidalChoice;
 
     NBodyFile = "nbody_output.txt";
     snapshotNumber = 0;
@@ -345,6 +355,16 @@ void parFile::readOrbFile()
 		{
 		illumination = true;
 		cout << "Planetary Illumination Active" << endl;
+		}
+	    }
+
+	if (par == "TidalHeating")
+	    {
+	    iss >> tidalChoice;
+	    if (tidalChoice == "T")
+		{
+		tidal = true;
+		cout << "Tidal Heating Active" << endl;
 		}
 	    }
 

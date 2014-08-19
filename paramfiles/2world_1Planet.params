@@ -1,11 +1,13 @@
 ParType Orbital
-NBodyOutput trial.txt
+NBodyOutput 2world1planet_nbody.output
 SnapshotTime	1.0e-1
-NGridPoints	144
 MaximumTime	100.0
+NGridPoints	144
 SystemName FourBody
 Number_Bodies 4
 Restart T
+PlanetaryIllumination F
+TidalHeating F
 --
 BodyName Sun
 BodyType Star

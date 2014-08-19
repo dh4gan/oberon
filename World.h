@@ -22,19 +22,21 @@ public:
 
     World(string namestring, string typestring, double m, double rad,
 	    Vector3D pos, Vector3D vel, int n, double obliq, double rot, double winter,
-	    double ocean, double T0, bool melt, bool start);
+	    double ocean, double T0, bool melt, bool start, bool tide);
 
     World(string namestring, string typestring, double m, double rad,
 	    double semimaj, double ecc, double inc, double longascend,
 	    double argper, double meananom, double G, double totalMass,
 	    int n, double obliq, double rot, double winter,
-	    double ocean, double T0, bool melt, bool start);
+	    double ocean, double T0, bool melt, bool start, bool tide);
     virtual ~World();
 
     /* Accessors */
 
     void setInsolationZero() {insol.assign(nPoints1,0.0);}
     void setTemperature(vector<double> temp);
+
+    void setHostBody(Body* bod){hostBody = bod;}
 
     double getLEBMTimestep(){return dtLEBM;}
 
@@ -52,6 +54,7 @@ public:
     void calcIce(int iLatitude);
     void calcOpticalDepth(int iLatitude);
     void calcCooling(int iLatitude);
+    void calcTidalHeating(int iLatitude);
     void calcNetHeating(int iLatitude);
     void calcHabitability(int iLatitude,double &minT, double &maxT);
     void calcLEBMTimestep();
@@ -82,6 +85,12 @@ protected:
     double initialTemperature;
     double diffusion;
 
+    double rho_moon; // density in g cm^-3 (TODO change me!)
+    double rigid;
+    double Qtidal;
+    Body* hostBody;
+
+    bool tidalOn;
     vector<bool> melting;
     vector<double> meltTime;
 
@@ -93,7 +102,7 @@ protected:
     vector<double> lat, x, deltax;
     vector<double> T, T_old, tau;
     vector<double> iceFraction, C, hab;
-    vector<double> infrared, Q, albedo, insol;
+    vector<double> infrared, Q, albedo,tidal, insol;
 
     FILE *logFile, *snapshotFile;
     bool activateMelt;

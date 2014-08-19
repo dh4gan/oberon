@@ -162,6 +162,7 @@ public:
 	{
 	return -1;
 	}
+	void setHostBody(Body* bod){};
 
     // Calculation Methods
 

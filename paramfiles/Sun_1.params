@@ -1,10 +1,11 @@
 ParType Orbital
 NBodyOutput Sun_1nbody.output
-OutputFrequency	1.0e-1
-NGridPoints	144
+SnapshotTime	1.0e-1
 MaximumTime	100.0
+NGridPoints	144
 SystemName EarthSun
 Number_Bodies 2
+Restart F
 --
 BodyName Sun
 BodyType Star
@@ -29,11 +30,10 @@ Inclination 0.0
 LongAscend 0.0
 Periapsis 0.0
 MeanAnomaly 0.0
-OrbitCentre 1
 RotationPeriod 1.0  (days)
 Obliquity  23.7   (degrees)
 WinterSolstice 0.0	(longitude,degrees)
 OceanFraction 0.7
 InitialTemperature 288.0
-
+OrbitCentre 1
 

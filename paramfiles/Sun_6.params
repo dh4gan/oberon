@@ -1,10 +1,11 @@
 ParType   Orbital 
 NBodyOutput Sun_6nbody.output
-OutputFrequency 1.0e-1
+SnapshotTime 1.0e-1
 NGridPoints 144
 MaximumTime 100.0
 SystemName  Sun_6
 Number_Bodies   7
+Restart F
 --
 BodyName Sun
 BodyType   Star

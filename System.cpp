@@ -34,7 +34,7 @@ System::System()
     velocityCOM = zeroVector;
     accelerationCOM = zeroVector;
 
-    planetaryIllumination = false;
+    planetaryIlluminationOn = false;
 
     }
 
@@ -66,7 +66,7 @@ System::System(string &namestring, vector<Body*> &bodyarray)
     velocityCOM = zeroVector;
     accelerationCOM = zeroVector;
 
-    planetaryIllumination = false;
+    planetaryIlluminationOn = false;
     }
 
 System::~System()
@@ -374,6 +374,7 @@ void System::calcNBodyTimestep(vector<Body*> &bodyarray, double dtmax)
 
     }
 
+
 void System::setupOrbits(vector<int> orbitCentre)
     {
 
@@ -424,6 +425,11 @@ void System::setupOrbits(vector<int> orbitCentre)
 	    bodies[b]->changeFrame(framepos, framevel);
 
 
+	    // Set up Hosts for Worlds (to calculate tidal heating)
+	    if(bodies[b]->getType()=="World")
+		{
+		bodies[b]->setHostBody(bodies[orbitCentre[b]]);
+		}
 	    }
 
 	}

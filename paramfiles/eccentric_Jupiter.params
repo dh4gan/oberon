@@ -5,6 +5,7 @@ MaximumTime 1.0e6
 NGridPoints 144
 SystemName  walkaway_test
 Number_Bodies   3
+Restart F
 --
 BodyName Sun
 BodyType   Star

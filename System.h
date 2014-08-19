@@ -33,7 +33,7 @@ public:
 	Vector3D getvelocityCOM(){ return velocityCOM;}
 	Vector3D getaccelerationCOM(){ return accelerationCOM;}
 
-	bool IlluminationOn(){return planetaryIllumination;}
+	bool IlluminationOn(){return planetaryIlluminationOn;}
 
 
 	/* Variable Setting Methods */
@@ -49,7 +49,7 @@ public:
 	void setvelocityCOM(Vector3D  v){ velocityCOM=v;}
 	void setaccelerationCOM(Vector3D  a){ accelerationCOM=a;}
 
-	void setIllumination(bool illum){planetaryIllumination = illum;}
+	void setIllumination(bool illum){planetaryIlluminationOn = illum;}
 
 	// Standard cloning method
 	virtual System* Clone() { return new System(*this); }
@@ -115,7 +115,7 @@ protected:
 	Vector3D velocityCOM;  // Velocity of the Centre of Mass
 	Vector3D accelerationCOM; // Acceleration of the Centre of Mass
 
-	bool planetaryIllumination;
+	bool planetaryIlluminationOn;
 
 };
 

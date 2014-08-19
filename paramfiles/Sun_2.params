@@ -1,11 +1,11 @@
 ParType   Orbital 
 NBodyOutput Sun_2nbody.output
 SnapshotTime 1.0e-1
-NGridPoints 144
 MaximumTime 1.0e2
+NGridPoints 144
 SystemName  Sun_2
 Number_Bodies   3
-Restart T
+Restart F
 --
 BodyName Sun
 BodyType   Star
