@@ -45,7 +45,7 @@ public:
 
     void initialiseLEBM();
     void updateLEBM(vector<Body*> bodies, vector<double>eclipsefrac);
-    void updateLEBM(vector<Body*> bodies, vector<double> eclipsefrac, double dt);
+    void updateLEBM(vector<Body*> bodies, vector<double> eclipsefrac, double &dtmax);
 
 
     void calcInsolation(Body* star, double &eclipsefrac);
@@ -57,7 +57,7 @@ public:
     void calcTidalHeating(int iLatitude);
     void calcNetHeating(int iLatitude);
     void calcHabitability(int iLatitude,double &minT, double &maxT);
-    void calcLEBMTimestep();
+    void calcLEBMTimestep(double &dtmax);
 
     void integrate();
 
@@ -66,7 +66,7 @@ public:
     void outputLEBMData(int &snapshotNumber, double &tSnap);
     void initialiseOutputVariables(bool restart);
     void calcLEBMMeans(double &minT, double &maxT, double &meanT, double &meanQ, double &meanA, double &meanIR, double &meanS,
-    	double &meanhab);
+    	double &meanhab, double &meanTidal);
 
     int findRestartTemperature();
 
@@ -85,7 +85,7 @@ protected:
     double initialTemperature;
     double diffusion;
 
-    double rho_moon; // density in g cm^-3 (TODO change me!)
+    double rho_moon;
     double rigid;
     double Qtidal;
     Body* hostBody;
@@ -99,7 +99,7 @@ protected:
     double nFloat;
     double dtLEBM;
 
-    vector<double> lat, x, deltax;
+    vector<double> lat, x,coslat,tanlat, deltax;
     vector<double> T, T_old, tau;
     vector<double> iceFraction, C, hab;
     vector<double> infrared, Q, albedo,tidal, insol;

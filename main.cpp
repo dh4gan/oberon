@@ -231,6 +231,8 @@ int main(int argc, char* argv[])
     // Calculate its initial properties
     nBodySystem.calcInitialProperties();
 
+    nBodySystem.setHostBodies(input.orbitCentre);
+
     // Switch Planetary Illumination on/off
     nBodySystem.setIllumination(input.illumination);
 

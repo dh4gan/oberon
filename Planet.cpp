@@ -48,10 +48,15 @@ void Planet::calcLuminosity()
  *
  */
     double pi = 3.141592653;
-    double sigma_SB =5.67e-5;
+    double sigma_SB =5.67e-8;
+    double AU = 1.496e11;
+    double lsol = 3.8626e26;
 
-    luminosity = 4.0*pi*getRadius()*getRadius()*sigma_SB*temperature*temperature*temperature*temperature;
+    luminosity = 4.0*pi*getRadius()*getRadius()*AU*AU*sigma_SB*temperature*temperature*temperature*temperature/lsol;
 
     luminosity = luminosity + reflectiveLuminosity;
+
+
+
 
     }

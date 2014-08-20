@@ -44,6 +44,7 @@ public:
 	void setTimestep(double dt) {timeStep = dt;}
 
 	void setBodies(vector<Body*> bod){bodies=bod;}
+	void setHostBodies(vector<int> orbitCentre);
 
 	void setpositionCOM(Vector3D  r){positionCOM=r;}
 	void setvelocityCOM(Vector3D  v){ velocityCOM=v;}

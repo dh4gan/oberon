@@ -114,6 +114,30 @@ void System::removeBody(int bodyindex)
 
     }
 
+
+void System::setHostBodies(vector<int> orbitCentre)
+    {
+    /*
+     * Written 19/8/14 by dh4gan
+     * Sets up Host Bodies for Worlds where appropriate
+     *
+     */
+
+    for (int i=0; i<bodyCount; i++)
+	{
+	if(bodies[i]->getType()=="World")
+	    {
+	    if(orbitCentre[i]>0)
+		{
+		bodies[i]->setHostBody(bodies[orbitCentre[i]-1]);
+		}
+	    }
+
+	}
+
+
+
+    }
 /* Calculation Methods */
 
 void System::calcCOMFrame(vector<int> participants)
@@ -577,7 +601,7 @@ vector<double> System::checkForEclipses(int bodyIndex)
 
 			// impact parameter = mag(vector_j)sin alpha = mag(vector_j)*sqrt(1-(vector_i.vector_j)^2)
 
-			if(mag_i*mag_j >0.0)
+			if(mag_i*mag_j >0.0 and mag_i>mag_j)
 			{
 				idotj = vector_i.dotProduct(vector_j)/(mag_i*mag_j);
 				b = mag_j*sqrt(1.0-idotj*idotj);
@@ -594,19 +618,20 @@ vector<double> System::checkForEclipses(int bodyIndex)
 				    //rad_i = 1.0;
 				    //rad_j = rad_j/rad_i;
 
-					rad_i2 = rad_i*rad_i/(mag_i*mag_i);
-					rad_j2 = rad_j*rad_j/(mag_j*mag_j);
+
+					rad_i2 = rad_i*rad_i;
+					rad_j2 = rad_j*rad_j;
 					angle1 = 2.0*safeAcos((rad_i2 + b*b -rad_j2)/(2.0*b*rad_i));
 					angle2 = 2.0*safeAcos((rad_j2 + b*b -rad_i2)/(2.0*b*rad_j));
 
 					area_i = 0.5*rad_i2*(angle1 - sin(angle1));
 					area_j = 0.5*rad_j2*(angle2 - sin(angle2));
 
-					eclipsefrac[i] = (area_i+area_j)/(pi*rad_i*rad_i);
+					eclipsefrac[i] = (area_i+area_j)/(pi*rad_i2);
+
 
 					if(eclipsefrac[i]>1.0) {eclipsefrac[i] = 1.0;}
 					if(eclipsefrac[i]<0.0) {eclipsefrac[i] = 0.0;}
-
 
 				}
 			}
@@ -618,6 +643,7 @@ vector<double> System::checkForEclipses(int bodyIndex)
 		}// End loop over j to get impact parameters
 
 	} //End loop over i to test eclipses
+
 
 	return eclipsefrac;
 
@@ -790,7 +816,7 @@ void System::calcPlanetaryEquilibriumTemperatures()
 
     double sep, temp, lum, rad, albedo;
     double pi = 3.141592653;
-    double sigma_SB = 5.67e-5;
+    double sigma_SB = 5.67e-8;
 
     double AU = 1.496e11;
     double lsol = 3.826e26;
@@ -800,24 +826,31 @@ void System::calcPlanetaryEquilibriumTemperatures()
 	{
 	if(bodies[j]->getType()=="Planet")
 	    {
+
 	    rad = bodies[j]->getRadius()*rsol/AU;
 	    albedo = bodies[j]->getAlbedo();
+	    temp = 0.0;
+	    lum = 0.0;
+
 	    for (int i=0; i<bodyCount; i++)
 		{
-		if(bodies[i]->getType() =="Star")
+		if(bodies[i]->getType() =="Star" and i!=j)
 		    {
+
 		    // Calculate separation between each star and planet
 		    sep = bodies[j]->getPosition().subtractVector(bodies[i]->getPosition()).magVector();
 
 		    // Add contribution to equilibrium temperature
-		    temp = temp+ bodies[i]->getLuminosity()*lsol/(16.0*pi*sigma_SB*sep*sep*AU*AU);
+		    temp = temp+ bodies[i]->getLuminosity()*lsol*(1.0-albedo)/(16.0*pi*sigma_SB*sep*sep*AU*AU);
 
 		    //Calculate reflected starlight
 		    lum = lum + bodies[i]->getLuminosity()*rad*rad*albedo/(sep*sep);
+
 		    }
 		}
 
 	    temp = pow(temp,0.25);
+
 	    // Set Planet's Equilibrium temperature
 	    bodies[j]->setEquilibriumTemperature(temp);
 
@@ -843,6 +876,11 @@ void System::evolveLEBMs(double &dt)
      *
      */
     vector<double>eclipsefrac;
+
+    if(planetaryIlluminationOn)
+	{
+	calcPlanetaryEquilibriumTemperatures();
+	}
 
     for (int i=0; i< bodyCount; i++)
 	{
@@ -893,6 +931,7 @@ double System::calcCombinedTimestep()
 		{
 		nbodymin = LEBMmin;
 		}
+
 	    }
 	}
 return nbodymin;

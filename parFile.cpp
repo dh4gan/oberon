@@ -85,6 +85,7 @@ void parFile::readPosFile()
     nPoints = 0;
 
     restart = false;
+    tidal = false;
     illumination = false;
 
     strcpy(inputfile, parFileName.c_str());
@@ -318,6 +319,7 @@ void parFile::readOrbFile()
     NBodyFile = "nbody_output.txt";
     snapshotNumber = 0;
     restart = false;
+    tidal = false;
     illumination = false;
 
     char inputfile[100];

@@ -162,14 +162,14 @@ public:
 	{
 	return -1;
 	}
-	void setHostBody(Body* bod){};
+    virtual void setHostBody(Body* bod){};
 
     // Calculation Methods
 
     virtual void initialiseLEBM(){};
     virtual void updateLEBM(vector<Body*> bodies, vector<double> eclipsefrac){};
     virtual void updateLEBM(vector<Body*> bodies, vector<double> eclipsefrac,
-	    double dt){};
+	    double &dtmax){};
 
     virtual void calcInsolation(Body* star, double &eclipsefrac){};
     virtual void calcAlbedo(int iLatitude){};
@@ -179,7 +179,7 @@ public:
     virtual void calcCooling(int iLatitude){};
     virtual void calcNetHeating(int iLatitude){};
     virtual void calcHabitability(int iLatitude,double &minT, double &maxT){};
-    virtual void calcLEBMTimestep(){};
+    virtual void calcLEBMTimestep(double &dtmax){};
 
     virtual void integrate(){};
 
@@ -188,7 +188,7 @@ public:
     virtual void outputLEBMData(int &snapshotNumber, double &tSnap){};
     virtual void initialiseOutputVariables(bool restart){};
     virtual void calcLEBMMeans(double &minT, double &maxT, double &meanT, double &meanQ, double &meanA,
-	    double &meanIR, double &meanS, double &meanhab){};
+	    double &meanIR, double &meanS, double &meanhab, double &meanTidal){};
 
 
 	// Variables that are part of the Body Class and its derivations //

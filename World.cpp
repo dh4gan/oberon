@@ -36,8 +36,8 @@ World::World(string namestring, string typestring, double m, double rad,
     initialTemperature = T0;
     nFloat = float(nPoints);
 
-    rho_moon = 5.0; // density in g cm^-3 (TODO change me!)
-    rigid = 4e10;
+    rho_moon = 5.0e-9; // density in kg m^-3
+    rigid = 4e9; // rigidity in N m^-2 (Pa)
     Qtidal = 100.0;
     hostBody = 0;
 
@@ -68,8 +68,8 @@ World::World(string namestring, string typestring, double m, double rad,
     restart = start;
     tidalOn = tide;
 
-    rho_moon = 5.0; // density in g cm^-3 (TODO change me!)
-    rigid = 4e10;
+    rho_moon = 5.0e-9; // density in kg m^-3
+    rigid = 4e9;
     Qtidal = 100.0;
     hostBody = 0;
 
@@ -89,10 +89,13 @@ void World::initialiseLEBM()
      */
 
     int i;
+    double dtmax = 1.0e30;
     // Set length of vectors
 
    lat.resize(nPoints1,0.0);
    x.resize(nPoints1,0.0);
+   coslat.resize(nPoints1,0.0);
+   tanlat.resize(nPoints1,0.0);
    deltax.resize(nPoints1,0.0);
    iceFraction.resize(nPoints1,0.0);
    hab.resize(nPoints1,0.0);
@@ -116,7 +119,10 @@ void World::initialiseLEBM()
        {
        lat[i] = -pi/2.0 + i*dlat;
        x[i] = sin(lat[i]);
-       deltax[i] = cos(lat[i])*dlat;
+       coslat[i] = cos(lat[i]);
+       if(coslat[i]<0.0){coslat[i] = 0.0;}
+       tanlat[i] = tan(lat[i]);
+       deltax[i] = coslat[i]*dlat;
        }
 
    // Set up diffusion constant
@@ -146,18 +152,21 @@ void World::initialiseLEBM()
 	    calcCooling(i);
 	    calcNetHeating(i);
 
-	    if(tidalOn){calcTidalHeating(i);}
+	    if(tidalOn && hostBody!=0){
+		cout << "calculating heating " << endl;
+		calcTidalHeating(i);}
 
 	    calcHabitability(i,freeze,boil);
 	    }
 	}
-   calcLEBMTimestep();
+   calcLEBMTimestep(dtmax);
 
     }
 
 void World::setTemperature(vector<double>temp){
 
     int i;
+    double dtmax = 1.0e30;
 	for(i=0; i<nPoints; i++)
 	    {
 	    T[i] = temp[i];
@@ -183,12 +192,12 @@ void World::setTemperature(vector<double>temp){
 		    calcHabitability(i,freeze,boil);
 		    }
 		}
-	   calcLEBMTimestep();
+	   calcLEBMTimestep(dtmax);
 
     }
 
 
-void World::updateLEBM(vector<Body*> bodies, vector<double>eclipsefrac)
+void World::updateLEBM(vector<Body*> bodies, vector<double>eclipsefrac, double &dtmax)
     {
     /*
      * Written 10/1/14 by dh4gan
@@ -203,10 +212,12 @@ void World::updateLEBM(vector<Body*> bodies, vector<double>eclipsefrac)
     for (b=0; b< bodyCount; b++)
 	{
 
+
 	if (bodies[b]->getType()=="Star" or bodies[b]->getType()=="Planet")
 	    {
 	    calcInsolation(bodies[b],eclipsefrac[b]);
 	    }
+
 	}
 
 #pragma omp parallel default(none) \
@@ -221,25 +232,38 @@ void World::updateLEBM(vector<Body*> bodies, vector<double>eclipsefrac)
 	    calcOpticalDepth(i);
 	    calcAlbedo(i);
 	    calcCooling(i);
+
+	    if(tidalOn && hostBody!=0)
+		{
+		calcTidalHeating(i);
+		}
+	    if(hostBody==0)
+		{
+		cout << "Warning: Host Body undefined, tidal heating inactive" << endl;
+		}
+
 	    calcNetHeating(i);
+
 	    calcHabitability(i,freeze,boil);
 	    }
 	}
 
+	calcLEBMTimestep(dtmax);
 
     integrate();
 
     }
 
-void World::updateLEBM(vector<Body*> bodies, vector<double> eclipsefrac, double dt)
+void World::updateLEBM(vector<Body*> bodies, vector<double> eclipsefrac)
     {
     /*
      * Written 10/1/14 by dh4gan
      * Overloaded method, with dtLEBM enforced from above
      */
 
-    dtLEBM = dt;
-    updateLEBM(bodies,eclipsefrac);
+    double dtmax = 1.0e30;
+
+    updateLEBM(bodies,eclipsefrac, dtmax);
 
     }
 
@@ -294,8 +318,6 @@ void World::calcInsolation(Body* star, double &eclipsefrac)
     // Check: is declination greater than pi?
 
     if (decVector.elements[1] <0.0) declination = -1*declination;
-   // cout << decVector.elements[0] << "   " << decVector.elements[1] <<"   " << decVector.elements[2] << endl;
-
 
     double sind = sin(declination);
     double cosd = cos(declination);
@@ -304,7 +326,6 @@ void World::calcInsolation(Body* star, double &eclipsefrac)
     // Insolation prefactor depends on luminosity and separation only
 
     double lstar = star->getLuminosity();
-
 
 #pragma omp parallel default(none) \
 	shared(sind,cosd,tand,fluxsolcgs)\
@@ -317,7 +338,7 @@ void World::calcInsolation(Body* star, double &eclipsefrac)
 
 	    // calculate the diurnally averaged hour angle
 
-	    cos_H = -tan(lat[i]) * tand;
+	    cos_H = -tanlat[i] * tand;
 
 	    if (fabs(cos_H) > 1.0)
 		cos_H = cos_H / fabs(cos_H);
@@ -327,7 +348,13 @@ void World::calcInsolation(Body* star, double &eclipsefrac)
 	    insol[i] = insol[i]
 		    + fluxsolcgs * lstar * (1.0 - eclipsefrac)
 			    / (pi * magpos * magpos)
-			    * (H * x[i] * sind + cos(lat[i]) * cosd * sin(H));
+			    * (H * x[i] * sind + coslat[i] * cosd * sin(H));
+	    if(insol[i]>1.0e10){
+
+		cout << i << star->getName() <<  "  "<<insol[i] <<"  " << fluxsolcgs * lstar * (1.0 - eclipsefrac)
+				    / (pi * magpos * magpos)
+				    * (H * x[i] * sind + coslat[i] * cosd * sin(H)) << "  "  <<lstar <<  "  " << (1.0 - eclipsefrac)
+				    << "  " << (pi * magpos * magpos) << endl;}
 	    }
 
 	}
@@ -424,15 +451,18 @@ void World::calcTidalHeating(int iLatitude)
     // Calculate the current orbit of the World around the host
     calcOrbitFromVector(Gmau, hostBody);
 
-    // TODO - check units
+    double hostMass = hostBody->getMass()*msol;
 
-    double hostMass = hostBody->getMass();
-    double G = Gsi * 1000; // cgs units
+    //Calculate tidal heating in SI units
 
-    tidal[iLatitude] = 21 * (pow(G * hostMass * msol, 2.5))
-	    * pow(3 * mass / (4.0 * pi), 1.666) * eccentricity * eccentricity
+    tidal[iLatitude] = 21 * (pow(Gsi * hostMass, 2.5))
+	    * pow(3 * mass*msol / (4.0 * pi), 1.666) * eccentricity * eccentricity
 	    * pow(rho_moon, 0.333);
-    tidal[iLatitude] = tidal[iLatitude] / (38.0 * rigid * Qtidal * pow(semiMajorAxis * AU, 7.5));
+
+    tidal[iLatitude] = tidal[iLatitude]/ (38.0 * rigid * Qtidal * pow(semiMajorAxis * AU, 7.5));
+    tidal[iLatitude] = tidal[iLatitude]*1.0e3; // convert this into cgs
+
+
     }
 
 void World::calcNetHeating(int iLatitude)
@@ -466,7 +496,7 @@ void World::calcHabitability(int iLatitude, double &minT, double &maxT)
 
     }
 
-void World::calcLEBMTimestep()
+void World::calcLEBMTimestep(double &dtmax)
     {
 /*
  * Written 10/1/14 by dh4gan
@@ -478,7 +508,6 @@ void World::calcLEBMTimestep()
     double Dplus;
 
     dtLEBM = 1.0e30;
-
 
 // Calculate the timestep at every latitude on the World
 
@@ -521,6 +550,12 @@ void World::calcLEBMTimestep()
 	exit(EXIT_FAILURE);
 	dtLEBM = -10.0;
 	}
+
+    // If bigger than imposed maximum timestep, then set it to this value
+    if(dtLEBM > dtmax){
+	dtLEBM = dtmax;
+    }
+
 
     }
 
@@ -617,6 +652,9 @@ void World::integrate()
 		    / (0.5 * (dx1 + dx));
 	    T[i] = T1 + (dtLEBM / C[i]) * (Q[i] + Fj);
 
+	    //if(T[i]>1.0e6 or T[i]<0.0){
+	    //cout <<i << "  "<< T[i] << "   " << "  " << T1 <<"  " << dtLEBM << "  " << (dtLEBM / C[i]) * (Q[i] + Fj) << "  " << insol[i] << "    " << infrared[i] << "   " << Q[i] << endl;
+	    //}
 	    // If this temperature brings a cold world to the freezing point, then begin ice
 	    // melting algorithm
 
@@ -684,7 +722,7 @@ void World::initialiseOutputVariables(bool restart)
     }
 
 void World::calcLEBMMeans(double &minT, double &maxT, double &meanT, double &meanQ, double &meanA, double &meanIR, double &meanS,
-	double &meanhab)
+	double &meanhab, double &meanTidal)
     {
     /*
      * Written 13/1/14 by dh4gan
@@ -700,6 +738,7 @@ void World::calcLEBMMeans(double &minT, double &maxT, double &meanT, double &mea
     meanIR = 0.0;
     meanS = 0.0;
     meanhab = 0.0;
+    meanTidal = 0.0;
 
     for (int i=0; i< nPoints1; i++)
 	{
@@ -709,6 +748,7 @@ void World::calcLEBMMeans(double &minT, double &maxT, double &meanT, double &mea
 	meanIR = meanIR + infrared[i]*0.5*deltax[i];
 	meanS = meanS + insol[i]*0.5*deltax[i];
 	meanhab = meanhab + hab[i]*0.5*deltax[i];
+	meanTidal = meanTidal + tidal[i]*0.5*deltax[i];
 
 	if(T[i] < minT) minT = T[i];
 	if(T[i] > maxT) maxT = T[i];
@@ -726,15 +766,15 @@ void World::outputLEBMData(int &snapshotNumber, double &tSnap)
      *
      */
 
-    double minT, maxT, meanT, meanQ, meanA, meanIR, meanS, meanhab;
+    double minT, maxT, meanT, meanQ, meanA, meanIR, meanS, meanhab, meanTidal;
 
 
     // Firstly, write line to log file
-    calcLEBMMeans(minT, maxT, meanT, meanQ, meanA, meanIR,meanS, meanhab);
+    calcLEBMMeans(minT, maxT, meanT, meanQ, meanA, meanIR,meanS, meanhab, meanTidal);
 
     // Also include orbital data here
-    fprintf(logFile, "%+.4E %+.4E %+.4E %+.4E %+.4E %+.4E %+.4E %+.4E %+.4E %+.4E %+.4E %+.4E %+.4E %+.4E %+4.E \n",
-	    tSnap, minT, maxT, meanT,meanQ,meanA,meanIR,meanS,meanhab,
+    fprintf(logFile, "%+.4E %+.4E %+.4E %+.4E %+.4E %+.4E %+.4E %+.4E %+.4E %+.4E %+.4E %+.4E %+.4E %+.4E %+.4E %+4.E \n",
+	    tSnap, minT, maxT, meanT,meanQ,meanA,meanIR,meanS,meanhab, meanTidal,
 	    getSemiMajorAxis(), getEccentricity(), getInclination(),
 	    getArgumentPeriapsis(), getLongitudeAscendingNode(), getMeanAnomaly());
     fflush(logFile);
@@ -755,9 +795,9 @@ void World::outputLEBMData(int &snapshotNumber, double &tSnap)
 
     for (int i=0; i<nPoints; i++)
 	{
-	fprintf(snapshotFile, "%+.4E %+.4E %+.4E %+.4E %+.4E %+.4E %+.4E %+.4E %+.4E %+.4E %+.4E \n",
+	fprintf(snapshotFile, "%+.4E %+.4E %+.4E %+.4E %+.4E %+.4E %+.4E %+.4E %+.4E %+.4E %+.4E %+.4E \n",
 		x[i], lat[i], T[i], C[i], Q[i], infrared[i],
-		albedo[i], insol[i], tau[i],iceFraction[i], hab[i]);
+		albedo[i], insol[i], tau[i],iceFraction[i], hab[i], tidal[i]);
 	}
     fclose(snapshotFile);
 
@@ -778,6 +818,7 @@ int World::findRestartTemperature()
     string line;
     int nSnap = 0;
     double blank;
+    double dtmax = 1.0e30;
     ifstream lfile(logFileName.c_str());
 
     if(lfile)
@@ -840,7 +881,7 @@ int World::findRestartTemperature()
 	    calcHabitability(i,freeze,boil);
 	    }
 	}
-   calcLEBMTimestep();
+   calcLEBMTimestep(dtmax);
 
    return nSnap;
     }

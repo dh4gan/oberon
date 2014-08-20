@@ -9,7 +9,7 @@
 #ifndef CONSTANTS_H_
 #define CONSTANTS_H_
 
-double pi = 3.141592658285;
+double pi = 3.141592;
 double Gsi = 6.67e-11;
 double Gmau = 1.0;  // Value of G for solar mass-AU units (time units...2pi units= 1 year)
 double AU = 1.496e11;
