@@ -1,0 +1,64 @@
+ParType Orbital
+NBodyOutput kepler47c_nbody.output
+SnapshotTime	1.0e-3
+NGridPoints	144
+MaximumTime	100.0
+SystemName Kepler47
+Number_Bodies 4
+Restart F
+--
+BodyName Kepler47A
+BodyType Star
+Mass 1.043
+Radius 0.964
+SemiMajorAxis 0.0
+Eccentricity 0.0
+Inclination 0.0
+LongAscend 0.0
+Periapsis 0.0
+MeanAnomaly 1.57
+Luminosity 0.84
+OrbitCentre 0
+--
+BodyName Kepler47B
+BodyType Star
+Mass 0.362
+Radius 0.3506
+SemiMajorAxis 0.0836
+Eccentricity 0.0234
+Inclination 0.0
+LongAscend 0.0
+Periapsis 0.0
+MeanAnomaly 4.7123
+Luminosity 0.014
+OrbitCentre 0
+--
+BodyName Kepler47c
+BodyType World
+Mass 3.0e-6
+Radius 1.0e-4
+SemiMajorAxis 0.989
+Eccentricity 0.0
+Inclination 0.0
+LongAscend 0.0
+Periapsis 0.0
+MeanAnomaly 0.0
+RotationPeriod 1.0  (days)
+Obliquity  23.7   (degrees)
+WinterSolstice 0.0	(longitude,degrees)
+OceanFraction 0.7
+InitialTemperature 288.0
+OrbitCentre	-1
+--
+BodyName Kepler47b
+BodyType Planet
+Mass 3.003e-5
+Radius 2.7e-3
+SemiMajorAxis 0.2956
+Eccentricity 0.035
+Inclination 0.0
+Periapsis 0.0
+MeanAnomaly 0.0
+Luminosity 0.0
+OrbitCentre -1
+

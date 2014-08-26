@@ -1,10 +1,10 @@
 ParType Orbital
-NBodyOutput habmoon_nbody.output
-SnapshotTime	1.0e-3
+NBodyOutput 2moons_nbody.output
+SnapshotTime	1.0e-2
 NGridPoints	144
 MaximumTime	100.0
 SystemName HabMoon
-Number_Bodies 3
+Number_Bodies 4
 Restart F
 PlanetaryIllumination T
 TidalHeating T
@@ -52,6 +52,18 @@ OceanFraction 0.7
 InitialTemperature 288.0
 IceMeltingOn F
 OrbitCentre 2
-
+---
+BodyName Neighbour
+BodyType Planet
+Mass 1.0e-6
+Radius 1.0e-4
+SemiMajorAxis 0.005
+Eccentricity 0.0
+Inclination 0.0
+LongAscend 0.0
+Periapsis 0.0
+MeanAnomaly 0.0
+OrbitCentre 2
+Albedo 0.3
 
 

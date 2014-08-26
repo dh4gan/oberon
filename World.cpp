@@ -237,7 +237,7 @@ void World::updateLEBM(vector<Body*> bodies, vector<double>eclipsefrac, double &
 		{
 		calcTidalHeating(i);
 		}
-	    if(hostBody==0)
+	    if(tidalOn && hostBody==0)
 		{
 		cout << "Warning: Host Body undefined, tidal heating inactive" << endl;
 		}

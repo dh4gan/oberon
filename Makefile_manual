@@ -1,0 +1,35 @@
+#####################################################
+###                                               ###
+### Makefile for nbody_EBM (manually generated)   ###
+###                                               ###
+###         Duncan H. Forgan 26/8/2014            ###
+###       				          ###
+###                                               ###
+#####################################################
+
+# Compiler variables:
+FC     = g++
+
+FFLAGS = -O3 -fopenmp  
+
+# Create object files:
+%.o: %.f
+	$(FC) $(FFLAGS) -c $<
+%.o: %.f90
+	$(FC) $(FFLAGS) -c $<
+
+# Source files (.F90)
+SOURCESA = main.cpp Vector3D.cpp Body.cpp Star.cpp Planet.cpp World.cpp System.cpp parFile.cpp
+OBJECTSA    = $(SOURCESA:.cpp=.o)
+
+# Create executable files:
+build: nbody_EBM
+
+nbody_EBM:  $(OBJECTSA)
+	$(FC) $(FFLAGS) -o $@ $(OBJECTSA)
+
+# Clean statements:
+clean: 
+	\rm *.o *.d nbody_EBM
+
+# End Makefile
