@@ -1,0 +1,53 @@
+ParType Orbital
+NBodyOutput alphacen_nbody.output
+SnapshotTime	1.0e2
+NGridPoints	144
+MaximumTime	1.0e5
+SystemName AlphaCentauri
+Number_Bodies 3
+Restart F
+--
+BodyName AlphaCenA
+BodyType Star
+Mass 1.1
+Radius 1.227
+SemiMajorAxis 0.0
+Eccentricity 0.0
+Inclination 0.0
+LongAscend 0.0
+Periapsis 0.0
+MeanAnomaly 1.57
+Luminosity 2.266
+OrbitCentre 0
+--
+BodyName AlphaCenB
+BodyType Star
+Mass 0.934
+Radius 0.865
+SemiMajorAxis 23.4
+Eccentricity 0.5179
+Inclination 0.0
+LongAscend 0.0
+Periapsis 0.0
+MeanAnomaly 4.7123
+Luminosity 0.5
+OrbitCentre 0
+--
+BodyName HabWorld
+BodyType World
+Mass 3.0e-6
+Radius 1.0e-4
+SemiMajorAxis 0.7
+Eccentricity 0.2
+Inclination 0.0
+LongAscend 0.0
+Periapsis 0.0
+MeanAnomaly 0.0
+RotationPeriod 1.0  (days)
+Obliquity  23.7   (degrees)
+WinterSolstice 0.0	(longitude,degrees)
+OceanFraction 0.7
+InitialTemperature 288.0
+OrbitCentre	2
+
+
