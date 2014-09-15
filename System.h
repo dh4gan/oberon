@@ -7,7 +7,7 @@
  *      This is the header file setting up the System Class
  */
 
-using namespace std;
+//using namespace std;
 
 #ifndef SYSTEM_H_
 #define SYSTEM_H_

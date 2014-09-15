@@ -30,11 +30,16 @@ System::System()
 
     initialAngularMomentum = zeroVector;
     totalAngularMomentum = zeroVector;
+
+    deltaAngularMomentum = 0.0;
+    deltaEnergy = 0.0;
+
     positionCOM = zeroVector;
     velocityCOM = zeroVector;
     accelerationCOM = zeroVector;
 
     planetaryIlluminationOn = false;
+
 
     }
 
@@ -62,6 +67,10 @@ System::System(string &namestring, vector<Body*> &bodyarray)
 
     initialAngularMomentum = zeroVector;
     totalAngularMomentum = zeroVector;
+
+    deltaAngularMomentum = 0.0;
+    deltaEnergy = 0.0;
+
     positionCOM = zeroVector;
     velocityCOM = zeroVector;
     accelerationCOM = zeroVector;

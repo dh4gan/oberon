@@ -16,12 +16,37 @@ double solradToAU = 0.00467580213904;
 parFile::parFile()
     {
     totalMass = 0.0;
+
+    restart = false;
+    illumination = false;
+    tidal = false;
+
+    systemTime = 0.0;
+    maximumTime = 0.0;
+    snapshotTime = 0.0;
+    snapshotNumber =0;
+    nPoints = 0;
+    number_bodies = 0;
+
     }
 
 parFile::parFile(string name)
     {
     parFileName = name;
     totalMass = 0.0;
+
+    restart = false;
+    illumination = false;
+    tidal = false;
+
+    systemTime = 0.0;
+    maximumTime = 0.0;
+    snapshotTime = 0.0;
+    snapshotNumber = 0;
+
+    nPoints =0;
+    number_bodies = 0;
+
     }
 
 Vector3D parFile::getBodyPosition(int index)

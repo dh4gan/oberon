@@ -20,7 +20,30 @@ double sigma_SB = 5.67e-5;
 World::World() :
 	Body()
     {
-    tidalOn = false;
+    nPoints = 0;
+     obliquity = 0.0;
+     rotationPeriod = 0.0;
+     winterSolstice = 0.0;
+     oceanFraction = 0.0;
+     landFraction = 1.0-oceanFraction;
+     initialTemperature = 0.0;
+     nFloat = float(nPoints);
+
+     rho_moon = 5.0e-9; // density in kg m^-3
+     rigid = 4e9; // rigidity in N m^-2 (Pa)
+     Qtidal = 100.0;
+     hostBody = 0;
+
+     nPoints1 = nPoints+1;
+     activateMelt = false;
+     restart = false;
+     tidalOn = false;
+
+     dtLEBM = 0.0;
+     diffusion = 0.0;
+     logFile = 0;
+     snapshotFile = 0;
+
     }
 World::World(string namestring, string typestring, double m, double rad,
 	Vector3D pos, Vector3D vel, int n, double obliq, double rot, double winter,
