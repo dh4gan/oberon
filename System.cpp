@@ -990,7 +990,14 @@ void System::outputNBodyData(FILE *outputfile, double &time, vector<int> orbitCe
 
 	if(orbitCentre[j]>0)
 	    {
-	    bodies[j]->calcOrbitFromVector(G, bodies[orbitCentre[j]-1]);
+
+	    // This calculates orbits in the CoM of the host system
+
+	    transformToHostCOMFrame(bodies[orbitCentre[j]-1]);
+	    bodies[j]->calcOrbitFromVector(G, bodies[orbitCentre[j]-1]->getHostMass());
+
+	    // Return to the global CoM frame
+	    transformToCOMFrame();
 	    }
 
 	else
