@@ -129,25 +129,46 @@ void System::setHostBodies(vector<int> orbitCentre)
     /*
      * Written 19/8/14 by dh4gan
      * Sets up Host Bodies for Worlds where appropriate
-     *
+     * Catalogue how much mass is orbiting each body
      */
 
     for (int i=0; i<bodyCount; i++)
 	{
-	if(bodies[i]->getType()=="World")
-	    {
 	    if(orbitCentre[i]>0)
 		{
 		bodies[i]->setHostBody(bodies[orbitCentre[i]-1]);
+		bodies[orbitCentre[i]-1]->setHostMass(bodies[orbitCentre[i]-1]->getHostMass() + bodies[i]->getMass());
 		}
-	    }
+	}
+
+    }
+
+/* Calculation Methods */
+
+
+void System::transformToHostCOMFrame(Body* host)
+{
+	/*
+	 * Written 8/1/14 by dh4gan
+	 * Transforms system so that COM of system belonging to body host is at centre
+	 */
+
+	vector<int> participants(bodyCount,0);
+
+	// Find all bodies with this host
+	for(int i=0; i<bodyCount; i++)
+	{
+		if(bodies[i]->getHostBody()==host)
+		{
+			participants[i]=1;
+		}
 
 	}
 
+	// Transform to COM frame of these bodies
+	transformToCOMFrame(participants);
 
-
-    }
-/* Calculation Methods */
+}
 
 void System::calcCOMFrame(vector<int> participants)
     {/* Author: dh4gan
@@ -266,6 +287,9 @@ void System::transformToBodyFrame(int bodyIndex)
 	}
     //end of module
     }
+
+
+
 
 void System::calcTotalEnergy()
     {

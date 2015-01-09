@@ -29,6 +29,7 @@ public:
 	double getTotalEnergy() { return totalEnergy; }
 	vector<Body*> getBodies(){return bodies;}
 	Body* getBody(int index) {return bodies[index];}
+	Body* getHostBody(int index){return bodies[index]->getHostBody();}
 	Vector3D getpositionCOM(){ return positionCOM;}
 	Vector3D getvelocityCOM(){ return velocityCOM;}
 	Vector3D getaccelerationCOM(){ return accelerationCOM;}
@@ -62,6 +63,8 @@ public:
 
 	void calcNBodyTimestep(vector<Body*> &bodyarray, double dtmax);
 	double calcCombinedTimestep();
+
+	void transformToHostCOMFrame(Body* bod);
 
 	void calcCOMFrame(vector<int> participants);
 	void transformToCOMFrame(vector<int> participants);

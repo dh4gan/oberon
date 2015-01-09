@@ -32,7 +32,7 @@ World::World() :
      rho_moon = 5.0e-9; // density in kg m^-3
      rigid = 4e9; // rigidity in N m^-2 (Pa)
      Qtidal = 100.0;
-     hostBody = 0;
+
 
      nPoints1 = nPoints+1;
      activateMelt = false;
@@ -62,7 +62,7 @@ World::World(string namestring, string typestring, double m, double rad,
     rho_moon = 5.0e-9; // density in kg m^-3
     rigid = 4e9; // rigidity in N m^-2 (Pa)
     Qtidal = 100.0;
-    hostBody = 0;
+
 
     nPoints1 = nPoints+1;
     activateMelt = melt;
@@ -94,7 +94,6 @@ World::World(string namestring, string typestring, double m, double rad,
     rho_moon = 5.0e-9; // density in kg m^-3
     rigid = 4e9;
     Qtidal = 100.0;
-    hostBody = 0;
 
     initialiseLEBM();
 

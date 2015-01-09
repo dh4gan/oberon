@@ -93,6 +93,12 @@ public:
 	void setLongitudeAscendingNode(double node){longitudeAscendingNode=node;}
 
 
+	void setHostBody(Body* bod){hostBody = bod;}
+	Body* getHostBody(){return hostBody;}
+
+	void setHostMass(double m){hostMass = m;}
+	double getHostMass(){return hostMass;}
+
 	// Standard cloning method
 	virtual Body* Clone() { return new Body(*this); }
 
@@ -162,7 +168,7 @@ public:
 	{
 	return -1;
 	}
-    virtual void setHostBody(Body* bod){};
+
 
     // Calculation Methods
 
@@ -202,6 +208,9 @@ protected:
 	double radius;
 	double timestep;	// Body's own calculated timestep - used to define global timestep
 	bool collisionBounce;  // Does the Body bounce or not when it hits another Body?
+
+	Body* hostBody; // Which Body does this belong to?
+	double hostMass; // How much mass this Body plays host to (e.g. satellites)
 
 	// Primitive Spatial Vectors
 

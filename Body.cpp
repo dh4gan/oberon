@@ -46,6 +46,9 @@ Body::Body()
 
     timestep = 0.0;
 
+    hostBody = 0;
+    hostMass = 0.0;
+
     }
 
 Body::Body(string &namestring, string &typestring, double &m, double &rad, Vector3D &pos,
@@ -86,6 +89,9 @@ Body::Body(string &namestring, string &typestring, double &m, double &rad, Vecto
 
     timestep = 0.0;
 
+    hostBody = 0;
+    hostMass = 0.0;
+
     }
 
 
@@ -123,6 +129,9 @@ Body::Body(string &namestring, string &typestring, double &m, double &rad, doubl
 
     calcTrueAnomaly();
     calcVectorFromOrbit(G, totalMass);
+
+    hostBody = 0;
+    hostMass = 0.0;
   }
 
 Body::~Body()
@@ -325,6 +334,8 @@ void Body::calcOrbitFromVector(double G, Body* parentBody)
      *
      */
 
+	Vector3D hostpos_original = parentBody->getPosition();
+	Vector3D hostvel = parentBody->getVelocity();
 
     Vector3D framepos = parentBody->getPosition();
     Vector3D framevel = parentBody->getVelocity();

@@ -36,7 +36,7 @@ public:
     void setInsolationZero() {insol.assign(nPoints1,0.0);}
     void setTemperature(vector<double> temp);
 
-    void setHostBody(Body* bod){hostBody = bod;}
+    //void setHostBody(Body* bod){hostBody = bod;}
 
     double getLEBMTimestep(){return dtLEBM;}
 
@@ -88,7 +88,7 @@ protected:
     double rho_moon;
     double rigid;
     double Qtidal;
-    Body* hostBody;
+
 
     bool tidalOn;
     vector<bool> melting;
