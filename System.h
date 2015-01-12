@@ -71,6 +71,7 @@ public:
 	void calcCOMFrame();
 	void transformToCOMFrame();
 	void transformToBodyFrame(int bodyIndex);
+	void transformToArbitraryFrame(Vector3D framePosition,Vector3D frameVelocity, vector<int> participants);
 	void transformToArbitraryFrame(Vector3D framePosition,Vector3D frameVelocity);
 	void setupOrbits(vector<int> bodyCentre);
 

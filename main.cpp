@@ -223,6 +223,8 @@ int main(int argc, char* argv[])
 
     // If the System is created from orbital parameters, set up vectors here
 
+    nBodySystem.setHostBodies(input.orbitCentre);
+
     if(fileType ==1 and input.restart==false)
 	{
 	nBodySystem.setupOrbits(input.orbitCentre);
@@ -231,7 +233,7 @@ int main(int argc, char* argv[])
     // Calculate its initial properties
     nBodySystem.calcInitialProperties();
 
-    nBodySystem.setHostBodies(input.orbitCentre);
+
 
     // Switch Planetary Illumination on/off
     nBodySystem.setIllumination(input.illumination);
