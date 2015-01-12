@@ -15,7 +15,7 @@ System::System()
     {
     name = "System";
     bodies = vector<Body*> (0);
-    bodyCount = 0.0;
+    bodyCount = 0;
     Vector3D zeroVector;
 
     totalMass = 0.0;
@@ -146,29 +146,7 @@ void System::setHostBodies(vector<int> orbitCentre)
 /* Calculation Methods */
 
 
-void System::transformToHostCOMFrame(Body* host)
-{
-	/*
-	 * Written 8/1/14 by dh4gan
-	 * Transforms system so that COM of system belonging to body host is at centre
-	 */
 
-	vector<int> participants(bodyCount,0);
-
-	// Find all bodies with this host
-	for(int i=0; i<bodyCount; i++)
-	{
-		if(bodies[i]->getHostBody()==host)
-		{
-			participants[i]=1;
-		}
-
-	}
-
-	// Transform to COM frame of these bodies
-	transformToCOMFrame(participants);
-
-}
 
 void System::calcCOMFrame(vector<int> participants)
     {/* Author: dh4gan
@@ -177,25 +155,35 @@ void System::calcCOMFrame(vector<int> participants)
      */
 
     int i;
-    double m;
+    double m, participantMass;
     Vector3D pos, vel, zerovector;
 
     positionCOM = zerovector;
     velocityCOM = zerovector;
 
+
     for (i = 0; i < bodyCount; i++)
 	{
+
 	if (participants[i] == 1)
 	    {
 	    pos = bodies[i]->getPosition();
 	    vel = bodies[i]->getVelocity();
 	    m = bodies[i]->getMass();
-
-	    positionCOM = positionCOM.addVector(pos.scaleVector(m/totalMass));
-	    velocityCOM = velocityCOM.addVector(vel.scaleVector(m/totalMass));
+	    participantMass +=m;
+	    positionCOM = positionCOM.addVector(pos.scaleVector(m));
+	    velocityCOM = velocityCOM.addVector(vel.scaleVector(m));
 
 	    }
 	}
+
+    if(participantMass>0.0)
+    {
+    participantMass = 1.0/participantMass;
+    }
+
+    positionCOM = positionCOM.scaleVector(participantMass);
+    velocityCOM = velocityCOM.scaleVector(participantMass);
 
     }
 
@@ -289,7 +277,79 @@ void System::transformToBodyFrame(int bodyIndex)
     }
 
 
+void System::calcHostCOMFrame(Body* host, Vector3D &hostCOM, Vector3D &hostvelCOM)
+{
+	/*
+	 * Written 8/1/14 by dh4gan
+	 * Transforms system so that COM of system belonging to body host is at centre
+	 */
 
+	vector<int> participants(bodyCount,0);
+	double m, participantMass;
+	Vector3D pos, vel, zerovector;
+
+
+	// Find all bodies with this host
+	for(int i=0; i<bodyCount; i++)
+	{
+		if(bodies[i]==host)
+		{
+			participants[i]=1;
+		}
+		if(bodies[i]->getHostBody()==host)
+		{
+			participants[i]=1;
+		}
+
+	}
+
+	// Calculate COM frame of these bodies
+
+	hostCOM = zerovector;
+	hostvelCOM = zerovector;
+	    for (int i = 0; i < bodyCount; i++)
+		{
+
+		if (participants[i] == 1)
+		    {
+		    pos = bodies[i]->getPosition();
+		    vel = bodies[i]->getVelocity();
+		    m = bodies[i]->getMass();
+		    participantMass +=m;
+		    hostCOM = hostCOM.addVector(pos.scaleVector(m));
+		    hostvelCOM = hostvelCOM.addVector(vel.scaleVector(m));
+
+		    }
+		}
+
+	    if(participantMass>0.0)
+	    {
+	    participantMass = 1.0/participantMass;
+	    }
+
+	    hostCOM = hostCOM.scaleVector(participantMass);
+	    hostvelCOM = hostvelCOM.scaleVector(participantMass);
+
+	    }
+
+
+void System::transformToArbitraryFrame(Vector3D framePosition, Vector3D frameVelocity)
+{
+	/*
+	 * Written 8/1/14 by dh4gan
+	 * Transforms system so that COM of system belonging to body host is at centre
+	 */
+
+	vector<int> participants(bodyCount,0);
+
+	// Find all bodies with this host
+	for(int i=0; i<bodyCount; i++)
+	{
+		bodies[i]->setPosition(bodies[i]->getPosition().subtractVector(framePosition));
+		bodies[i]->setVelocity(bodies[i]->getVelocity().subtractVector(frameVelocity));
+	}
+
+}
 
 void System::calcTotalEnergy()
     {
@@ -980,7 +1040,7 @@ void System::outputNBodyData(FILE *outputfile, double &time, vector<int> orbitCe
      * orbitCentre vector determines where the orbits are calculated from
      */
 
-    Vector3D position, velocity;
+    Vector3D position, velocity, hostCOM,hostvelCOM;
     // Transform to the Centre of Mass Frame
     transformToCOMFrame();
     //transformToBodyFrame(0);
@@ -991,13 +1051,38 @@ void System::outputNBodyData(FILE *outputfile, double &time, vector<int> orbitCe
 	if(orbitCentre[j]>0)
 	    {
 
-	    // This calculates orbits in the CoM of the host system
+		cout << "Host Before:" <<endl;
+		bodies[orbitCentre[j]-1]->getPosition().printVector();
 
-	    transformToHostCOMFrame(bodies[orbitCentre[j]-1]);
+		cout << "Body Before:" <<endl;
+				bodies[j]->getPosition().printVector();
+
+
+
+		// Calculate orbit in the CoM of the host system
+
+		calcHostCOMFrame(bodies[orbitCentre[j]-1], hostCOM,hostvelCOM);
+
+
+		// Now transform to Frame where CoM is at origin
+		transformToArbitraryFrame(hostCOM,hostvelCOM);
+
+
+		// Do orbit calculation
+
 	    bodies[j]->calcOrbitFromVector(G, bodies[orbitCentre[j]-1]->getHostMass());
 
-	    // Return to the global CoM frame
-	    transformToCOMFrame();
+	    // Return to the original frame
+	    hostCOM = hostCOM.scaleVector(-1.0);
+	    hostvelCOM = hostvelCOM.scaleVector(-1.0);
+	    transformToArbitraryFrame(hostCOM,hostvelCOM);
+
+	    cout << "Host After:" <<endl;
+	    bodies[orbitCentre[j]-1]->getPosition().printVector();
+
+	    cout << "Body After:" <<endl;
+	    				bodies[j]->getPosition().printVector();
+
 	    }
 
 	else

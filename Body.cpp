@@ -47,7 +47,7 @@ Body::Body()
     timestep = 0.0;
 
     hostBody = 0;
-    hostMass = 0.0;
+    hostMass = mass;
 
     }
 
@@ -90,7 +90,7 @@ Body::Body(string &namestring, string &typestring, double &m, double &rad, Vecto
     timestep = 0.0;
 
     hostBody = 0;
-    hostMass = 0.0;
+    hostMass = mass;
 
     }
 
@@ -131,7 +131,7 @@ Body::Body(string &namestring, string &typestring, double &m, double &rad, doubl
     calcVectorFromOrbit(G, totalMass);
 
     hostBody = 0;
-    hostMass = 0.0;
+    hostMass = mass;
   }
 
 Body::~Body()
