@@ -22,9 +22,9 @@
 class Body {
 public:
 	Body();
-	Body(string &namestring, string &typestring, double &m, double &rad, Vector3D &pos, Vector3D &vel);
+	Body(string &namestring, double &m, double &rad, Vector3D &pos, Vector3D &vel);
 
-	Body(string &namestring, string &typestring, double &m, double &rad, double semimaj, double ecc, double inc,
+	Body(string &namestring, double &m, double &rad, double semimaj, double ecc, double inc,
 		double longascend, double argper, double meananom, double G, double totalMass);
 
 	virtual ~Body();

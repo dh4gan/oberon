@@ -51,13 +51,13 @@ Body::Body()
 
     }
 
-Body::Body(string &namestring, string &typestring, double &m, double &rad, Vector3D &pos,
+Body::Body(string &namestring, double &m, double &rad, Vector3D &pos,
 	Vector3D &vel)
     {
     Vector3D zero;
     name = namestring;
     mass = m;
-    type = typestring;
+    type = "Body";
     radius = rad;
     collisionBounce = true;
 
@@ -95,14 +95,14 @@ Body::Body(string &namestring, string &typestring, double &m, double &rad, Vecto
     }
 
 
-Body::Body(string &namestring, string &typestring, double &m, double &rad, double semimaj, double ecc, double inc, double longascend,
+Body::Body(string &namestring, double &m, double &rad, double semimaj, double ecc, double inc, double longascend,
 				double argper, double meananom, double G, double totalMass)
     {
 
     Vector3D zero;
 
     name = namestring;
-    type = typestring;
+    type = "Body";
     mass = m;
     radius = rad;
     collisionBounce = true;

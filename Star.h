@@ -16,8 +16,8 @@ class Star: public Body {
 public:
 
 	Star();
-	Star(string &namestring, string &typestring, double &m, double &rad, Vector3D  &pos, Vector3D  &vel, double &lum);
-	Star(string &namestring, string &typestring, double &m, double &rad, double semimaj, double ecc, double inc,
+	Star(string &namestring, double &m, double &rad, Vector3D  &pos, Vector3D  &vel, double &lum);
+	Star(string &namestring, double &m, double &rad, double semimaj, double ecc, double inc,
 			double longascend, double argper, double meananom, double G, double totalMass, double &lum);
 	virtual ~Star();
 

@@ -110,7 +110,7 @@ int main(int argc, char* argv[])
 	    if (input.BodyTypes[i] == "Star")
 		{
 		BodyArray.push_back(
-			new Star(input.BodyNames[i], input.BodyTypes[i],
+			new Star(input.BodyNames[i],
 				input.Mass[i], input.Radius[i], body_i_position,
 				body_i_velocity, input.luminosity[i]));
 		}
@@ -119,7 +119,7 @@ int main(int argc, char* argv[])
 	    if (input.BodyTypes[i] == "Planet")
 		{
 		BodyArray.push_back(
-			new Planet(input.BodyNames[i], input.BodyTypes[i],
+			new Planet(input.BodyNames[i],
 				input.Mass[i], input.Radius[i], body_i_position,
 				body_i_velocity, input.albedo[i]));
 		}
@@ -137,7 +137,7 @@ int main(int argc, char* argv[])
 		    return -1;
 		    }
 		BodyArray.push_back(
-			new World(input.BodyNames[i], input.BodyTypes[i],
+			new World(input.BodyNames[i],
 				input.Mass[i], input.Radius[i], body_i_position,
 				body_i_velocity, input.nPoints, input.obliquity[i],input.rotationPeriod[i], input.winterSolstice[i],
 				input.oceanFraction[i], input.initialTemperature[i], input.activateMelt[i], input.restart, input.tidal));
@@ -166,7 +166,7 @@ int main(int argc, char* argv[])
 		{
 
 		BodyArray.push_back(
-			new Star(input.BodyNames[i], input.BodyTypes[i],
+			new Star(input.BodyNames[i],
 				input.Mass[i], input.Radius[i],
 				input.semiMajorAxis[i], input.eccentricity[i],
 				input.inclination[i], input.longAscend[i],
@@ -179,7 +179,7 @@ int main(int argc, char* argv[])
 	    if (input.BodyTypes[i] == "Planet")
 		{
 		BodyArray.push_back(
-			new Planet(input.BodyNames[i], input.BodyTypes[i],
+			new Planet(input.BodyNames[i],
 				input.Mass[i], input.Radius[i],
 				input.semiMajorAxis[i], input.eccentricity[i],
 				input.inclination[i], input.longAscend[i],
@@ -200,7 +200,7 @@ int main(int argc, char* argv[])
 		    return -1;
 		    }
 		BodyArray.push_back(
-			new World(input.BodyNames[i], input.BodyTypes[i],
+			new World(input.BodyNames[i],
 				input.Mass[i], input.Radius[i],
 				input.semiMajorAxis[i], input.eccentricity[i],
 				input.inclination[i], input.longAscend[i],

@@ -20,6 +20,7 @@ double sigma_SB = 5.67e-5;
 World::World() :
 	Body()
     {
+    type = "World";
     nPoints = 0;
      obliquity = 0.0;
      rotationPeriod = 0.0;
@@ -45,11 +46,12 @@ World::World() :
      snapshotFile = 0;
 
     }
-World::World(string namestring, string typestring, double m, double rad,
+World::World(string namestring, double m, double rad,
 	Vector3D pos, Vector3D vel, int n, double obliq, double rot, double winter,
 	double ocean, double T0,bool melt, bool start, bool tide) :
-	Body(namestring, typestring, m, rad, pos, vel)
+	Body(namestring, m, rad, pos, vel)
     {
+    type = "World";
     nPoints = n;
     obliquity = obliq;
     rotationPeriod = rot;
@@ -71,13 +73,14 @@ World::World(string namestring, string typestring, double m, double rad,
     initialiseLEBM();
 
     }
-World::World(string namestring, string typestring, double m, double rad,
+World::World(string namestring, double m, double rad,
 	double semimaj, double ecc, double inc, double longascend,
 	double argper, double meananom, double G, double totalMass, int n,
 	double obliq, double rot, double winter, double ocean, double T0, bool melt, bool start, bool tide) :
-	Body(namestring, typestring, m, rad, semimaj, ecc, inc, longascend,
+	Body(namestring, m, rad, semimaj, ecc, inc, longascend,
 		argper, meananom, G, totalMass)
     {
+    type = "World";
     nPoints = n;
     obliquity = obliq;
     rotationPeriod = rot;

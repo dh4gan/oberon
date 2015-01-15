@@ -20,11 +20,11 @@ public:
 
     World();
 
-    World(string namestring, string typestring, double m, double rad,
+    World(string namestring, double m, double rad,
 	    Vector3D pos, Vector3D vel, int n, double obliq, double rot, double winter,
 	    double ocean, double T0, bool melt, bool start, bool tide);
 
-    World(string namestring, string typestring, double m, double rad,
+    World(string namestring, double m, double rad,
 	    double semimaj, double ecc, double inc, double longascend,
 	    double argper, double meananom, double G, double totalMass,
 	    int n, double obliq, double rot, double winter,

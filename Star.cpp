@@ -15,9 +15,10 @@ Star::Star() :
     luminosity = 0.0;
     calcMainSequenceLuminosity();
 }
-Star::Star(string &namestring, string &typestring, double &m, double &rad, Vector3D  &pos, Vector3D  &vel, double &lum) :
-	Body(namestring, typestring, m, rad, pos, vel) {
+Star::Star(string &namestring, double &m, double &rad, Vector3D  &pos, Vector3D  &vel, double &lum) :
+	Body(namestring, m, rad, pos, vel) {
 
+	type = "Star";
 	if(lum > 0.0)
 	    {
 	    luminosity = lum;
@@ -28,9 +29,10 @@ Star::Star(string &namestring, string &typestring, double &m, double &rad, Vecto
 	    }
 }
 
-Star::Star(string &namestring, string &typestring, double &m, double &rad, double semimaj, double ecc, double inc,
+Star::Star(string &namestring, double &m, double &rad, double semimaj, double ecc, double inc,
 			double longascend, double argper, double meananom, double G, double totalMass, double &lum):
-			Body(namestring, typestring, m, rad, semimaj,ecc,inc,longascend,argper,meananom,G,totalMass) {
+			Body(namestring, m, rad, semimaj,ecc,inc,longascend,argper,meananom,G,totalMass) {
+	type = "Star";
 	if(lum > 0.0)
     	    {
     	    luminosity = lum;
