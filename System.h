@@ -64,14 +64,15 @@ public:
 	void calcNBodyTimestep(vector<Body*> &bodyarray, double dtmax);
 	double calcCombinedTimestep();
 
-	void transformToHostCOMFrame(Body* bod);
+	void calcHostCOMFrame(Body* bod, Vector3D &hostCOM, Vector3D &hostVelCOM);
 
 	void calcCOMFrame(vector<int> participants);
 	void transformToCOMFrame(vector<int> participants);
 	void calcCOMFrame();
 	void transformToCOMFrame();
 	void transformToBodyFrame(int bodyIndex);
-
+	void transformToArbitraryFrame(Vector3D framePosition,Vector3D frameVelocity, vector<int> participants);
+	void transformToArbitraryFrame(Vector3D framePosition,Vector3D frameVelocity);
 	void setupOrbits(vector<int> bodyCentre);
 
 	void calcTotalEnergy();

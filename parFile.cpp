@@ -211,7 +211,7 @@ void parFile::readPosFile()
 	    winterSolstice.assign(number_bodies, 0.0);
 	    oceanFraction.assign(number_bodies, 0.0);
 	    initialTemperature.assign(number_bodies, 0.0);
-	    orbitCentre.assign(number_bodies, 0.0);
+	    orbitCentre.assign(number_bodies, 0);
 	    activateMelt.assign(number_bodies,false);
 	    bodyIndex = -1;
 
@@ -440,7 +440,7 @@ void parFile::readOrbFile()
 	    winterSolstice.assign(number_bodies, 0.0);
 	    oceanFraction.assign(number_bodies, 0.0);
 	    initialTemperature.assign(number_bodies, 0.0);
-	    orbitCentre.assign(number_bodies,0.0);
+	    orbitCentre.assign(number_bodies,0);
 	    activateMelt.assign(number_bodies,false);
 	    bodyIndex = -1;
 
@@ -514,7 +514,7 @@ void parFile::readOrbFile()
 	    {
 
 	    iss >> val_i;
-	    orbitCentre[bodyIndex] = val_i;
+	    orbitCentre[bodyIndex] = int(val_i);
 	    }
 
 	else if (par == "Luminosity")
