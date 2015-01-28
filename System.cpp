@@ -1159,7 +1159,7 @@ void System::outputNBodyData(FILE *outputfile, double &time, vector<int> orbitCe
 
     }
 
-void System::outputLEBMData(int &snapshotNumber, double &tSnap)
+void System::outputLEBMData(int &snapshotNumber, double &tSnap, bool fullOutput)
     {
 
     /*
@@ -1173,7 +1173,7 @@ void System::outputLEBMData(int &snapshotNumber, double &tSnap)
 	if(bodies[b]->getType()=="World")
 	    {
 
-	    bodies[b]->outputLEBMData(snapshotNumber, tSnap);
+	    bodies[b]->outputLEBMData(snapshotNumber, tSnap, fullOutput);
 
 	    }
 

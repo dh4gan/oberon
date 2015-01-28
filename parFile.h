@@ -32,6 +32,7 @@ public:
 	bool restart;
 	bool illumination;
 	bool tidal;
+	bool fullOutput;
 
 	int number_bodies;
 	int nPoints;

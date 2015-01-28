@@ -299,7 +299,7 @@ int main(int argc, char* argv[])
 
 	// LEBM data goes to separate files for each World in the System
 
-	nBodySystem.outputLEBMData(snapshotNumber, timeyr);
+	nBodySystem.outputLEBMData(snapshotNumber, timeyr, input.fullOutput);
 	}
 
     //Close the file before returning

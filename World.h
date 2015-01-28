@@ -63,7 +63,7 @@ public:
 
     // Output Methods
 
-    void outputLEBMData(int &snapshotNumber, double &tSnap);
+    void outputLEBMData(int &snapshotNumber, double &tSnap, bool fullOutput);
     void initialiseOutputVariables(bool restart);
     void calcLEBMMeans(double &minT, double &maxT, double &meanT, double &meanQ, double &meanA, double &meanIR, double &meanS,
     	double &meanhab, double &meanTidal);

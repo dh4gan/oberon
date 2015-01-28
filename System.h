@@ -89,7 +89,7 @@ public:
 	// Output Methods
 
 	void outputNBodyData(FILE* outputfile, double &time, vector<int>orbitCentre);
-	void outputLEBMData(int &snapshotNumber, double &tSnap);
+	void outputLEBMData(int &snapshotNumber, double &tSnap, bool fullOutput);
 
 protected:
 

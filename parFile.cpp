@@ -20,6 +20,7 @@ parFile::parFile()
     restart = false;
     illumination = false;
     tidal = false;
+    fullOutput = false;
 
     systemTime = 0.0;
     maximumTime = 0.0;
@@ -38,6 +39,7 @@ parFile::parFile(string name)
     restart = false;
     illumination = false;
     tidal = false;
+    fullOutput = false;
 
     systemTime = 0.0;
     maximumTime = 0.0;
@@ -97,7 +99,8 @@ void parFile::readPosFile()
 
     string par;
     string line;
-    string BodyType,BodyName, meltChoice, restartChoice, illumChoice, tidalChoice;
+    string BodyType,BodyName;
+    string meltChoice, restartChoice, illumChoice, tidalChoice, fullOutputChoice;
 
     int bodyIndex;
 
@@ -163,6 +166,15 @@ void parFile::readPosFile()
 		cout << "Tidal Heating Active" << endl;
 		}
 	    }
+	if(par == "FullOutput")
+	{
+		iss >> fullOutputChoice;
+
+		if(fullOutputChoice =="y")
+		{
+			fullOutput=true;
+		}
+	}
 
 	if (par == "NBodyOutput" or par == "OutputFile")
 	    {
@@ -339,7 +351,8 @@ void parFile::readOrbFile()
     int bodyIndex;
     string par;
     string line;
-    string BodyType, BodyName, meltChoice,restartChoice, illumChoice, tidalChoice;
+    string BodyType, BodyName;
+    string meltChoice, restartChoice, illumChoice, tidalChoice, fullOutputChoice;
 
     NBodyFile = "nbody_output.txt";
     snapshotNumber = 0;
@@ -394,6 +407,16 @@ void parFile::readOrbFile()
 		cout << "Tidal Heating Active" << endl;
 		}
 	    }
+
+	if(par == "FullOutput")
+	{
+		iss >> fullOutputChoice;
+
+		if(fullOutputChoice =="y")
+		{
+			fullOutput=true;
+		}
+	}
 
 	if(par=="NBodyOutput")
 	    {

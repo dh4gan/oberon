@@ -191,7 +191,7 @@ public:
 
     // Output Methods
 
-    virtual void outputLEBMData(int &snapshotNumber, double &tSnap){};
+    virtual void outputLEBMData(int &snapshotNumber, double &tSnap, bool fullOutput){};
     virtual void initialiseOutputVariables(bool restart){};
     virtual void calcLEBMMeans(double &minT, double &maxT, double &meanT, double &meanQ, double &meanA,
 	    double &meanIR, double &meanS, double &meanhab, double &meanTidal){};

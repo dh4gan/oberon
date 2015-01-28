@@ -782,7 +782,7 @@ void World::calcLEBMMeans(double &minT, double &maxT, double &meanT, double &mea
 
     }
 
-void World::outputLEBMData(int &snapshotNumber, double &tSnap)
+void World::outputLEBMData(int &snapshotNumber, double &tSnap, bool fullOutput)
     {
     /*
      * Written 10/1/14 by dh4gan
@@ -805,6 +805,9 @@ void World::outputLEBMData(int &snapshotNumber, double &tSnap)
     fflush(logFile);
 
 
+    if(fullOutput){
+
+    // If going for full LEBM output:
     // Now write snapshot of LEBM
 
     ostringstream convert;
@@ -825,6 +828,7 @@ void World::outputLEBMData(int &snapshotNumber, double &tSnap)
 		albedo[i], insol[i], tau[i],iceFraction[i], hab[i], tidal[i]);
 	}
     fclose(snapshotFile);
+    }
 
     }
 
