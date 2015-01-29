@@ -571,6 +571,12 @@ void World::calcLEBMTimestep(double &dtmax)
     if(dtLEBM==1.0e30)
 	{
 	cout << "ERROR in LEBM Timestep calculation for World " << getName() <<  endl;
+	cout << "Timesteps: " << endl;
+	for(i=0; i<nPoints1; i++)
+	{
+		cout << timestep[i] << endl;
+	}
+
 	cout << dtLEBM << "  " << diffusion << endl;
 	exit(EXIT_FAILURE);
 	dtLEBM = -10.0;
