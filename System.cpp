@@ -1041,7 +1041,7 @@ void System::evolveLEBMs(double &dt)
 	if(bodies[i]->getType()=="World")
 	    {
 	    eclipsefrac = checkForEclipses(i);
-	    bodies[i]->updateLEBM(bodies,eclipsefrac,dt);
+	    bodies[i]->updateLEBM(bodies,eclipsefrac,dt,planetaryIlluminationOn);
 
 	    }
 

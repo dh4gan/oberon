@@ -173,9 +173,9 @@ public:
     // Calculation Methods
 
     virtual void initialiseLEBM(){};
-    virtual void updateLEBM(vector<Body*> bodies, vector<double> eclipsefrac){};
+    virtual void updateLEBM(vector<Body*> bodies, vector<double> eclipsefrac,bool &planetaryIllumination){};
     virtual void updateLEBM(vector<Body*> bodies, vector<double> eclipsefrac,
-	    double &dtmax){};
+	    double &dtmax,bool &planetaryIllumination){};
 
     virtual void calcInsolation(Body* star, double &eclipsefrac){};
     virtual void calcAlbedo(int iLatitude){};

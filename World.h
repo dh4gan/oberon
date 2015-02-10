@@ -44,8 +44,8 @@ public:
     // Calculation Methods
 
     void initialiseLEBM();
-    void updateLEBM(vector<Body*> bodies, vector<double>eclipsefrac);
-    void updateLEBM(vector<Body*> bodies, vector<double> eclipsefrac, double &dtmax);
+    void updateLEBM(vector<Body*> bodies, vector<double>eclipsefrac,bool &planetaryIllumination);
+    void updateLEBM(vector<Body*> bodies, vector<double> eclipsefrac, double &dtmax, bool &planetaryIllumination);
 
 
     void calcInsolation(Body* star, double &eclipsefrac);

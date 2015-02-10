@@ -222,7 +222,7 @@ void World::setTemperature(vector<double>temp){
     }
 
 
-void World::updateLEBM(vector<Body*> bodies, vector<double>eclipsefrac, double &dtmax)
+void World::updateLEBM(vector<Body*> bodies, vector<double>eclipsefrac, double &dtmax, bool &planetaryIllumination)
     {
     /*
      * Written 10/1/14 by dh4gan
@@ -242,6 +242,11 @@ void World::updateLEBM(vector<Body*> bodies, vector<double>eclipsefrac, double &
 	    {
 	    calcInsolation(bodies[b],eclipsefrac[b]);
 	    }
+
+	if(bodies[b]->getType()=="Planet" and planetaryIllumination==true)
+	{
+		    calcInsolation(bodies[b],eclipsefrac[b]);
+		    }
 
 	}
 
@@ -279,7 +284,7 @@ void World::updateLEBM(vector<Body*> bodies, vector<double>eclipsefrac, double &
 
     }
 
-void World::updateLEBM(vector<Body*> bodies, vector<double> eclipsefrac)
+void World::updateLEBM(vector<Body*> bodies, vector<double> eclipsefrac,bool &planetaryIllumination)
     {
     /*
      * Written 10/1/14 by dh4gan
@@ -288,7 +293,7 @@ void World::updateLEBM(vector<Body*> bodies, vector<double> eclipsefrac)
 
     double dtmax = 1.0e30;
 
-    updateLEBM(bodies,eclipsefrac, dtmax);
+    updateLEBM(bodies,eclipsefrac, dtmax,planetaryIllumination);
 
     }
 
@@ -374,7 +379,7 @@ void World::calcInsolation(Body* star, double &eclipsefrac)
 		    + fluxsolcgs * lstar * (1.0 - eclipsefrac)
 			    / (pi * magpos * magpos)
 			    * (H * x[i] * sind + coslat[i] * cosd * sin(H));
-	    if(insol[i]>1.0e10){
+	    if(insol[i]>1.0e10 or insol[i]!=insol[i]){
 
 		cout << i << star->getName() <<  "  "<<insol[i] <<"  " << fluxsolcgs * lstar * (1.0 - eclipsefrac)
 				    / (pi * magpos * magpos)
@@ -574,7 +579,7 @@ void World::calcLEBMTimestep(double &dtmax)
 	cout << "Timesteps: " << endl;
 	for(i=0; i<nPoints1; i++)
 	{
-		cout << timestep[i] << endl;
+		cout << timestep[i] << "   " << T[i] << "   " << C[i] << endl;
 	}
 
 	cout << dtLEBM << "  " << diffusion << endl;
@@ -683,9 +688,16 @@ void World::integrate()
 		    / (0.5 * (dx1 + dx));
 	    T[i] = T1 + (dtLEBM / C[i]) * (Q[i] + Fj);
 
-	    //if(T[i]>1.0e6 or T[i]<0.0){
-	    //cout <<i << "  "<< T[i] << "   " << "  " << T1 <<"  " << dtLEBM << "  " << (dtLEBM / C[i]) * (Q[i] + Fj) << "  " << insol[i] << "    " << infrared[i] << "   " << Q[i] << endl;
-	    //}
+	    if(T[i]>1.0e6 or T[i]<0.0){
+	    cout <<i << "  "<< T[i] << "   " << "  " << T1 <<"  " << dtLEBM << "  " << (dtLEBM / C[i]) * (Q[i] + Fj) << "  " << insol[i] << "    " << infrared[i] << "   " << Q[i] << endl;
+	    }
+
+	    // This statement checks for NaNs
+	    if(T[i]!=T[i]){
+	    		cout << "NaN detected in T " << endl;
+	    	    cout <<i << "  "<< T[i] << "   " << "  " << T1 <<"  " << dtLEBM << "  " << C[i] << "  " << Q[i] << "  " <<Fj  << "  " << insol[i] << "    " << infrared[i] << "   " << Q[i] << endl;
+	    	    exit(EXIT_FAILURE);
+	    	    }
 	    // If this temperature brings a cold world to the freezing point, then begin ice
 	    // melting algorithm
 
