@@ -1143,8 +1143,8 @@ void System::outputNBodyData(FILE *outputfile, double &time, vector<int> orbitCe
 	// mass,position_x,position_y,position_z,velocity_x,velocity_y,velocity_z
 
 	fprintf(outputfile,
-		"%+.4E,%+.4E, %s,%+.4E,%+.4E,%+.4E,%+.4E,%+.4E,%+.4E,%+.4E,%+.4E,"
-			"%+.4E,%+.4E,%+.4E,%+.4E,%+.4E,%+.4E\n", time,
+		"%+.6E,%+.6E, %s,%+.6E,%+.6E,%+.6E,%+.6E,%+.6E,%+.6E,%+.6E,%+.6E,"
+			"%+.6E,%+.6E,%+.6E,%+.6E,%+.6E,%+.6E\n", time,
 		totalEnergy, bodies[j]->getName().c_str(), bodies[j]->getMass(),
 		bodies[j]->getRadius(), position.elements[0],
 		position.elements[1], position.elements[2],

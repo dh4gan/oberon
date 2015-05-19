@@ -238,7 +238,7 @@ void World::updateLEBM(vector<Body*> bodies, vector<double>eclipsefrac, double &
 	{
 
 
-	if (bodies[b]->getType()=="Star" or bodies[b]->getType()=="Planet")
+	if (bodies[b]->getType()=="Star")
 	    {
 	    calcInsolation(bodies[b],eclipsefrac[b]);
 	    }
@@ -246,7 +246,7 @@ void World::updateLEBM(vector<Body*> bodies, vector<double>eclipsefrac, double &
 	if(bodies[b]->getType()=="Planet" and planetaryIllumination==true)
 	{
 		    calcInsolation(bodies[b],eclipsefrac[b]);
-		    }
+	}
 
 	}
 
@@ -381,7 +381,8 @@ void World::calcInsolation(Body* star, double &eclipsefrac)
 			    * (H * x[i] * sind + coslat[i] * cosd * sin(H));
 	    if(insol[i]>1.0e10 or insol[i]!=insol[i]){
 
-		cout << i << star->getName() <<  "  "<<insol[i] <<"  " << fluxsolcgs * lstar * (1.0 - eclipsefrac)
+
+		cout << i <<"  " << star->getName() <<  "  "<<insol[i] <<"  " << fluxsolcgs * lstar * (1.0 - eclipsefrac)
 				    / (pi * magpos * magpos)
 				    * (H * x[i] * sind + coslat[i] * cosd * sin(H)) << "  "  <<lstar <<  "  " << (1.0 - eclipsefrac)
 				    << "  " << (pi * magpos * magpos) << endl;}
@@ -816,7 +817,7 @@ void World::outputLEBMData(int &snapshotNumber, double &tSnap, bool fullOutput)
     calcLEBMMeans(minT, maxT, meanT, meanQ, meanA, meanIR,meanS, meanhab, meanTidal);
 
     // Also include orbital data here
-    fprintf(logFile, "%+.4E %+.4E %+.4E %+.4E %+.4E %+.4E %+.4E %+.4E %+.4E %+.4E %+.4E %+.4E %+.4E %+.4E %+.4E %+4.E \n",
+    fprintf(logFile, "%+.6E %+.6E %+.6E %+.6E %+.6E %+.6E %+.6E %+.6E %+.6E %+.6E %+.6E %+.6E %+.6E %+.6E %+.6E %+.6E \n",
 	    tSnap, minT, maxT, meanT,meanQ,meanA,meanIR,meanS,meanhab, meanTidal,
 	    getSemiMajorAxis(), getEccentricity(), getInclination(),
 	    getArgumentPeriapsis(), getLongitudeAscendingNode(), getMeanAnomaly());
@@ -836,12 +837,12 @@ void World::outputLEBMData(int &snapshotNumber, double &tSnap, bool fullOutput)
 
     snapshotFile = fopen(snapshotFileName.c_str(), "w");
 
-    fprintf(snapshotFile, "%i %+.4E \n", nPoints, tSnap);
+    fprintf(snapshotFile, "%i %+.6E \n", nPoints, tSnap);
 
 
     for (int i=0; i<nPoints; i++)
 	{
-	fprintf(snapshotFile, "%+.4E %+.4E %+.4E %+.4E %+.4E %+.4E %+.4E %+.4E %+.4E %+.4E %+.4E %+.4E \n",
+	fprintf(snapshotFile, "%+.6E %+.6E %+.6E %+.6E %+.6E %+.6E %+.6E %+.6E %+.6E %+.6E %+.6E %+.6E \n",
 		x[i], lat[i], T[i], C[i], Q[i], infrared[i],
 		albedo[i], insol[i], tau[i],iceFraction[i], hab[i], tidal[i]);
 	}
