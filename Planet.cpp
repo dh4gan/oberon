@@ -60,6 +60,4 @@ void Planet::calcLuminosity()
     luminosity = luminosity + reflectiveLuminosity;
 
 
-
-
     }

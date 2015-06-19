@@ -30,6 +30,8 @@ World::World() :
      initialTemperature = 0.0;
      nFloat = float(nPoints);
 
+     luminosity = 0.0;
+
      rho_moon = 5.0e-9; // density in kg m^-3
      rigid = 4e9; // rigidity in N m^-2 (Pa)
      Qtidal = 100.0;
@@ -60,6 +62,8 @@ World::World(string namestring, double m, double rad,
     landFraction = 1.0-oceanFraction;
     initialTemperature = T0;
     nFloat = float(nPoints);
+
+    luminosity = 0.0;
 
     rho_moon = 5.0e-9; // density in kg m^-3
     rigid = 4e9; // rigidity in N m^-2 (Pa)
@@ -93,6 +97,8 @@ World::World(string namestring, double m, double rad,
     activateMelt = melt;
     restart = start;
     tidalOn = tide;
+
+    luminosity = 0.0;
 
     rho_moon = 5.0e-9; // density in kg m^-3
     rigid = 4e9;
@@ -158,6 +164,8 @@ void World::initialiseLEBM()
    meltTime.resize(nPoints1,0.0);
    melting.resize(nPoints1,false);
 
+   calcLuminosity();
+
    // Set up files
 
    initialiseOutputVariables(restart);
@@ -217,10 +225,31 @@ void World::setTemperature(vector<double>temp){
 		    calcHabitability(i,freeze,boil);
 		    }
 		}
+		calcLuminosity();
 	   calcLEBMTimestep(dtmax);
 
     }
 
+
+void World::calcLuminosity()
+    {
+/*
+ * Written 11/8/14 by dh4gan
+ * Calculates the luminosity of the Planet, given its temperature and reflected starlight
+ *
+ */
+    double pi = 3.141592653;
+    double sigma_SB =5.67e-8;
+    double AU = 1.496e11;
+    double lsol = 3.8626e26;
+
+    double minT, maxT,meanT,meanQ,meanA,meanIR,meanS,meanhab,meanTidal;
+
+    calcLEBMMeans(minT, maxT, meanT, meanQ, meanA, meanIR,meanS, meanhab, meanTidal);
+
+    luminosity = 4.0*pi*getRadius()*getRadius()*AU*AU*sigma_SB*meanT*meanT*meanT*meanT/lsol;
+
+    }
 
 void World::updateLEBM(vector<Body*> bodies, vector<double>eclipsefrac, double &dtmax, bool &planetaryIllumination)
     {
@@ -237,13 +266,15 @@ void World::updateLEBM(vector<Body*> bodies, vector<double>eclipsefrac, double &
     for (b=0; b< bodyCount; b++)
 	{
 
+    	// Skip if trying to calculate self-insolation
+    if(bodies[b]->getName() == getName() ) continue;
 
 	if (bodies[b]->getType()=="Star")
 	    {
 	    calcInsolation(bodies[b],eclipsefrac[b]);
 	    }
 
-	if(bodies[b]->getType()=="Planet" and planetaryIllumination==true)
+	if((bodies[b]->getType()=="Planet" or bodies[b]->getType()=="World") and (planetaryIllumination==true))
 	{
 		    calcInsolation(bodies[b],eclipsefrac[b]);
 	}
@@ -278,6 +309,7 @@ void World::updateLEBM(vector<Body*> bodies, vector<double>eclipsefrac, double &
 	    }
 	}
 
+	calcLuminosity();
 	calcLEBMTimestep(dtmax);
 
     integrate();

@@ -61,6 +61,10 @@ public:
 
     void integrate();
 
+    void calcLuminosity();
+
+    double getLuminosity(){return luminosity;}
+
     // Output Methods
 
     void outputLEBMData(int &snapshotNumber, double &tSnap, bool fullOutput);
@@ -84,6 +88,8 @@ protected:
     double landFraction;
     double initialTemperature;
     double diffusion;
+
+    double luminosity;
 
     double rho_moon;
     double rigid;
