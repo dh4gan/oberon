@@ -837,7 +837,7 @@ void System::evolveSystem(double tbegin, double tend)
 
     /* iii Set predicted body array equal to the current body array */
     for (i=0;i<bodyCount; i++){
-	predicted.push_back(bodies[i]->Clone());
+	predicted.push_back(bodies[i]->nBodyClone());
     }
 
     /* Begin loop over time */
@@ -880,6 +880,7 @@ void System::evolveSystem(double tbegin, double tend)
 
 	/* 2. Use predicted positions and velocities to calculate
 	 * predicted accelerations, jerks, snaps and crackles */
+
 	calcForces(predicted);
 
 
@@ -921,6 +922,8 @@ void System::evolveSystem(double tbegin, double tend)
 	    bodies[i]->setPosition(pos_c);
 	    bodies[i]->setVelocity(vel_c);
 
+
+
 	    }
 	}
 
@@ -935,7 +938,6 @@ void System::evolveSystem(double tbegin, double tend)
 	calcNBodyTimestep(bodies, dtmax);
 	calcTotalEnergy();
 	calcTotalAngularMomentum();
-
 
 
 	}

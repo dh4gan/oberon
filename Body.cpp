@@ -138,6 +138,17 @@ Body::~Body()
     {
     }
 
+Body* Body::nBodyClone() {
+	/*
+	 * Written 10/07/15 by dh4gan
+	 * This is used to make lean clones of Body objects for use inside the N Body calculation
+	 *  (where grids etc aren't needed)
+	 */
+	return new Body(name, mass, radius, position, velocity);
+
+}
+
+
 /* Calculation Methods */
 
 void Body::calcOrbitalAngularMomentum()

@@ -102,6 +102,9 @@ public:
 	// Standard cloning method
 	virtual Body* Clone() { return new Body(*this); }
 
+	// Light cloning method (useful for World objects)
+	Body* nBodyClone();
+
 	// Orbital Calculation Methods
 
 	void calcOrbitalAngularMomentum();
