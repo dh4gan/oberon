@@ -18,6 +18,7 @@ parFile::parFile()
     totalMass = 0.0;
 
     restart = false;
+
     illuminationOn = false;
     tidalHeatingOn = false;
     obliquityOn = false;
@@ -40,12 +41,11 @@ parFile::parFile(string name)
 
     restart = false;
 
+
     illuminationOn = false;
     tidalHeatingOn = false;
     obliquityOn = false;
-
     CSCycleOn = false;
-
     fullOutput = false;
 
     systemTime = 0.0;
@@ -107,7 +107,6 @@ void parFile::readPosFile()
     string par;
     string line;
     string BodyType,BodyName;
-
     string meltChoice, restartChoice, illumChoice, tidalChoice;
     string obliqChoice, CScycleChoice, fullOutputChoice;
 
@@ -209,6 +208,7 @@ void parFile::readPosFile()
 		if(fullOutputChoice =="y")
 		{
 			fullOutput=true;
+			cout<<"Full output ON LADDDDDDDDD"<<endl; //debugging
 		}
 	}
 
@@ -527,7 +527,7 @@ void parFile::readOrbFile()
 	    activateMelt.assign(number_bodies,false);
 	    bodyIndex = -1;
 
-	    //possibly require a line here for facilitating CScycle bool
+	    //possibly require a line here for CO2Pressure vector...?
 
 	    }
 

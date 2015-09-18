@@ -56,7 +56,7 @@ public:
     void calcOpticalDepth(int iLatitude);
     void calcCooling(int iLatitude);
     void calcTidalHeating(int iLatitude);
-    void calcC02Pressure(int iLatitude);
+    void calcCO2pressure(int iLatitude);
     void calcNetHeating(int iLatitude);
     void calcHabitability(int iLatitude,double &minT, double &maxT);
     void calcLEBMTimestep(double &dtmax);
@@ -72,7 +72,7 @@ public:
     void outputLEBMData(int &snapshotNumber, double &tSnap, bool fullOutput);
     void initialiseOutputVariables(bool restart);
     void calcLEBMMeans(double &minT, double &maxT, double &meanT, double &meanQ, double &meanA, double &meanIR, double &meanS,
-    	double &meanhab, double &meanTidal);
+    	double &meanhab, double &meanTidal, double &meanCO2p, double &meanDiffusion);
 
     int findRestartTemperature();
 
@@ -90,7 +90,7 @@ protected:
     double oceanFraction;
     double landFraction;
     double initialTemperature;
-    double diffusion;
+    double diffusion0;
 
     double luminosity;
 
@@ -99,7 +99,7 @@ protected:
     double Qtidal;
 
 
-    bool CScycleOn; //Giblin 10/7/15.
+    bool CSCycleOn; //Giblin 10/7/15.
 
 
     int nPoints,nPoints1;
@@ -110,7 +110,7 @@ protected:
     vector<double> lat, x,coslat,tanlat, deltax;
     vector<double> T, T_old, tau;
     vector<double> iceFraction, C, hab;
-    vector<double> infrared, Q, albedo,tidal, insol, CO2pressure;
+    vector<double> infrared, Q, albedo,tidal, insol, CO2pressure, diffusion;
 
     FILE *logFile, *snapshotFile, *latFile;
     bool activateMelt;

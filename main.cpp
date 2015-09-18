@@ -56,6 +56,7 @@ int main(int argc, char* argv[])
     printf("  \n");
     printf("*********************************************** \n");
     printf("    NBODY EBM Code \n ");
+    printf("    CS cycle test\n "); //does nothing
     printf("    Date Created : 9th January 2014 \n");
     printf("*********************************************** \n");
     printf("  \n");
@@ -87,10 +88,19 @@ int main(int argc, char* argv[])
     tMax = input.maximumTime;
     tSnap = input.snapshotTime;
 
-    if(input.restart)
+    if(input.restart == true)
 	{
 		cout << "Restart - Using vector data from nbody output" << endl;
 	}
+    
+
+   //Debugging. Giblin 14/7/15
+   if(input.CSCycleOn)
+	{
+		cout << "CS cycle is ON" << endl;
+	}
+
+
 
     //First loop through each of the bodies in the system and set them up
     //adding them to the BodyArray
@@ -139,6 +149,7 @@ int main(int argc, char* argv[])
 		BodyArray.push_back(
 			new World(input.BodyNames[i],
 				input.Mass[i], input.Radius[i], body_i_position,
+
 				body_i_velocity, input.nPoints, input.obliquity[i],input.rotationPeriod[i], input.precession[i],
 				input.oceanFraction[i], input.initialTemperature[i], input.activateMelt[i], input.restart, input.tidalHeatingOn, input.obliquityOn, input.CSCycleOn)); //Fed to parFile.cpp
 
@@ -208,6 +219,7 @@ int main(int argc, char* argv[])
 				input.Periapsis[i], input.meanAnomaly[i], G,
 				input.totalMass,input.nPoints, input.obliquity[i],input.rotationPeriod[i], input.precession[i],
 				input.oceanFraction[i], input.initialTemperature[i], input.activateMelt[i], input.restart, input.tidalHeatingOn, input.obliquityOn, input.CSCycleOn));
+
 
 		}
 

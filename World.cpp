@@ -15,13 +15,13 @@
 
 double freeze = 273.0;
 double boil = 373.0;
-double sigma_SB = 5.67e-5;
+double sigma_SB = 5.67e-5; //erg s^-1 cm^-2 K^-4
 
 World::World() :
 	Body()
     {
-    type = "World";
-    nPoints = 0;
+     type = "World";
+     nPoints = 0;
      obliquity = 0.0;
      precession = 0.0;
      ellipticity = 0.00328005;
@@ -45,10 +45,10 @@ World::World() :
      tidalHeatingOn = false;
      obliquityEvolutionOn = false;
 
-     CScycleOn = false;
+     CSCycleOn = false;
 
      dtLEBM = 0.0;
-     diffusion = 0.0;
+     diffusion0 = 0.0;
      logFile = 0;
      latFile = 0;
      snapshotFile = 0;
@@ -84,7 +84,7 @@ World::World(string namestring, double m, double rad,Vector3D pos, Vector3D vel,
     tidalHeatingOn = tide;
     obliquityEvolutionOn = obevol;
 
-    CScycleOn = CScycle;
+    CSCycleOn = CScycle;
     initialiseLEBM();
 
     }
@@ -114,7 +114,7 @@ World::World(string namestring, double m, double rad,
     obliquityEvolutionOn = obevol;
 
     luminosity = 0.0;
-    CScycleOn = CScycle;
+    CSCycleOn = CScycle;
 
     rho_moon = 5.0e-9; // density in kg m^-3
     rigid = 4e9;
@@ -151,7 +151,8 @@ void World::initialiseLEBM()
    albedo.resize(nPoints1,0.0);
    insol.resize(nPoints1,0.0);
    tidal.resize(nPoints1,0.0);
-   //CScycle.resize(nPoints1,0.0); //Not sure if necessary... Giblin 10/7/15
+   CO2pressure.resize(nPoints1,0.01); //Giblin 10/7/15
+   diffusion.resize(nPoints1,0.0); //Giblin 10/7/15
    tau.resize(nPoints1,0.0);
    C.resize(nPoints1,0.0);
 
@@ -173,9 +174,13 @@ void World::initialiseLEBM()
        deltax[i] = coslat[i]*dlat;
        }
 
-   // Set up diffusion constant
 
-   diffusion = 5.394e2 * rotationPeriod*rotationPeriod;
+   // Set up diffusion constant
+   diffusion0 = 5.394e2 * rotationPeriod*rotationPeriod; 
+   //erg cm^-2 s^-1 K^-1
+   //rotationPeriod is in units of Earth's rate
+
+
 
    // Set up variables to handle ice melting
    meltTime.resize(nPoints1,0.0);
@@ -205,6 +210,8 @@ void World::initialiseLEBM()
 	    if(tidalHeatingOn && hostBody!=0){
 		cout << "calculating heating " << endl;
 		calcTidalHeating(i);}
+
+	    if(CSCycleOn) {calcCO2pressure(i);}
 
 	    calcHabitability(i,freeze,boil);
 	    }
@@ -237,7 +244,9 @@ void World::setTemperature(vector<double>temp){
 		    calcOpticalDepth(i);
 		    calcAlbedo(i);
 		    calcCooling(i);
+
 		    if(tidalHeatingOn) {calcTidalHeating(i);}
+		    if(CSCycleOn) {calcCO2pressure(i);}
 		    calcNetHeating(i);
 		    calcHabitability(i,freeze,boil);
 		    }
@@ -399,9 +408,9 @@ void World::calcLuminosity()
     double AU = 1.496e11;
     double lsol = 3.8626e26;
 
-    double minT, maxT,meanT,meanQ,meanA,meanIR,meanS,meanhab,meanTidal;
+    double minT, maxT,meanT,meanQ,meanA,meanIR,meanS,meanhab,meanTidal, meanCO2p, meanDiffusion;
 
-    calcLEBMMeans(minT, maxT, meanT, meanQ, meanA, meanIR,meanS, meanhab, meanTidal);
+    calcLEBMMeans(minT, maxT, meanT, meanQ, meanA, meanIR,meanS, meanhab, meanTidal, meanCO2p, meanDiffusion);
 
     luminosity = 4.0*pi*getRadius()*getRadius()*AU*AU*sigma_SB*meanT*meanT*meanT*meanT/lsol;
 
@@ -464,6 +473,7 @@ void World::updateLEBM(vector<Body*> bodies, double &G, double &totmass, vector<
 		{
 		cout << "Warning: Host Body undefined, tidal heating inactive" << endl;
 		}
+	    if(CSCycleOn) {calcCO2pressure(i);}
 
 	    calcNetHeating(i);
 
@@ -625,7 +635,7 @@ void World::calcHeatCapacity(int iLatitude)
      *
      */
     double C_ice = 0.0;
-    double C_land = 5.25e9;
+    double C_land = 5.25e9; //differs by factor 1000 to W&K...
     double C_ocean = 40.0 * C_land;
 
     if (T[iLatitude] >= freeze)
@@ -673,15 +683,118 @@ void World::calcOpticalDepth(int iLatitude)
 	tau[iLatitude] = 0.79*pow(T[iLatitude]/freeze,3);
     }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+void World::calcCO2pressure(int iLatitude)
+    {
+    /*
+     * Written 10/7/15 by BenjaminGiblin
+     * Calculates CO2 pressure using regime defined
+     * on pg. 5 of Spiegel et al 2010
+     */
+
+	if (T[iLatitude] >= 290.)
+	{
+	CO2pressure[iLatitude] = 3.30e-4; //bars
+	}
+    else if (T[iLatitude] < 290. and T[iLatitude] > 250.)
+	{
+	CO2pressure[iLatitude] = pow(10., (-2.-(T[iLatitude]-250.)/27.) ); //bars
+	}
+
+    else if (T[iLatitude] <= 250.)
+	{
+	CO2pressure[iLatitude] = 0.010; //bars
+	}
+
+    // Set up diffusion constant
+    diffusion[iLatitude] = 5.8e2*(CO2pressure[iLatitude]/3.3e-4)*pow(rotationPeriod, 2.);
+	//erg cm^-2 s^-1 K^-1
+	//W&K expression	
+	   
+    }
+
+
+
+
+
 void World::calcCooling(int iLatitude)
     {
     /*
      * Written 9/1/14 by dh4gan
+     *Edited by BenjaminGiblin 13/7/15
      * Calculates the Infrared Cooling as a function of optical depth and temperature
      *
      */
-	infrared[iLatitude] = sigma_SB*pow(T[iLatitude],4)/(1.0+0.75*tau[iLatitude]);
+
+	if(CSCycleOn)
+		{
+		double phi = log(CO2pressure[iLatitude]/3.3e-4);
+		double Tmp = T[iLatitude]; //
+
+
+		infrared[iLatitude] = 1.e3*(+9.468980 
+				      -7.714727e-5*phi 
+				      -2.794778*Tmp 
+                                      -3.244753e-3*phi*Tmp 
+                                      -3.547406e-4*pow(phi,2.) 
+				      +2.212108e-2*pow(Tmp,2.)
+				      +2.229142e-3*pow(phi,2.)*Tmp 
+				      +3.088497e-5*phi*pow(Tmp,2.)
+				      -2.789815e-5*pow(phi,2.)*pow(Tmp,2.) 
+				      -3.442973e-3*pow(phi,3.)
+				      -3.361939e-5*pow(Tmp,3.)
+				      +9.173169e-3*pow(phi,3.)*Tmp 
+			              -7.775195e-5*pow(phi,3.)*pow(Tmp,2.)
+				      -1.679112e-7*phi*pow(Tmp,3.)
+				      +6.590999e-8*pow(phi,2.)*pow(Tmp,3.)
+				      +1.528125e-7*pow(phi,3.)*pow(Tmp,3.)
+				      -3.367567e-2*pow(phi,4.)
+				      -1.631909e-4*pow(phi,4.)*Tmp
+				      +3.663871e-6*pow(phi,4.)*pow(Tmp,2.)
+				      -9.255646e-9*pow(phi,4.)*pow(Tmp,3.)
+				      -14.06);
+			//erg s^-1 cm^-2
+			//includes 'cloud correction' for absorption
+			//by H20 clouds
+			//-14.06 erg^-1 cm^-2
+		}
+	else{
+		infrared[iLatitude] = sigma_SB*pow(T[iLatitude],4)/(1.0+0.75*tau[iLatitude]); //erg s^-1 cm^-2
+	}
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 void World::calcTidalHeating(int iLatitude)
     {
@@ -706,7 +819,6 @@ void World::calcTidalHeating(int iLatitude)
     tidal[iLatitude] = tidal[iLatitude]/ (38.0 * rigid * Qtidal * pow(semiMajorAxis * AU, 7.5));
     tidal[iLatitude] = tidal[iLatitude]*1.0e3; // convert this into cgs
 
-
     }
 
 void World::calcNetHeating(int iLatitude)
@@ -719,45 +831,6 @@ void World::calcNetHeating(int iLatitude)
 
 	Q[iLatitude] = insol[iLatitude]*(1.0-albedo[iLatitude]) + tidal[iLatitude]- infrared[iLatitude];
     }
-
-
-
-
-
-
-
-
-
-void World::calcC02Pressure(int iLatitude)
-    {
-    /*
-     * Written 10/7/15 by BenjaminGiblin
-     * Calculates C02 pressure using regime defined
-     * on pg. 5 of Spiegel et al 2010
-     */
-
-	if (T[iLatitude] >= 290.)
-	{
-	CO2pressure[iLatitude] = 3.3e-4; //bars
-	}
-    else if (T[iLatitude] < 290. and T[iLatitude] > 250.)
-	{
-	CO2pressure[iLatitude] = pow(10., -2-(T[iLatitude]-250.)/27.); //bars
-	}
-
-    else if (T[iLatitude] <= 250.)
-	{
-	CO2pressure[iLatitude] = 0.01; //bars
-	}
-    }
-
-
-
-
-
-
-
-
 
 
 
@@ -796,20 +869,27 @@ void World::calcLEBMTimestep(double &dtmax)
 
 // Calculate the timestep at every latitude on the World
 
+
 #pragma omp parallel default(none) \
 	shared(timestep)\
 	private(i,Dplus)
 	{
 #pragma omp for schedule(runtime) ordered
 	for (i = 0; i < nPoints1; i++)
-	    {
+	    {	
+
+	    //select diffusion coeff for following calculations
+    	    double diffusionvalue;
+    	    if (CSCycleOn){diffusionvalue = diffusion[i];}
+    	    else {diffusionvalue = diffusion0;}
+
 	    if (i == nPoints)
 		{
-		Dplus = diffusion * (1.0 - x[i] * x[i]);
+		Dplus = diffusionvalue * (1.0 - x[i] * x[i]);
 		}
 	    else
 		{
-		Dplus = diffusion * 0.5
+		Dplus = diffusionvalue * 0.5
 			* ((1.0 - x[i] * x[i]) + (1.0 - x[i + 1] * x[i + 1]));
 		}
 
@@ -824,8 +904,6 @@ void World::calcLEBMTimestep(double &dtmax)
 
 // Now find the minimum timestep
 
-
-
     dtLEBM = *(min_element(timestep.begin(), timestep.end()));
 
     if(dtLEBM==1.0e30)
@@ -837,7 +915,9 @@ void World::calcLEBMTimestep(double &dtmax)
 		cout << timestep[i] << "   " << T[i] << "   " << C[i] << endl;
 	}
 
-	cout << dtLEBM << "  " << diffusion << endl;
+	//query with Duncan what diffusion coeff should output here
+	//IF CScycle is OFF!
+	cout << dtLEBM << "  " << diffusion0 << endl;
 	exit(EXIT_FAILURE);
 	dtLEBM = -10.0;
 	}
@@ -881,6 +961,11 @@ void World::integrate()
 #pragma omp for schedule(runtime) ordered
 	for (i = 0; i < nPoints1; i++)
 	    {
+	
+	    //select diffusion coeff for following calculations
+    	    double diffusionvalue;
+    	    if (CSCycleOn){diffusionvalue = diffusion[i];}
+    	    else {diffusionvalue = diffusion0;}
 
 	    // If ice melting algorithm began in a previous timestep, modify albedo
 	    // melting ice has a slightly lower albedo (Spiegel et al 2010)
@@ -897,12 +982,12 @@ void World::integrate()
 	    if (i == 0)
 		{
 		Tminus1 = T_old[i];
-		Dminus = diffusion * (1.0 - x[i] * x[i]);
+		Dminus = diffusionvalue * (1.0 - x[i] * x[i]);
 		}
 	    else
 		{
 		Tminus1 = T_old[i - 1];
-		Dminus = 0.5 * diffusion
+		Dminus = 0.5 * diffusionvalue
 			* ((1.0 - x[i - 1] * x[i - 1]) + (1.0 - x[i] * x[i]));
 		}
 
@@ -911,12 +996,12 @@ void World::integrate()
 	    if (i == nPoints)
 		{
 		Tplus1 = T_old[i];
-		Dplus = diffusion * (1.0 - x[i] * x[i]);
+		Dplus = diffusionvalue * (1.0 - x[i] * x[i]);
 		}
 	    else
 		{
 		Tplus1 = T_old[i + 1];
-		Dplus = 0.5 * diffusion
+		Dplus = 0.5 * diffusionvalue
 			* ((1.0 - x[i + 1] * x[i + 1]) + (1.0 - x[i] * x[i]));
 		}
 
@@ -1034,7 +1119,7 @@ void World::initialiseOutputVariables(bool restart)
     }
 
 void World::calcLEBMMeans(double &minT, double &maxT, double &meanT, double &meanQ, double &meanA, double &meanIR, double &meanS,
-	double &meanhab, double &meanTidal)
+	double &meanhab, double &meanTidal, double &meanCO2p, double &meanDiffusion)
     {
     /*
      * Written 13/1/14 by dh4gan
@@ -1051,6 +1136,8 @@ void World::calcLEBMMeans(double &minT, double &maxT, double &meanT, double &mea
     meanS = 0.0;
     meanhab = 0.0;
     meanTidal = 0.0;
+    meanCO2p = 0.0;
+    meanDiffusion = 0.0;
 
     for (int i=0; i< nPoints1; i++)
 	{
@@ -1061,6 +1148,8 @@ void World::calcLEBMMeans(double &minT, double &maxT, double &meanT, double &mea
 	meanS = meanS + insol[i]*0.5*deltax[i];
 	meanhab = meanhab + hab[i]*0.5*deltax[i];
 	meanTidal = meanTidal + tidal[i]*0.5*deltax[i];
+	meanCO2p = meanCO2p + CO2pressure[i]*0.5*deltax[i];
+	meanDiffusion = meanDiffusion + diffusion[i]*0.5*deltax[i];
 
 	if(T[i] < minT) minT = T[i];
 	if(T[i] > maxT) maxT = T[i];
@@ -1078,13 +1167,14 @@ void World::outputLEBMData(int &snapshotNumber, double &tSnap, bool fullOutput)
      *
      */
 
-    double minT, maxT, meanT, meanQ, meanA, meanIR, meanS, meanhab, meanTidal;
+    double minT, maxT, meanT, meanQ, meanA, meanIR, meanS, meanhab, meanTidal,meanCO2p, meanDiffusion;
     string formatString;
 
     // Firstly, write line to log file
-    calcLEBMMeans(minT, maxT, meanT, meanQ, meanA, meanIR,meanS, meanhab, meanTidal);
+    calcLEBMMeans(minT, maxT, meanT, meanQ, meanA, meanIR,meanS, meanhab, meanTidal, meanCO2p, meanDiffusion);
 
     // Also include orbital data here
+
     formatString = "+%.6E  ";
 
     for (int icol=0;icol < 17; icol++)
@@ -1097,7 +1187,8 @@ void World::outputLEBMData(int &snapshotNumber, double &tSnap, bool fullOutput)
 	    tSnap, minT, maxT, meanT,meanQ,meanA,meanIR,meanS,meanhab, meanTidal,
 	    semiMajorAxis, eccentricity, inclination,
 	    argumentPeriapsis, longitudeAscendingNode, meanAnomaly,
-	    obliquity*radToDeg,precession*radToDeg);
+	    obliquity*radToDeg,precession*radToDeg, meanCO2p, meanDiffusion);
+
     fflush(logFile);
 
     // Write latitudinal temperature data
@@ -1129,9 +1220,9 @@ void World::outputLEBMData(int &snapshotNumber, double &tSnap, bool fullOutput)
 
     for (int i=0; i<nPoints; i++)
 	{
-	fprintf(snapshotFile, "%+.6E %+.6E %+.6E %+.6E %+.6E %+.6E %+.6E %+.6E %+.6E %+.6E %+.6E %+.6E \n",
+	fprintf(snapshotFile, "%+.6E %+.6E %+.6E %+.6E %+.6E %+.6E %+.6E %+.6E %+.6E %+.6E %+.6E %+.6E %+.6E %+.6E \n",
 		x[i], lat[i], T[i], C[i], Q[i], infrared[i],
-		albedo[i], insol[i], tau[i],iceFraction[i], hab[i], tidal[i]);
+		albedo[i], insol[i], tau[i],iceFraction[i], hab[i], tidal[i], CO2pressure[i], diffusion[i]);
 	}
     fclose(snapshotFile);
     }

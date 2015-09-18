@@ -186,6 +186,8 @@ public:
     virtual void calcIce(int iLatitude){};
     virtual void calcOpticalDepth(int iLatitude){};
     virtual void calcCooling(int iLatitude){};
+    //virtual void calcCO2pressure(int iLatitude){}; //NOT SURE IF THIS 
+						   //SHOULD BE HERE...
     virtual void calcNetHeating(int iLatitude){};
     virtual void calcHabitability(int iLatitude,double &minT, double &maxT){};
     virtual void calcLEBMTimestep(double &dtmax){};
@@ -197,7 +199,8 @@ public:
     virtual void outputLEBMData(int &snapshotNumber, double &tSnap, bool fullOutput){};
     virtual void initialiseOutputVariables(bool restart){};
     virtual void calcLEBMMeans(double &minT, double &maxT, double &meanT, double &meanQ, double &meanA,
-	    double &meanIR, double &meanS, double &meanhab, double &meanTidal){};
+	    double &meanIR, double &meanS, double &meanhab, double &meanTidal, double &meanCO2p, double &meanDiffusion){};
+
 
 
 	// Variables that are part of the Body Class and its derivations //
