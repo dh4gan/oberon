@@ -33,6 +33,7 @@ public:
 	bool illuminationOn;
 	bool obliquityOn;
 	bool tidalHeatingOn;
+        bool CSCycleOn;
 	bool fullOutput;
 
 	int number_bodies;

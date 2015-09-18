@@ -21,6 +21,7 @@ parFile::parFile()
     illuminationOn = false;
     tidalHeatingOn = false;
     obliquityOn = false;
+    CSCycleOn = false;
     fullOutput = false;
 
     systemTime = 0.0;
@@ -38,9 +39,13 @@ parFile::parFile(string name)
     totalMass = 0.0;
 
     restart = false;
+
     illuminationOn = false;
     tidalHeatingOn = false;
     obliquityOn = false;
+
+    CSCycleOn = false;
+
     fullOutput = false;
 
     systemTime = 0.0;
@@ -102,7 +107,9 @@ void parFile::readPosFile()
     string par;
     string line;
     string BodyType,BodyName;
-    string meltChoice, restartChoice, illumChoice, tidalChoice, obliqChoice,fullOutputChoice;
+
+    string meltChoice, restartChoice, illumChoice, tidalChoice;
+    string obliqChoice, CScycleChoice, fullOutputChoice;
 
     int bodyIndex;
 
@@ -115,9 +122,12 @@ void parFile::readPosFile()
     nPoints = 0;
 
     restart = false;
+
     tidalHeatingOn = false;
     illuminationOn = false;
     obliquityOn = false;
+
+    CSCycleOn = false; //Giblin 10/7/15
 
     strcpy(inputfile, parFileName.c_str());
 
@@ -179,6 +189,19 @@ void parFile::readPosFile()
 		cout << "Obliquity Evolution Active" << endl;
 		}
 	    }
+
+
+	if (par == "CarbonateSilicateCycle")
+	    {
+	    iss >> CScycleChoice;
+	    if (CScycleChoice == "T")
+		{
+		CSCycleOn = true;
+		cout << "Carbonate Silicate Cycle Active" << endl;
+		}
+	    }
+
+
 	if(par == "FullOutput")
 	{
 		iss >> fullOutputChoice;
@@ -365,7 +388,9 @@ void parFile::readOrbFile()
     string par;
     string line;
     string BodyType, BodyName;
-    string meltChoice, restartChoice, illumChoice, tidalChoice,obliqChoice, fullOutputChoice;
+
+    string meltChoice, restartChoice, illumChoice, tidalChoice;
+    string obliqChoice, CScycleChoice, fullOutputChoice;
 
     NBodyFile = "nbody_output.txt";
     snapshotNumber = 0;
@@ -432,6 +457,17 @@ void parFile::readOrbFile()
 		}
 	    }
 
+
+	if (par == "CarbonateSilicateCycle")
+	    {
+	    iss >> CScycleChoice;
+	    if (CScycleChoice == "T")
+		{
+		CSCycleOn = true;
+		cout << "Carbonate Silicate Cycle Active" << endl;
+		}
+	    }
+
 	if(par == "FullOutput")
 	{
 		iss >> fullOutputChoice;
@@ -491,6 +527,7 @@ void parFile::readOrbFile()
 	    activateMelt.assign(number_bodies,false);
 	    bodyIndex = -1;
 
+	    //possibly require a line here for facilitating CScycle bool
 
 	    }
 

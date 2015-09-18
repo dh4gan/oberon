@@ -20,15 +20,15 @@ public:
 
     World();
 
-    World(string namestring, double m, double rad,
-	    Vector3D pos, Vector3D vel, int n, double obliq, double rot, double prec,
-	    double ocean, double T0, bool melt, bool start, bool tide,bool obevol);
+    World(string namestring, double m, double rad,Vector3D pos, Vector3D vel, int n, double obliq, double rot, double prec,
+	    double ocean, double T0, bool melt, bool start, bool tide, bool obevol, bool CScycle);
 
     World(string namestring, double m, double rad,
 	    double semimaj, double ecc, double inc, double longascend,
 	    double argper, double meananom, double G, double totalMass,
 	    int n, double obliq, double rot, double prec,
-	    double ocean, double T0, bool melt, bool start, bool tide, bool obevol);
+	    double ocean, double T0, bool melt, bool start, bool tide, bool obevol, bool CScycle);
+
     virtual ~World();
 
     /* Accessors */
@@ -56,6 +56,7 @@ public:
     void calcOpticalDepth(int iLatitude);
     void calcCooling(int iLatitude);
     void calcTidalHeating(int iLatitude);
+    void calcC02Pressure(int iLatitude);
     void calcNetHeating(int iLatitude);
     void calcHabitability(int iLatitude,double &minT, double &maxT);
     void calcLEBMTimestep(double &dtmax);
@@ -97,6 +98,10 @@ protected:
     double rigid;
     double Qtidal;
 
+
+    bool CScycleOn; //Giblin 10/7/15.
+
+
     int nPoints,nPoints1;
 
     double nFloat;
@@ -105,7 +110,7 @@ protected:
     vector<double> lat, x,coslat,tanlat, deltax;
     vector<double> T, T_old, tau;
     vector<double> iceFraction, C, hab;
-    vector<double> infrared, Q, albedo,tidal, insol;
+    vector<double> infrared, Q, albedo,tidal, insol, CO2pressure;
 
     FILE *logFile, *snapshotFile, *latFile;
     bool activateMelt;

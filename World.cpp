@@ -41,8 +41,11 @@ World::World() :
      nPoints1 = nPoints+1;
      activateMelt = false;
      restart = false;
+
      tidalHeatingOn = false;
      obliquityEvolutionOn = false;
+
+     CScycleOn = false;
 
      dtLEBM = 0.0;
      diffusion = 0.0;
@@ -51,9 +54,9 @@ World::World() :
      snapshotFile = 0;
 
     }
-World::World(string namestring, double m, double rad,
-	Vector3D pos, Vector3D vel, int n, double obliq, double rot, double prec,
-	double ocean, double T0,bool melt, bool start, bool tide, bool obevol) :
+World::World(string namestring, double m, double rad,Vector3D pos, Vector3D vel, int n, double obliq, double rot, double prec,
+	double ocean, double T0,bool melt, bool start, bool tide, bool obevol, bool CScycle) :
+
 	Body(namestring, m, rad, pos, vel)
     {
     type = "World";
@@ -77,15 +80,19 @@ World::World(string namestring, double m, double rad,
     nPoints1 = nPoints+1;
     activateMelt = melt;
     restart = start;
+
     tidalHeatingOn = tide;
     obliquityEvolutionOn = obevol;
+
+    CScycleOn = CScycle;
     initialiseLEBM();
 
     }
 World::World(string namestring, double m, double rad,
 	double semimaj, double ecc, double inc, double longascend,
 	double argper, double meananom, double G, double totalMass, int n,
-	double obliq, double rot, double prec, double ocean, double T0, bool melt, bool start, bool tide, bool obevol) :
+
+	double obliq, double rot, double prec, double ocean, double T0, bool melt, bool start, bool tide, bool obevol, bool CScycle) :
 	Body(namestring, m, rad, semimaj, ecc, inc, longascend,
 		argper, meananom, G, totalMass)
     {
@@ -102,10 +109,12 @@ World::World(string namestring, double m, double rad,
     nPoints1 = nPoints+1;
     activateMelt = melt;
     restart = start;
+
     tidalHeatingOn = tide;
     obliquityEvolutionOn = obevol;
 
     luminosity = 0.0;
+    CScycleOn = CScycle;
 
     rho_moon = 5.0e-9; // density in kg m^-3
     rigid = 4e9;
@@ -142,6 +151,7 @@ void World::initialiseLEBM()
    albedo.resize(nPoints1,0.0);
    insol.resize(nPoints1,0.0);
    tidal.resize(nPoints1,0.0);
+   //CScycle.resize(nPoints1,0.0); //Not sure if necessary... Giblin 10/7/15
    tau.resize(nPoints1,0.0);
    C.resize(nPoints1,0.0);
 
@@ -709,6 +719,47 @@ void World::calcNetHeating(int iLatitude)
 
 	Q[iLatitude] = insol[iLatitude]*(1.0-albedo[iLatitude]) + tidal[iLatitude]- infrared[iLatitude];
     }
+
+
+
+
+
+
+
+
+
+void World::calcC02Pressure(int iLatitude)
+    {
+    /*
+     * Written 10/7/15 by BenjaminGiblin
+     * Calculates C02 pressure using regime defined
+     * on pg. 5 of Spiegel et al 2010
+     */
+
+	if (T[iLatitude] >= 290.)
+	{
+	CO2pressure[iLatitude] = 3.3e-4; //bars
+	}
+    else if (T[iLatitude] < 290. and T[iLatitude] > 250.)
+	{
+	CO2pressure[iLatitude] = pow(10., -2-(T[iLatitude]-250.)/27.); //bars
+	}
+
+    else if (T[iLatitude] <= 250.)
+	{
+	CO2pressure[iLatitude] = 0.01; //bars
+	}
+    }
+
+
+
+
+
+
+
+
+
+
 
 void World::calcHabitability(int iLatitude, double &minT, double &maxT)
     {
