@@ -172,7 +172,7 @@ void World::initialiseLEBM()
    // Calculate initial parameters
 
 #pragma omp parallel default(none) \
-	shared(freeze,boil)\
+	shared(freeze,boil,cout)\
 	private(i)
 	{
 #pragma omp for schedule(runtime) ordered
@@ -282,7 +282,7 @@ void World::updateLEBM(vector<Body*> bodies, vector<double>eclipsefrac, double &
 	}
 
 #pragma omp parallel default(none) \
-	shared(freeze,boil)\
+	shared(freeze,boil,cout)\
 	private(i)
 	{
 #pragma omp for schedule(runtime) ordered
@@ -390,8 +390,8 @@ void World::calcInsolation(Body* star, double &eclipsefrac)
     double lstar = star->getLuminosity();
 
 #pragma omp parallel default(none) \
-	shared(sind,cosd,tand,fluxsolcgs)\
-	shared(pi,magpos,lstar,eclipsefrac)\
+	shared(sind,cosd,tand,fluxsolcgs,star,cout)\
+	shared(pi,magpos,lstar)\
 	private(i,cos_H,H)
 	{
 #pragma omp for schedule(runtime) ordered
@@ -652,7 +652,7 @@ void World::integrate()
 	period = period*year/(2.0*pi);
 
 #pragma omp parallel default(none) \
-	shared(freeze,period) \
+	shared(freeze,period,cout) \
 	private(i,Tminus1,Dminus,Tplus1,Dplus)\
 	private(T1,dx,dx1, Fj)
 	{

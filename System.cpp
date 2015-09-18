@@ -486,7 +486,7 @@ void System::calcNBodyTimestep(vector<Body*> &bodyarray, double dtmax)
     double dtarraymax;
 
 #pragma omp parallel default(none) \
-	shared(bodyarray,dt) \
+	shared(dt) \
 	private(i)
 	{
 	for (i = 0; i < bodyCount; i++)
@@ -626,7 +626,7 @@ void System::calcForces(vector<Body*> &bodyarray)
     Vector3D zeroVector;
 
 #pragma omp parallel default(none) \
-	shared(bodyarray,length,zeroVector) \
+	shared(length,zeroVector) \
 	private(i)
 	{
 #pragma omp for schedule(runtime) ordered
@@ -639,7 +639,7 @@ void System::calcForces(vector<Body*> &bodyarray)
 	    }
 	}
 #pragma omp parallel default(none) \
-	shared(bodyarray,length,zeroVector) \
+	shared(length,zeroVector) \
 	private(i)
 	{
 #pragma omp for schedule(runtime) ordered
