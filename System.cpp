@@ -161,6 +161,7 @@ void System::calcCOMFrame(vector<int> participants)
     positionCOM = zerovector;
     velocityCOM = zerovector;
 
+    participantMass = 0.0;
 
     for (i = 0; i < bodyCount; i++)
 	{
@@ -575,7 +576,7 @@ void System::setupOrbits(vector<int> orbitCentre)
     // Finally, ensure that each host system is setup such that the CoM of the system
     // moves along the host's assigned orbit
 
-    participants.assign(bodyCount,0);
+ //   participants.assign(bodyCount,0);
 
 //	for (int b = 0; b < bodyCount; b++) {
 //		// If body b is a host for other bodies

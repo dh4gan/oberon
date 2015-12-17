@@ -110,7 +110,7 @@ protected:
     vector<double> iceFraction, C, hab;
     vector<double> infrared, Q, albedo,tidal, insol;
 
-    FILE *logFile, *snapshotFile;
+    FILE *logFile, *snapshotFile, *latFile;
     bool activateMelt;
     bool restart;
 

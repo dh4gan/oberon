@@ -45,6 +45,7 @@ World::World() :
      dtLEBM = 0.0;
      diffusion = 0.0;
      logFile = 0;
+     latFile = 0;
      snapshotFile = 0;
 
     }
@@ -786,14 +787,27 @@ void World::initialiseOutputVariables(bool restart)
      */
 
     string logFileName = getName()+".log";
+    string latFileName = getName()+".lat";
 
     if(restart)
 	{
 	logFile = fopen(logFileName.c_str(), "a");
+	latFile = fopen(latFileName.c_str(), "a");
 	}
     else
 	{
 	logFile = fopen(logFileName.c_str(), "w");
+	latFile = fopen(latFileName.c_str(), "w");
+
+	// Write header for latitudinal file
+
+	for (int i=0; i<nPoints; i++){
+	fprintf(latFile, "%+.6E  ", lat[i]);
+	}
+
+	fprintf(latFile, "\n");
+	fflush(latFile);
+
 	}
     }
 
@@ -855,6 +869,16 @@ void World::outputLEBMData(int &snapshotNumber, double &tSnap, bool fullOutput)
 	    getArgumentPeriapsis(), getLongitudeAscendingNode(), getMeanAnomaly());
     fflush(logFile);
 
+    // Write latitudinal temperature data
+
+    fprintf(latFile, "%+.6E  ", tSnap);
+
+    for (int i=0; i<nPoints; i++){
+	fprintf(latFile, "%+.6E  ", T[i]);
+    }
+
+    fprintf(latFile, "\n");
+    fflush(latFile);
 
     if(fullOutput){
 
