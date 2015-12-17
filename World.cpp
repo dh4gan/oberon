@@ -139,6 +139,10 @@ void World::initialiseLEBM()
     double dtmax = 1.0e30;
     // Set length of vectors
 
+
+   // Set up diffusion constant
+   diffusion0 = 5.394e2 * rotationPeriod*rotationPeriod;
+
    lat.resize(nPoints1,0.0);
    x.resize(nPoints1,0.0);
    coslat.resize(nPoints1,0.0);
@@ -151,8 +155,8 @@ void World::initialiseLEBM()
    albedo.resize(nPoints1,0.0);
    insol.resize(nPoints1,0.0);
    tidal.resize(nPoints1,0.0);
-   CO2pressure.resize(nPoints1,0.01); //Giblin 10/7/15
-   diffusion.resize(nPoints1,0.0); //Giblin 10/7/15
+   CO2pressure.resize(nPoints1,3.3e-4); //Giblin 10/7/15
+   diffusion.resize(nPoints1,diffusion0); //Giblin 10/7/15
    tau.resize(nPoints1,0.0);
    C.resize(nPoints1,0.0);
 
@@ -175,8 +179,7 @@ void World::initialiseLEBM()
        }
 
 
-   // Set up diffusion constant
-   diffusion0 = 5.394e2 * rotationPeriod*rotationPeriod; 
+
    //erg cm^-2 s^-1 K^-1
    //rotationPeriod is in units of Earth's rate
 
@@ -684,23 +687,6 @@ void World::calcOpticalDepth(int iLatitude)
     }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 void World::calcCO2pressure(int iLatitude)
     {
     /*
@@ -912,12 +898,10 @@ void World::calcLEBMTimestep(double &dtmax)
 	cout << "Timesteps: " << endl;
 	for(i=0; i<nPoints1; i++)
 	{
-		cout << timestep[i] << "   " << T[i] << "   " << C[i] << endl;
+		cout << timestep[i] << "   " << T[i] << "   " << C[i] << diffusion[i] << endl;
 	}
 
-	//query with Duncan what diffusion coeff should output here
-	//IF CScycle is OFF!
-	cout << dtLEBM << "  " << diffusion0 << endl;
+	cout << dtLEBM <<  endl;
 	exit(EXIT_FAILURE);
 	dtLEBM = -10.0;
 	}

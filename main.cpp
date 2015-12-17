@@ -94,7 +94,6 @@ int main(int argc, char* argv[])
 	}
     
 
-   //Debugging. Giblin 14/7/15
    if(input.CSCycleOn)
 	{
 		cout << "CS cycle is ON" << endl;
@@ -149,7 +148,6 @@ int main(int argc, char* argv[])
 		BodyArray.push_back(
 			new World(input.BodyNames[i],
 				input.Mass[i], input.Radius[i], body_i_position,
-
 				body_i_velocity, input.nPoints, input.obliquity[i],input.rotationPeriod[i], input.precession[i],
 				input.oceanFraction[i], input.initialTemperature[i], input.activateMelt[i], input.restart, input.tidalHeatingOn, input.obliquityOn, input.CSCycleOn)); //Fed to parFile.cpp
 
@@ -219,6 +217,7 @@ int main(int argc, char* argv[])
 				input.Periapsis[i], input.meanAnomaly[i], G,
 				input.totalMass,input.nPoints, input.obliquity[i],input.rotationPeriod[i], input.precession[i],
 				input.oceanFraction[i], input.initialTemperature[i], input.activateMelt[i], input.restart, input.tidalHeatingOn, input.obliquityOn, input.CSCycleOn));
+
 
 
 		}
