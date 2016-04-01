@@ -44,10 +44,10 @@ public:
     // Calculation Methods
 
     void initialiseLEBM();
-    void updateLEBM(vector<Body*> bodies, vector<double>eclipsefrac,bool &planetaryIllumination);
-    void updateLEBM(vector<Body*> bodies, vector<double> eclipsefrac, double &dtmax, bool &planetaryIllumination);
+    void updateLEBM(vector<Body*> bodies, double &G, double &totmass, vector<double>eclipsefrac,bool &planetaryIllumination);
+    void updateLEBM(vector<Body*> bodies, double &G, double &totmass, vector<double> eclipsefrac, double &dtmax, bool &planetaryIllumination);
 
-
+    void calcObliquity(vector<Body*>bodies, double G, double totmass);
     void calcInsolation(Body* star, double &eclipsefrac);
     void calcAlbedo(int iLatitude);
     void calcHeatCapacity(int iLatitude);
@@ -83,6 +83,8 @@ public:
 protected:
     double rotationPeriod;
     double obliquity;
+    double ellipticity;
+    double precession;
     double winterSolstice;
     double oceanFraction;
     double landFraction;

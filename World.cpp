@@ -23,6 +23,8 @@ World::World() :
     type = "World";
     nPoints = 0;
      obliquity = 0.0;
+     precession = 0.0;
+     ellipticity = 0.00328005;
      rotationPeriod = 0.0;
      winterSolstice = 0.0;
      oceanFraction = 0.0;
@@ -57,6 +59,8 @@ World::World(string namestring, double m, double rad,
     type = "World";
     nPoints = n;
     obliquity = obliq;
+    ellipticity = 0.00328005;
+    precession = 0.0;
     rotationPeriod = rot;
     winterSolstice = winter;
     oceanFraction = ocean;
@@ -88,6 +92,8 @@ World::World(string namestring, double m, double rad,
     type = "World";
     nPoints = n;
     obliquity = obliq;
+    ellipticity = 0.00328005;
+    precession = 0.0;
     rotationPeriod = rot;
     winterSolstice = winter;
     oceanFraction = ocean;
@@ -232,6 +238,111 @@ void World::setTemperature(vector<double>temp){
     }
 
 
+void World::calcObliquity(vector<Body*> bodies, double G, double totmass)
+    {
+
+    /*
+     * Written 01/04/16 by dh4gan
+     * Calculates the obliquity and precession evolution
+     * of the World using Laskar et al (1986a,b) functions
+     * (see also Armstrong et al 2014)
+     *
+     */
+
+
+    // Store orbital data from previous timestep
+    double oldInclination = inclination;
+    double oldAscending = longitudeAscendingNode;
+
+    // Calculate new orbital parameters
+
+    if(hostBody){
+	calcOrbitFromVector(G,hostBody);
+    }
+    else
+	{
+    calcOrbitFromVector(G,totmass);
+	}
+
+    // Calculate rate of change of inclination and ascending node
+    double dinc = min(twopi - (inclination - oldInclination), inclination-oldInclination);
+    dinc = dinc/dtLEBM;
+
+    double domega = min(twopi - (longitudeAscendingNode - oldAscending), longitudeAscendingNode-oldAscending);
+
+    // Calculate p and q parameters
+
+    double p = sin(0.5*inclination)*sin(longitudeAscendingNode);
+    double q = sin(0.5*inclination)*cos(longitudeAscendingNode);
+
+    double pdot = 0.5*cos(0.5*inclination)*sin(longitudeAscendingNode)*dinc + q*domega;
+    double qdot = 0.5*cos(0.5*inclination)*cos(longitudeAscendingNode)*dinc -p*domega;
+
+    // A,B and C functions
+
+    double Cfunc = q*pdot - p*qdot;
+    double prefactor =2.0/(sqrt(1.0-p*p-q*q));
+    double Afunc = prefactor*(qdot -p*Cfunc);
+    double Bfunc = prefactor*(pdot -q*Cfunc);
+
+    // Direct torques from the host body
+    // If no host, then calculate direct torques and relativistic precessions for all stars in the system
+    // ASSUMING SINGLE ORBITAL SOLUTION (e.g. around centre of mass) APPROPRIATE FOR EACH STAR
+
+    double minuse2 = 1.0 - eccentricity*eccentricity;
+    double Rtorque = 0.0;
+    double pGR = 0.0;
+
+    if(hostBody)
+	{
+	double bodyMass = hostBody->getMass();
+	double k_Kep = G*bodyMass/(twopi*twopi);
+	Rtorque= 3.0*k_Kep*rotationPeriod/(twopi*semiMajorAxis*semiMajorAxis*semiMajorAxis);
+	Rtorque = Rtorque*ellipticity*cos(obliquity)*(0.5*pow(minuse2,-1.5)-0.522e-6);
+
+	pGR = k_Kep/(2.0*minuse2*c_mau*c_mau);
+
+	}
+    else
+	{
+	// Find all stars in the System, and compute torques and relativistic precession
+	// ASSUMING SINGLE ORBITAL SOLUTION APPROPRIATE FOR EACH STAR
+
+	for (int ibody=0; ibody < int(bodies.size()); ibody++)
+	    {
+	    if(bodies[ibody]->getType()=="Star")
+		{
+		double bodyMass = bodies[ibody]->getMass();
+		double k_Kep = G*bodyMass/(twopi*twopi);
+		double Rtorquestar= 3.0*k_Kep*rotationPeriod/(twopi*semiMajorAxis*semiMajorAxis*semiMajorAxis);
+		Rtorquestar = Rtorquestar*ellipticity*cos(obliquity)*(0.5*pow(minuse2,-1.5)-0.522e-6);
+		Rtorque = Rtorque + Rtorquestar;
+
+		pGR = pGR + k_Kep/(2.0*minuse2*c_mau*c_mau);
+
+		}
+	    }
+
+	}
+
+    // Now update obliquity and precession parameters
+    // (Note: cot(x) replaced by cos(x)/sin(x)
+
+    double cotAB = Afunc*sin(precession) - Bfunc*cos(precession);
+
+    if(cotAB>0.0)
+	{cotAB = cos(cotAB)/sin(cotAB);}
+    else
+	{cotAB = 0.0;}
+
+    double precdot = Rtorque - cotAB -2.0*Cfunc - pGR;
+    double obliqdot = -Bfunc*sin(precession) +Afunc*cos(precession);
+
+    precession = precession + precdot*dtLEBM;
+    obliquity = obliquity + obliqdot*dtLEBM;
+
+    }
+
 void World::calcLuminosity()
     {
 /*
@@ -252,7 +363,7 @@ void World::calcLuminosity()
 
     }
 
-void World::updateLEBM(vector<Body*> bodies, vector<double>eclipsefrac, double &dtmax, bool &planetaryIllumination)
+void World::updateLEBM(vector<Body*> bodies, double &G, double &totmass, vector<double>eclipsefrac, double &dtmax, bool &planetaryIllumination)
     {
     /*
      * Written 10/1/14 by dh4gan
@@ -263,6 +374,11 @@ void World::updateLEBM(vector<Body*> bodies, vector<double>eclipsefrac, double &
     setInsolationZero();
     int bodyCount = bodies.size();
     int i,b;
+
+
+    // Compute current obliquity and precession vector
+    calcObliquity(bodies,G,totmass);
+
 
     for (b=0; b< bodyCount; b++)
 	{
@@ -317,7 +433,7 @@ void World::updateLEBM(vector<Body*> bodies, vector<double>eclipsefrac, double &
 
     }
 
-void World::updateLEBM(vector<Body*> bodies, vector<double> eclipsefrac,bool &planetaryIllumination)
+void World::updateLEBM(vector<Body*> bodies, double &G, double &totmass, vector<double> eclipsefrac,bool &planetaryIllumination)
     {
     /*
      * Written 10/1/14 by dh4gan
@@ -326,7 +442,7 @@ void World::updateLEBM(vector<Body*> bodies, vector<double> eclipsefrac,bool &pl
 
     double dtmax = 1.0e30;
 
-    updateLEBM(bodies,eclipsefrac, dtmax,planetaryIllumination);
+    updateLEBM(bodies,G,totmass,eclipsefrac, dtmax,planetaryIllumination);
 
     }
 
@@ -372,6 +488,9 @@ void World::calcInsolation(Body* star, double &eclipsefrac)
 //	{
 //	decVector.rotateY(winterSolstice);
 //	}
+
+    // TODO - rotate decVector according to precession vector
+    // This is a rotation of the spin-axis around the orbital angular momentum axis (not Z)
 
     // Obtain declination angle
 

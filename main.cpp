@@ -275,7 +275,7 @@ int main(int argc, char* argv[])
 	    {
 
 	    // Evolve the LEBMs in the system for the minimum timestep in seconds
-	    nBodySystem.evolveLEBMs(dtsec);
+	    nBodySystem.evolveLEBMs(G,dtsec);
 
 	    // Evolve the NBody particles for the minimum timestep in code units
 	    nBodySystem.evolveSystem(dtunit);

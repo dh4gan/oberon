@@ -84,7 +84,7 @@ public:
 	void evolveSystem(double dt);
 
 	void calcPlanetaryEquilibriumTemperatures();
-	void evolveLEBMs(double &dt);
+	void evolveLEBMs(double &G, double &dt);
 
 	// Output Methods
 

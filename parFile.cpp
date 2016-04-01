@@ -223,7 +223,7 @@ void parFile::readPosFile()
 	    winterSolstice.assign(number_bodies, 0.0);
 	    oceanFraction.assign(number_bodies, 0.0);
 	    initialTemperature.assign(number_bodies, 0.0);
-	    orbitCentre.assign(number_bodies, 0);
+	    orbitCentre = vector<int>(number_bodies,0);
 	    activateMelt.assign(number_bodies,false);
 	    bodyIndex = -1;
 
@@ -463,7 +463,7 @@ void parFile::readOrbFile()
 	    winterSolstice.assign(number_bodies, 0.0);
 	    oceanFraction.assign(number_bodies, 0.0);
 	    initialTemperature.assign(number_bodies, 0.0);
-	    orbitCentre.assign(number_bodies,0);
+	    orbitCentre = vector<int>(number_bodies,0);
 	    activateMelt.assign(number_bodies,false);
 	    bodyIndex = -1;
 

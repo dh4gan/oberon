@@ -1025,7 +1025,7 @@ void System::calcPlanetaryEquilibriumTemperatures()
 
     }
 
-void System::evolveLEBMs(double &dt)
+void System::evolveLEBMs(double &G, double &dt)
     {
     /*
      * Written 10/1/14 by dh4gan
@@ -1044,7 +1044,7 @@ void System::evolveLEBMs(double &dt)
 	if(bodies[i]->getType()=="World")
 	    {
 	    eclipsefrac = checkForEclipses(i);
-	    bodies[i]->updateLEBM(bodies,eclipsefrac,dt,planetaryIlluminationOn);
+	    bodies[i]->updateLEBM(bodies,G,totalMass,eclipsefrac,dt,planetaryIlluminationOn);
 
 	    }
 
