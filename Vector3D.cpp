@@ -71,9 +71,10 @@ Vector3D Vector3D::unitVector()
 // Returns the unit vector
     {
 
-    Vector3D unit;
+    Vector3D unit = *this;
 
     double mag = magVector();
+
     if (mag > 0.0)
 	{
 	mag = 1.0 / mag;

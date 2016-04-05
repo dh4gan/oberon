@@ -300,7 +300,8 @@ void World::calcObliquity(vector<Body*> bodies, double G, double totmass)
 	Rtorque= 3.0*k_Kep*rotationPeriod/(twopi*semiMajorAxis*semiMajorAxis*semiMajorAxis);
 	Rtorque = Rtorque*ellipticity*cos(obliquity)*(0.5*pow(minuse2,-1.5)-0.522e-6);
 
-	pGR = k_Kep/(2.0*minuse2*c_mau*c_mau);
+	pGR = pow(k_Kep,1.5)*pow(1.0+mass/bodyMass,0.5)/(2.0*minuse2*c_mau*c_mau*pow(semiMajorAxis,2.5));
+
 
 	}
     else
@@ -316,9 +317,9 @@ void World::calcObliquity(vector<Body*> bodies, double G, double totmass)
 		double k_Kep = G*bodyMass/(twopi*twopi);
 		double Rtorquestar= 3.0*k_Kep*rotationPeriod/(twopi*semiMajorAxis*semiMajorAxis*semiMajorAxis);
 		Rtorquestar = Rtorquestar*ellipticity*cos(obliquity)*(0.5*pow(minuse2,-1.5)-0.522e-6);
-		Rtorque = Rtorque + Rtorquestar;
+		Rtorque = Rtorque + Rtorquestar*0.002737;  // Correction factor comes from using years, not days
 
-		pGR = pGR + k_Kep/(2.0*minuse2*c_mau*c_mau);
+		pGR = pGR + pow(k_Kep,1.5)*pow(1.0+mass/bodyMass,0.5)/(2.0*minuse2*c_mau*c_mau*pow(semiMajorAxis,2.5));
 
 		}
 	    }
@@ -338,8 +339,8 @@ void World::calcObliquity(vector<Body*> bodies, double G, double totmass)
     double precdot = Rtorque - cotAB -2.0*Cfunc - pGR;
     double obliqdot = -Bfunc*sin(precession) +Afunc*cos(precession);
 
-    precession = precession + precdot*dtLEBM;
-    obliquity = obliquity + obliqdot*dtLEBM;
+    precession = precession + precdot*dtLEBM/year;
+    obliquity = obliquity + obliqdot*dtLEBM/year;
 
     }
 
@@ -374,7 +375,6 @@ void World::updateLEBM(vector<Body*> bodies, double &G, double &totmass, vector<
     setInsolationZero();
     int bodyCount = bodies.size();
     int i,b;
-
 
     // Compute current obliquity and precession vector
     if(obliquityEvolutionOn)
@@ -485,8 +485,7 @@ void World::calcInsolation(Body* star, double &eclipsefrac)
 	}
 
 
-
-    // rotate decVector according to precession vector
+    // rotate decVector to account for precession
     // This is a rotation of the spin-axis around the orbital angular momentum axis (not Z)
 
     decVector.rotateAboutAxis(orbitalAngularMomentum, precession);
@@ -495,6 +494,8 @@ void World::calcInsolation(Body* star, double &eclipsefrac)
 
     double rdotn = unitpos.dotProduct(decVector);
     double declination = safeAcos(rdotn);
+
+
 
     // Check: is declination greater than pi?
 
@@ -975,16 +976,25 @@ void World::outputLEBMData(int &snapshotNumber, double &tSnap, bool fullOutput)
      */
 
     double minT, maxT, meanT, meanQ, meanA, meanIR, meanS, meanhab, meanTidal;
-
+    string formatString;
 
     // Firstly, write line to log file
     calcLEBMMeans(minT, maxT, meanT, meanQ, meanA, meanIR,meanS, meanhab, meanTidal);
 
     // Also include orbital data here
-    fprintf(logFile, "%+.6E %+.6E %+.6E %+.6E %+.6E %+.6E %+.6E %+.6E %+.6E %+.6E %+.6E %+.6E %+.6E %+.6E %+.6E %+.6E \n",
+    formatString = "+%.6E  ";
+
+    for (int icol=0;icol < 17; icol++)
+	{
+	formatString = formatString + "+%.6E  ";
+	}
+    formatString = formatString + "\n";
+
+    fprintf(logFile, formatString.c_str(),
 	    tSnap, minT, maxT, meanT,meanQ,meanA,meanIR,meanS,meanhab, meanTidal,
-	    getSemiMajorAxis(), getEccentricity(), getInclination(),
-	    getArgumentPeriapsis(), getLongitudeAscendingNode(), getMeanAnomaly());
+	    semiMajorAxis, eccentricity, inclination,
+	    argumentPeriapsis, longitudeAscendingNode, meanAnomaly,
+	    obliquity*radToDeg,precession*radToDeg);
     fflush(logFile);
 
     // Write latitudinal temperature data

@@ -40,6 +40,7 @@ public:
 
     double getLEBMTimestep(){return dtLEBM;}
 
+    double getObliquity(){return obliquity;}
 
     // Calculation Methods
 
