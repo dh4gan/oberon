@@ -139,8 +139,8 @@ int main(int argc, char* argv[])
 		BodyArray.push_back(
 			new World(input.BodyNames[i],
 				input.Mass[i], input.Radius[i], body_i_position,
-				body_i_velocity, input.nPoints, input.obliquity[i],input.rotationPeriod[i], input.winterSolstice[i],
-				input.oceanFraction[i], input.initialTemperature[i], input.activateMelt[i], input.restart, input.tidal));
+				body_i_velocity, input.nPoints, input.obliquity[i],input.rotationPeriod[i], input.precession[i],
+				input.oceanFraction[i], input.initialTemperature[i], input.activateMelt[i], input.restart, input.tidalHeatingOn, input.obliquityOn));
 		if(input.restart)
 		    {
 		    cout << "Reading Temperature data for World " << BodyArray.back()->getName() << endl;
@@ -205,8 +205,8 @@ int main(int argc, char* argv[])
 				input.semiMajorAxis[i], input.eccentricity[i],
 				input.inclination[i], input.longAscend[i],
 				input.Periapsis[i], input.meanAnomaly[i], G,
-				input.totalMass,input.nPoints, input.obliquity[i],input.rotationPeriod[i], input.winterSolstice[i],
-				input.oceanFraction[i], input.initialTemperature[i], input.activateMelt[i], input.restart, input.tidal));
+				input.totalMass,input.nPoints, input.obliquity[i],input.rotationPeriod[i], input.precession[i],
+				input.oceanFraction[i], input.initialTemperature[i], input.activateMelt[i], input.restart, input.tidalHeatingOn, input.obliquityOn));
 		}
 
 	    }
@@ -236,7 +236,7 @@ int main(int argc, char* argv[])
 
 
     // Switch Planetary Illumination on/off
-    nBodySystem.setIllumination(input.illumination);
+    nBodySystem.setIllumination(input.illuminationOn);
 
 
     // Set up the outputs

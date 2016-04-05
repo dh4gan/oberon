@@ -26,7 +26,6 @@ World::World() :
      precession = 0.0;
      ellipticity = 0.00328005;
      rotationPeriod = 0.0;
-     winterSolstice = 0.0;
      oceanFraction = 0.0;
      landFraction = 1.0-oceanFraction;
      initialTemperature = 0.0;
@@ -42,7 +41,8 @@ World::World() :
      nPoints1 = nPoints+1;
      activateMelt = false;
      restart = false;
-     tidalOn = false;
+     tidalHeatingOn = false;
+     obliquityEvolutionOn = false;
 
      dtLEBM = 0.0;
      diffusion = 0.0;
@@ -52,17 +52,16 @@ World::World() :
 
     }
 World::World(string namestring, double m, double rad,
-	Vector3D pos, Vector3D vel, int n, double obliq, double rot, double winter,
-	double ocean, double T0,bool melt, bool start, bool tide) :
+	Vector3D pos, Vector3D vel, int n, double obliq, double rot, double prec,
+	double ocean, double T0,bool melt, bool start, bool tide, bool obevol) :
 	Body(namestring, m, rad, pos, vel)
     {
     type = "World";
     nPoints = n;
     obliquity = obliq;
     ellipticity = 0.00328005;
-    precession = 0.0;
+    precession = prec;
     rotationPeriod = rot;
-    winterSolstice = winter;
     oceanFraction = ocean;
     landFraction = 1.0-oceanFraction;
     initialTemperature = T0;
@@ -78,14 +77,15 @@ World::World(string namestring, double m, double rad,
     nPoints1 = nPoints+1;
     activateMelt = melt;
     restart = start;
-    tidalOn = tide;
+    tidalHeatingOn = tide;
+    obliquityEvolutionOn = obevol;
     initialiseLEBM();
 
     }
 World::World(string namestring, double m, double rad,
 	double semimaj, double ecc, double inc, double longascend,
 	double argper, double meananom, double G, double totalMass, int n,
-	double obliq, double rot, double winter, double ocean, double T0, bool melt, bool start, bool tide) :
+	double obliq, double rot, double prec, double ocean, double T0, bool melt, bool start, bool tide, bool obevol) :
 	Body(namestring, m, rad, semimaj, ecc, inc, longascend,
 		argper, meananom, G, totalMass)
     {
@@ -93,9 +93,8 @@ World::World(string namestring, double m, double rad,
     nPoints = n;
     obliquity = obliq;
     ellipticity = 0.00328005;
-    precession = 0.0;
+    precession = prec;
     rotationPeriod = rot;
-    winterSolstice = winter;
     oceanFraction = ocean;
     landFraction = 1.0-oceanFraction;
     initialTemperature = T0;
@@ -103,7 +102,8 @@ World::World(string namestring, double m, double rad,
     nPoints1 = nPoints+1;
     activateMelt = melt;
     restart = start;
-    tidalOn = tide;
+    tidalHeatingOn = tide;
+    obliquityEvolutionOn = obevol;
 
     luminosity = 0.0;
 
@@ -192,7 +192,7 @@ void World::initialiseLEBM()
 	    calcCooling(i);
 	    calcNetHeating(i);
 
-	    if(tidalOn && hostBody!=0){
+	    if(tidalHeatingOn && hostBody!=0){
 		cout << "calculating heating " << endl;
 		calcTidalHeating(i);}
 
@@ -227,7 +227,7 @@ void World::setTemperature(vector<double>temp){
 		    calcOpticalDepth(i);
 		    calcAlbedo(i);
 		    calcCooling(i);
-		    if(tidalOn) {calcTidalHeating(i);}
+		    if(tidalHeatingOn) {calcTidalHeating(i);}
 		    calcNetHeating(i);
 		    calcHabitability(i,freeze,boil);
 		    }
@@ -377,8 +377,10 @@ void World::updateLEBM(vector<Body*> bodies, double &G, double &totmass, vector<
 
 
     // Compute current obliquity and precession vector
+    if(obliquityEvolutionOn)
+	{
     calcObliquity(bodies,G,totmass);
-
+	}
 
     for (b=0; b< bodyCount; b++)
 	{
@@ -411,11 +413,11 @@ void World::updateLEBM(vector<Body*> bodies, double &G, double &totmass, vector<
 	    calcAlbedo(i);
 	    calcCooling(i);
 
-	    if(tidalOn && hostBody!=0)
+	    if(tidalHeatingOn && hostBody!=0)
 		{
 		calcTidalHeating(i);
 		}
-	    if(tidalOn && hostBody==0)
+	    if(tidalHeatingOn && hostBody==0)
 		{
 		cout << "Warning: Host Body undefined, tidal heating inactive" << endl;
 		}
@@ -478,19 +480,16 @@ void World::calcInsolation(Body* star, double &eclipsefrac)
 			unitpos.elements[2]);
 
     // Rotate this vector if world has non-zero obliquity
-    if (obliquity != 0.0) {
+    if (obliquity > 0.0) {
 	decVector.rotateX(-obliquity);
 	}
 
-    // TODO - Check implementation Rotate in y-axis if world's winter solstice longitude non-zero
 
-    //if(winterSolstice!=0.0)
-//	{
-//	decVector.rotateY(winterSolstice);
-//	}
 
-    // TODO - rotate decVector according to precession vector
+    // rotate decVector according to precession vector
     // This is a rotation of the spin-axis around the orbital angular momentum axis (not Z)
+
+    decVector.rotateAboutAxis(orbitalAngularMomentum, precession);
 
     // Obtain declination angle
 

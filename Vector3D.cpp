@@ -70,12 +70,20 @@ Vector3D Vector3D::unitVector()
 // Written by dh4gan 12/6/13
 // Returns the unit vector
     {
-    double mag = magVector();
+
     Vector3D unit;
-    for (int i=0; i<3; i++)
+
+    double mag = magVector();
+    if (mag > 0.0)
 	{
-	unit.elements[i] = elements[i]/mag;
+	mag = 1.0 / mag;
+	unit = unit.scaleVector(mag);
 	}
+    else
+	{
+	unit = zeroVector();
+	}
+
     return unit;
     }
 
@@ -211,6 +219,34 @@ void Vector3D::rotateZ(double angle)
     elements[0] = oldvec.elements[0]*cos(angle) - oldvec.elements[1]*sin(angle);
     elements[1] = oldvec.elements[0]*sin(angle) + oldvec.elements[1]*cos(angle);
     elements[2] = oldvec.elements[2];
+
+    }
+
+
+void Vector3D::rotateAboutAxis(Vector3D axisVector, double angle)
+    {
+/*
+ *  Written by dh4gan 05/04/2016
+ *  Rotates vector about an arbitrary axis by angle theta
+ *
+ */
+
+    // Ensure axis vector is normalised
+
+    Vector3D axis = axisVector.unitVector();
+
+    // Calculate components of vector parallel and perpendicular to axis
+
+    Vector3D parallel = axis.scaleVector(dotProduct(axis));
+    Vector3D perpendicular = subtractVector(parallel);
+
+    // Rotation plane determined by perpendicular component and cross product of vector and axis
+    Vector3D cross = axis.crossProduct(*this);
+
+    Vector3D transform = parallel.addVector(perpendicular.scaleVector(cos(angle)));
+    transform = transform.addVector(cross.scaleVector(sin(angle)));
+
+    *this = transform;
 
     }
 

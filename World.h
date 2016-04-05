@@ -21,14 +21,14 @@ public:
     World();
 
     World(string namestring, double m, double rad,
-	    Vector3D pos, Vector3D vel, int n, double obliq, double rot, double winter,
-	    double ocean, double T0, bool melt, bool start, bool tide);
+	    Vector3D pos, Vector3D vel, int n, double obliq, double rot, double prec,
+	    double ocean, double T0, bool melt, bool start, bool tide,bool obevol);
 
     World(string namestring, double m, double rad,
 	    double semimaj, double ecc, double inc, double longascend,
 	    double argper, double meananom, double G, double totalMass,
-	    int n, double obliq, double rot, double winter,
-	    double ocean, double T0, bool melt, bool start, bool tide);
+	    int n, double obliq, double rot, double prec,
+	    double ocean, double T0, bool melt, bool start, bool tide, bool obevol);
     virtual ~World();
 
     /* Accessors */
@@ -85,7 +85,6 @@ protected:
     double obliquity;
     double ellipticity;
     double precession;
-    double winterSolstice;
     double oceanFraction;
     double landFraction;
     double initialTemperature;
@@ -96,11 +95,6 @@ protected:
     double rho_moon;
     double rigid;
     double Qtidal;
-
-
-    bool tidalOn;
-    vector<bool> melting;
-    vector<double> meltTime;
 
     int nPoints,nPoints1;
 
@@ -114,7 +108,12 @@ protected:
 
     FILE *logFile, *snapshotFile, *latFile;
     bool activateMelt;
+    bool obliquityEvolutionOn;
     bool restart;
+
+    bool tidalHeatingOn;
+    vector<bool> melting;
+    vector<double> meltTime;
 
     };
 

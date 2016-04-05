@@ -38,6 +38,8 @@ class Vector3D{
 	void rotateY(double angle);
 	void rotateZ(double angle);
 
+	void rotateAboutAxis(Vector3D axis, double angle);
+
 	void printVector();
 
 	double elements [3];

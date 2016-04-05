@@ -30,8 +30,9 @@ public:
 	string fileType;
 
 	bool restart;
-	bool illumination;
-	bool tidal;
+	bool illuminationOn;
+	bool obliquityOn;
+	bool tidalHeatingOn;
 	bool fullOutput;
 
 	int number_bodies;
@@ -69,7 +70,7 @@ public:
 
 	vector<double> rotationPeriod;
 	vector<double> obliquity;
-	vector<double> winterSolstice;
+	vector<double> precession;
 	vector<double> oceanFraction;
 	vector<double> initialTemperature;
 	vector<bool> activateMelt;

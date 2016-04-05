@@ -18,8 +18,9 @@ parFile::parFile()
     totalMass = 0.0;
 
     restart = false;
-    illumination = false;
-    tidal = false;
+    illuminationOn = false;
+    tidalHeatingOn = false;
+    obliquityOn = false;
     fullOutput = false;
 
     systemTime = 0.0;
@@ -37,8 +38,9 @@ parFile::parFile(string name)
     totalMass = 0.0;
 
     restart = false;
-    illumination = false;
-    tidal = false;
+    illuminationOn = false;
+    tidalHeatingOn = false;
+    obliquityOn = false;
     fullOutput = false;
 
     systemTime = 0.0;
@@ -100,7 +102,7 @@ void parFile::readPosFile()
     string par;
     string line;
     string BodyType,BodyName;
-    string meltChoice, restartChoice, illumChoice, tidalChoice, fullOutputChoice;
+    string meltChoice, restartChoice, illumChoice, tidalChoice, obliqChoice,fullOutputChoice;
 
     int bodyIndex;
 
@@ -113,8 +115,9 @@ void parFile::readPosFile()
     nPoints = 0;
 
     restart = false;
-    tidal = false;
-    illumination = false;
+    tidalHeatingOn = false;
+    illuminationOn = false;
+    obliquityOn = false;
 
     strcpy(inputfile, parFileName.c_str());
 
@@ -128,7 +131,7 @@ void parFile::readPosFile()
     luminosity.push_back(0.0);
     rotationPeriod.push_back(0.0);
     obliquity.push_back(0.0);
-    winterSolstice.push_back(0.0);
+    precession.push_back(0.0);
     oceanFraction.push_back(0.0);
     initialTemperature.push_back(0.0);
 
@@ -152,7 +155,7 @@ void parFile::readPosFile()
 	    iss >> illumChoice;
 	    if (illumChoice == "T")
 		{
-		illumination = true;
+		illuminationOn = true;
 		cout << "Planetary Illumination Active" << endl;
 		}
 	    }
@@ -162,8 +165,18 @@ void parFile::readPosFile()
 	    iss >> tidalChoice;
 	    if (tidalChoice == "T")
 		{
-		tidal = true;
+		tidalHeatingOn = true;
 		cout << "Tidal Heating Active" << endl;
+		}
+	    }
+
+	if (par == "ObliquityEvolution")
+	    {
+	    iss >> obliqChoice;
+	    if (obliqChoice == "T")
+		{
+		obliquityOn = true;
+		cout << "Obliquity Evolution Active" << endl;
 		}
 	    }
 	if(par == "FullOutput")
@@ -220,7 +233,7 @@ void parFile::readPosFile()
 
 	    rotationPeriod.assign(number_bodies, 0.0);
 	    obliquity.assign(number_bodies, 0.0);
-	    winterSolstice.assign(number_bodies, 0.0);
+	    precession.assign(number_bodies, 0.0);
 	    oceanFraction.assign(number_bodies, 0.0);
 	    initialTemperature.assign(number_bodies, 0.0);
 	    orbitCentre = vector<int>(number_bodies,0);
@@ -299,11 +312,11 @@ void parFile::readPosFile()
 
 	    }
 
-	else if (par == "WinterSolstice")
+	else if (par == "Precession" or par =="WinterSolstice")
 	    {
 	    iss >> val_i;
 	    val_i = val_i *3.1415/180.0;
-	    winterSolstice[bodyIndex]=val_i;
+	    precession[bodyIndex]=val_i;
 
 	    }
 
@@ -352,13 +365,14 @@ void parFile::readOrbFile()
     string par;
     string line;
     string BodyType, BodyName;
-    string meltChoice, restartChoice, illumChoice, tidalChoice, fullOutputChoice;
+    string meltChoice, restartChoice, illumChoice, tidalChoice,obliqChoice, fullOutputChoice;
 
     NBodyFile = "nbody_output.txt";
     snapshotNumber = 0;
     restart = false;
-    tidal = false;
-    illumination = false;
+    tidalHeatingOn = false;
+    illuminationOn = false;
+    obliquityOn = false;
 
     char inputfile[100];
 
@@ -393,7 +407,7 @@ void parFile::readOrbFile()
 	    iss >> illumChoice;
 	    if (illumChoice == "T")
 		{
-		illumination = true;
+		illuminationOn = true;
 		cout << "Planetary Illumination Active" << endl;
 		}
 	    }
@@ -403,8 +417,18 @@ void parFile::readOrbFile()
 	    iss >> tidalChoice;
 	    if (tidalChoice == "T")
 		{
-		tidal = true;
+		tidalHeatingOn = true;
 		cout << "Tidal Heating Active" << endl;
+		}
+	    }
+
+	if (par == "ObliquityEvolution")
+	    {
+	    iss >> obliqChoice;
+	    if (obliqChoice == "T")
+		{
+		obliquityOn = true;
+		cout << "Obliquity Evolution Active" << endl;
 		}
 	    }
 
@@ -460,7 +484,7 @@ void parFile::readOrbFile()
 
 	    rotationPeriod.assign(number_bodies, 0.0);
 	    obliquity.assign(number_bodies, 0.0);
-	    winterSolstice.assign(number_bodies, 0.0);
+	    precession.assign(number_bodies, 0.0);
 	    oceanFraction.assign(number_bodies, 0.0);
 	    initialTemperature.assign(number_bodies, 0.0);
 	    orbitCentre = vector<int>(number_bodies,0);
@@ -566,11 +590,11 @@ void parFile::readOrbFile()
 	    obliquity[bodyIndex] = val_i;
 	    }
 
-	else if (par == "WinterSolstice")
+	else if (par == "Precession" or par =="WinterSolstice")
 	    {
 	    iss >> val_i;
 	    val_i = val_i *3.1415/180.0;
-	    winterSolstice[bodyIndex] = val_i;
+	    precession[bodyIndex] = val_i;
 	    }
 
 	else if (par == "OceanFraction")
