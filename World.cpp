@@ -269,6 +269,7 @@ void World::calcObliquity(vector<Body*> bodies, double G, double totmass)
     dinc = dinc/dtLEBM;
 
     double domega = min(twopi - (longitudeAscendingNode - oldAscending), longitudeAscendingNode-oldAscending);
+    domega = domega/dtLEBM;
 
     // Calculate p and q parameters
 
@@ -329,18 +330,26 @@ void World::calcObliquity(vector<Body*> bodies, double G, double totmass)
     // Now update obliquity and precession parameters
     // (Note: cot(x) replaced by cos(x)/sin(x)
 
-    double cotAB = Afunc*sin(precession) - Bfunc*cos(precession);
+    double cotObliq = 0.0;
+    if(obliquity>0.0){
+	cotObliq = cos(obliquity)/sin(obliquity);
+    }
 
-    if(cotAB>0.0)
-	{cotAB = cos(cotAB)/sin(cotAB);}
-    else
-	{cotAB = 0.0;}
 
-    double precdot = Rtorque - cotAB -2.0*Cfunc - pGR;
+    double precdot = Rtorque - cotObliq*(Afunc*sin(precession)+Bfunc*cos(precession)) -2.0*Cfunc - pGR;
     double obliqdot = -Bfunc*sin(precession) +Afunc*cos(precession);
 
     precession = precession + precdot*dtLEBM/year;
     obliquity = obliquity + obliqdot*dtLEBM/year;
+
+
+    //cout << precdot<<"  " << "  " << precdot << "  " << endl;
+    precession = fmod(precession,twopi);
+
+    if(precession < 0.0){precession = twopi+precession;}
+    obliquity = fmod(obliquity,twopi);
+    //cout << "PRECESSION " << precession << endl;
+
 
     }
 
@@ -476,12 +485,11 @@ void World::calcInsolation(Body* star, double &eclipsefrac)
 
     // Declination of the Sun - angle between planet's position vector and equator (at noon)
 
-    Vector3D decVector(unitpos.elements[0], unitpos.elements[1],
-			unitpos.elements[2]);
+    Vector3D decVector = orbitalAngularMomentum.unitVector();
 
     // Rotate this vector if world has non-zero obliquity
     if (obliquity > 0.0) {
-	decVector.rotateX(-obliquity);
+	decVector.rotateY(-obliquity);
 	}
 
 
@@ -493,17 +501,32 @@ void World::calcInsolation(Body* star, double &eclipsefrac)
     // Obtain declination angle
 
     double rdotn = unitpos.dotProduct(decVector);
+    //Vector3D rcrossn = unitpos.crossProduct(decVector);
+    //double rcrossnMag = rcrossn.dotProduct(rcrossn.unitVector());
+
+
     double declination = safeAcos(rdotn);
 
 
+    declination = piby2-declination;
+     //cout << "ROTATIONS: " << endl;
+    //orbitalAngularMomentum.printVector();
+    //decVector.printVector();
 
-    // Check: is declination greater than pi?
+    // Allowed range of declinations: -pi, pi
+    // cos is an even function!
 
-    if (decVector.elements[1] <0.0) declination = -1*declination;
+
+    if(declination > obliquity) declination = pi-declination;
+
+    //if (decVector.elements[1] <0.0) declination = -1*declination;
 
     double sind = sin(declination);
     double cosd = cos(declination);
     double tand = tan(declination);
+
+
+    //cout <<"Declination: " << trueAnomaly << "   " <<  obliquity << "   " << rdotn << "   " << rcrossnMag << "   "<< declination << "   " << decCross << endl;
 
     // Insolation prefactor depends on luminosity and separation only
 
@@ -531,13 +554,24 @@ void World::calcInsolation(Body* star, double &eclipsefrac)
 		    + fluxsolcgs * lstar * (1.0 - eclipsefrac)
 			    / (pi * magpos * magpos)
 			    * (H * x[i] * sind + coslat[i] * cosd * sin(H));
-	    if(insol[i]>1.0e10 or insol[i]!=insol[i]){
 
+	    if(insol[i]>1.0e10 or insol[i]!=insol[i] or insol[i] < 0.0){
 
-		cout << i <<"  " << star->getName() <<  "  "<<insol[i] <<"  " << fluxsolcgs * lstar * (1.0 - eclipsefrac)
-				    / (pi * magpos * magpos)
-				    * (H * x[i] * sind + coslat[i] * cosd * sin(H)) << "  "  <<lstar <<  "  " << (1.0 - eclipsefrac)
-				    << "  " << (pi * magpos * magpos) << endl;}
+	      cout << "ERROR: Negative insolation calculated " << endl;
+	      cout << i << "  " << star->getName () << "  " << insol[i] << "  "
+		  << precession << "  " << obliquity << "   " << declination << "   " << cosd << "  "
+		  << sind << "  " << tand << endl;
+	      decVector.printVector();
+	      unitpos.printVector();
+	      cout << fluxsolcgs * lstar * (1.0 - eclipsefrac)
+		      / (pi * magpos * magpos)
+		      * (H * x[i] * sind + coslat[i] * cosd * sin (H)) << "  "
+		  << lstar << "  " << (1.0 - eclipsefrac) << "  "
+		  << (pi * magpos * magpos) << endl;
+
+	    exit(EXIT_FAILURE);
+
+	    }
 	    }
 
 	}
@@ -842,6 +876,7 @@ void World::integrate()
 	    T[i] = T1 + (dtLEBM / C[i]) * (Q[i] + Fj);
 
 	    if(T[i]>1.0e6 or T[i]<0.0){
+	    cout << "Temperature out of sensible range " << endl;
 	    cout <<i << "  "<< T[i] << "   " << "  " << T1 <<"  " << dtLEBM << "  " << (dtLEBM / C[i]) * (Q[i] + Fj) << "  " << insol[i] << "    " << infrared[i] << "   " << Q[i] << endl;
 	    }
 
@@ -986,7 +1021,7 @@ void World::outputLEBMData(int &snapshotNumber, double &tSnap, bool fullOutput)
 
     for (int icol=0;icol < 17; icol++)
 	{
-	formatString = formatString + "+%.6E  ";
+	formatString = formatString + "%.6E  ";
 	}
     formatString = formatString + "\n";
 

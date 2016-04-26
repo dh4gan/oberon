@@ -284,7 +284,6 @@ int main(int argc, char* argv[])
 
 	    // Recalculate the minimum timestep
 	    dtunit = nBodySystem.calcCombinedTimestep();
-
 	    dtsec = dtunit*unit2sec;
 
 	    }
