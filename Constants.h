@@ -18,6 +18,7 @@ const double degToRad = pi/180.0;
 const double radToDeg = 1.0/degToRad;
 double Gsi = 6.67e-11;
 double Gmau = 1.0;  // Value of G for solar mass-AU units (time units...2pi units= 1 year)
+double Gmau_day = 2.959e-4; // Value of G for (Msol, AU, day) unit system)
 double AU = 1.496e11;
 double msol = 1.99e30;
 double lsol = 3.826e26;

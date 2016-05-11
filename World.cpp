@@ -266,10 +266,10 @@ void World::calcObliquity(vector<Body*> bodies, double G, double totmass)
 
     // Calculate rate of change of inclination and ascending node
     double dinc = min(twopi - (inclination - oldInclination), inclination-oldInclination);
-    dinc = dinc/dtLEBM;
+    dinc = dinc*year/dtLEBM;
 
     double domega = min(twopi - (longitudeAscendingNode - oldAscending), longitudeAscendingNode-oldAscending);
-    domega = domega/dtLEBM;
+    domega = domega*year/dtLEBM;
 
     // Calculate p and q parameters
 
@@ -297,7 +297,7 @@ void World::calcObliquity(vector<Body*> bodies, double G, double totmass)
     if(hostBody)
 	{
 	double bodyMass = hostBody->getMass();
-	double k_Kep = G*bodyMass/(twopi*twopi);
+	double k_Kep = Gmau_day*bodyMass/(twopi*twopi);
 	Rtorque= 3.0*k_Kep*rotationPeriod/(twopi*semiMajorAxis*semiMajorAxis*semiMajorAxis);
 	Rtorque = Rtorque*ellipticity*cos(obliquity)*(0.5*pow(minuse2,-1.5)-0.522e-6);
 
@@ -343,7 +343,8 @@ void World::calcObliquity(vector<Body*> bodies, double G, double totmass)
     obliquity = obliquity + obliqdot*dtLEBM/year;
 
 
-    //cout << precdot<<"  " << "  " << precdot << "  " << endl;
+ //   cout  << "p, q: " << p << "  " << q << "   " << pdot << "  " << qdot << endl;
+//    cout << "OBLIQUITY: " <<obliquity << "   " <<  obliqdot<<"  " << Bfunc <<  "  " << Afunc << "  " << precession << endl;
     precession = fmod(precession,twopi);
 
     if(precession < 0.0){precession = twopi+precession;}

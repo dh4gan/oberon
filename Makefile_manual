@@ -10,7 +10,7 @@
 # Compiler variables:
 FC     = g++
 
-FFLAGS = -O3 -fopenmp  
+FFLAGS = -O3
 
 # Create object files:
 %.o: %.cpp
