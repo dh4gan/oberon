@@ -265,12 +265,33 @@ void World::calcObliquity(vector<Body*> bodies, double G, double totmass)
 	}
 
     // Calculate rate of change of inclination and ascending node
-    double dinc = min(twopi - (inclination - oldInclination), inclination-oldInclination);
+
+    double dinc = inclination-oldInclination;
+
+    // Be careful with cases where inclination crosses 0->2pi line
+    if(dinc < -pi) dinc = dinc+twopi;
+    if(dinc > pi) dinc = dinc-twopi;
+
+
     dinc = dinc*year/dtLEBM;
 
-    double domega = min(twopi - (longitudeAscendingNode - oldAscending), longitudeAscendingNode-oldAscending);
+    double domega = longitudeAscendingNode - oldAscending;
+
+    // Again be careful with 0-> 2pi line
+
+    if(domega < -pi) domega = domega+twopi;
+    if(domega > pi) domega = domega-twopi;
+
     domega = domega*year/dtLEBM;
 
+   if(fabs(dinc) > 0.5*year/dtLEBM)
+{
+    cout << "inc: " << inclination << "   " << oldInclination << "   " << dinc*dtLEBM/year << endl;
+}
+if(fabs(domega)>0.5*year/dtLEBM)
+{ 
+   cout << "ome: " << longitudeAscendingNode << "   " << oldAscending << "   " << domega*dtLEBM/year << endl;
+}
     // Calculate p and q parameters
 
     double p = sin(0.5*inclination)*sin(longitudeAscendingNode);
