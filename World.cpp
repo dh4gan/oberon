@@ -369,7 +369,9 @@ if(fabs(domega)>0.5*year/dtLEBM)
     precession = fmod(precession,twopi);
 
     if(precession < 0.0){precession = twopi+precession;}
+
     obliquity = fmod(obliquity,twopi);
+    if(obliquity < 0.0){obliquity = twopi+precession;}
     //cout << "PRECESSION " << precession << endl;
 
 
@@ -556,7 +558,7 @@ void World::calcInsolation(Body* star, double &eclipsefrac)
 
 #pragma omp parallel default(none) \
 	shared(sind,cosd,tand,fluxsolcgs,star,cout)\
-	shared(pi,magpos,lstar)\
+	shared(magpos,lstar)\
 	private(i,cos_H,H)
 	{
 #pragma omp for schedule(runtime) ordered
@@ -577,21 +579,14 @@ void World::calcInsolation(Body* star, double &eclipsefrac)
 			    / (pi * magpos * magpos)
 			    * (H * x[i] * sind + coslat[i] * cosd * sin(H));
 
+		if(insol[i]<0.0) {insol[i]=0.0;}
 	    if(insol[i]>1.0e10 or insol[i]!=insol[i] or insol[i] < 0.0){
 
 	      cout << "ERROR: Negative insolation calculated " << endl;
 	      cout << i << "  " << star->getName () << "  " << insol[i] << "  "
-		  << precession << "  " << obliquity << "   " << declination << "   " << cosd << "  "
+		  << precession << "  " << obliquity << "   " << "   " << cosd << "  "
 		  << sind << "  " << tand << endl;
-	      decVector.printVector();
-	      unitpos.printVector();
-	      cout << fluxsolcgs * lstar * (1.0 - eclipsefrac)
-		      / (pi * magpos * magpos)
-		      * (H * x[i] * sind + coslat[i] * cosd * sin (H)) << "  "
-		  << lstar << "  " << (1.0 - eclipsefrac) << "  "
-		  << (pi * magpos * magpos) << endl;
 
-	    exit(EXIT_FAILURE);
 
 	    }
 	    }
