@@ -3,3 +3,7 @@
 *.txt
 *.xml
 *.output
+src/oberon
+Debug/
+.cproject
+.project
