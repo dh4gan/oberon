@@ -55,9 +55,9 @@ int main(int argc, char* argv[])
 
     printf("  \n");
     printf("*********************************************** \n");
-    printf("    NBODY EBM Code \n ");
-    printf("    CS cycle test\n "); //does nothing
+    printf("    OBERON - OBliquity and Energy balance Run on Nbody systems \n ");
     printf("    Date Created : 9th January 2014 \n");
+    printf("    Current Version: 26th August 2016 \n");
     printf("*********************************************** \n");
     printf("  \n");
 

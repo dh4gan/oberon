@@ -1,0 +1,127 @@
+\documentclass[usenatbib,11pt]{article}
+\pagestyle{myheadings}
+\markright{OBERON - OBliquity and Energy balance Run On Nbody systems}
+\usepackage{graphicx,natbib,a4wide}
+\usepackage[top= 2.25cm, bottom=1.0cm, left=1.55cm, right=1.55cm]{geometry}
+
+\usepackage[T1]{fontenc}
+\usepackage[scaled]{helvet}
+\renewcommand*\familydefault{\sfdefault} %% Only if the base font of the document is to be sans serif
+
+\newcommand{\mnras}{MNRAS}
+\newcommand{\apj}{ApJ}
+\newcommand{\nat}{Nature}
+\newcommand{\apjl}{ApJL}
+\newcommand{\apjs}{ApJS}
+\newcommand{\physrep}{Phys.~Rep.}
+\newcommand{\aap}{A\&A}
+\newcommand{\aaps}{A\&AS}
+\newcommand{\araa}{ARA\&A}
+\newcommand{\aj}{AJ}
+\newcommand{\prd}{PhRvD}
+\newcommand{\repprog}{Rep.~Prog.~Phys}
+
+
+\begin{document}
+
+\title{OBERON - OBliquity and Energy balance Run On Nbody systems}
+\author{Duncan Forgan (\texttt{github/dh4gan})}
+\maketitle
+
+\newpage
+\tableofcontents
+\newpage
+
+\section{Getting OBERON}
+
+\noindent OBERON is hosted on github at +++
+
+\section{Compiling OBERON}
+
+\noindent The source code is in the \texttt{/src} folder, which contains a \texttt{Makefile}.  With the appropriate software installed, type 'make' to compile an executable.
+
+
+\section{Code Design}
+
+\section{Input Options}
+
+
+\subsection{Global Options}
+
+\begin{itemize}
+\item{\texttt{ParType `Positional/Orbital'}} The format of data for entry (either Cartesian co-ordinates for position and velocity or orbital elements)
+\item{\texttt{NBodyOutput (string)}} The filename for the N Body data file
+\item{\texttt{SnapshotTime (double)}} The time interval between data dumps and snapshots
+\item{\texttt{NGridPoints: (integer)}} The number of grid points used by the latitudinal energy balance model
+\item{\texttt{MaximumTime: (double)}} The maximum runtime of the simulation
+\item{\texttt{SystemName: (string)} A descriptive string for the simulation
+\item{\texttt{Number Bodies}: (integer)}} The number of bodies in the system
+\item{\texttt{Restart: `T/F'}} is the simulation a restart? True or False (careful with this - not stable currently)
+\item{\texttt{FullOutput `T/F'}} True: Output full snapshots as well as log files with surface averaged values for each body, False: log files only
+\end{itemize}
+
+
+\subsection{Body Options (must be specified for each body)}
+
+\begin{itemize}
+\item \texttt{BodyName: (string)}
+\item \texttt{BodyType: `Star/Planet/World'}
+\item{\texttt{Mass: (double)}}
+\item{\texttt{Radius: (double)}}
+\end{itemize}
+
+For Positional Files:
+
+\begin{itemize}
+
+\item{\texttt{Position: (double) (double) (double)}} Cartesian position vector (astronomical units)
+\item{\texttt{Velocity: (double) (double) (double)}} Cartesian velocity vector (2$\pi$ *AU/yr)
+\end{itemize}
+
+
+For Orbital Files:
+
+\begin{itemize}
+\item{\texttt{SemiMajorAxis: (double)}} Semimajor Axis (AU)
+\item{\texttt{Eccentricity: (double)}} Eccentricity
+\item{\texttt{Inclination: (double)}} Inclination (+++units?+++)
+\item{\texttt{LongAscend: (double)}} Longitude of the Ascending Node
+\item{\texttt{Periapsis: (double)}} Argument of Periapsis
+\item{\texttt{MeanAnomaly: (double)}} Mean Anomaly
+\item{\texttt{OrbitCentre: (integer)}} Where is the initial orbit focus? -1 = (0,0,0), 0=system centre of mass, 1,2,3... = Body 1,2,3 )
+\end{itemize}
+
+\subsubsection{Star Options}
+
+\begin{itemize}
+\item{\texttt{Luminosity (double)}} Bolometric Luminosity (solar luminosity)
+\end{itemize}
+
+\subsubsection{World Options}
+
+\begin{itemize}
+\item{\texttt{RotationPeriod (double)}} World rotation period in days
+\item{\texttt{Obliquity (double)}} initial obliquity in degrees
+\item{\texttt{WinterSolstice (double)}} orbital longitude of the winter solstice (degrees)
+\item{\texttt{OceanFraction (double, $[0.0 \rightarrow 1.0]$)}} Fraction of the world's surface that is ocean
+\item{\texttt{InitialTemperature (double)}} Initial surface temperature of the world (at all latitudes)
+\item{\texttt{IceMeltingOn `T/F'}} Is latent heat of melting for ice accounted for in climate calculation? True or False 
+\end{itemize}
+
+\section{Outputs}:
+
+\begin{itemize}
+\item{\texttt{<WorldName>.<number>}} - a  snapshot of \texttt{<WorldName>}'s latitudinal climate properties
+\item{\texttt{<WorldName>.<log>}} - a log file for \texttt{<WorldName>} tracking globally averaged climate properties and position/orbital properties
+\end{itemize}
+
+
+An N Body file is also produced (name specified by the user), which is more suited to plotting the entire simulation's evolution (Star and Planet objects included).
+
+%Python scripts for plotting these datafiles can be found in `dh4gan/plot_nbody_EBM`
+%
+%The code was developed using the eclipse CDT, which auto-generates a Makefile to compile the code.  There is also a manual Makefile in the repository to
+%compile with g++.
+%
+
+\end{document}
