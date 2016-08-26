@@ -43,8 +43,21 @@
 
 \section{Code Design}
 
+This code utilises object oriented programming, with two main classes.
+
+The \texttt{Body} class encapsulates the properties of each body, including methods for calculating gravitational forces.  The derived \texttt{Star}, \texttt{Planet} and \texttt{World} classes contain methods for calculating luminosity and climate/spin evolution.
+
+The \texttt{System} class takes a vector of \texttt{Body} pointers, and controls method calls for the evolution of the collection of \texttt{Body} objects under gravity, and \texttt{World} objects' climate evolution.
+
+When the code is run, any World object in the simulation will have its climate computed under the assumption that it is Earthlike, with each World receiving its own set of output files.
+
 \section{Input Options}
 
+\noindent OBERON requires a single input parameter file which contains the essential information required to run the simulation.  The parameter file system is quite flexible - the ordering of the options in the file is relatively unimportant, provided that all the global options are at the top of the file before individual body data.
+
+Each variable is read in by checking the first string on each line.  Please ensure that the keywords as given below are the first strings on each line, with no whitespace at the beginning, otherwise they will be ignored.  
+
+The read in system is robust to '=' and '\#' symbols, so do feel free to use these as spacers between data points, or indeed to ``comment out'' a row and replace it with another input. 
 
 \subsection{Global Options}
 
@@ -56,10 +69,13 @@
 \item{\texttt{MaximumTime: (double)}} The maximum runtime of the simulation
 \item{\texttt{SystemName: (string)} A descriptive string for the simulation
 \item{\texttt{Number Bodies}: (integer)}} The number of bodies in the system
-\item{\texttt{Restart: `T/F'}} is the simulation a restart? True or False (careful with this - not stable currently)
-\item{\texttt{FullOutput `T/F'}} True: Output full snapshots as well as log files with surface averaged values for each body, False: log files only
+\item{\texttt{Restart: `T/F'}} is the simulation a restart? True or False (careful with this - not stable currently) (Default: False)
+\item{\texttt{FullOutput `T/F'}} True: Output full snapshots as well as log files with surface averaged values for each body, False: log files only (Default: False)
+\item{\texttt{TidalHeating `T/F'}} Compute the tidal heating of the Worlds by the object they orbit?  (Default:False)
+\item{\texttt{PlanetaryIllumination `T/F'}} Are `Planet' objects also luminosity sources? (Default: False)
+\item{\texttt{ObliquityEvolution `T/F'}} Allow the spin parameters of `World' objects to change? (Default: False)
+\item{\texttt{CarbonateSilicateCycle `T/F'}} Model the effects of the carbonate-silicate cycle? (Default: False)
 \end{itemize}
-
 
 \subsection{Body Options (must be specified for each body)}
 
@@ -105,7 +121,7 @@ For Orbital Files:
 \item{\texttt{WinterSolstice (double)}} orbital longitude of the winter solstice (degrees)
 \item{\texttt{OceanFraction (double, $[0.0 \rightarrow 1.0]$)}} Fraction of the world's surface that is ocean
 \item{\texttt{InitialTemperature (double)}} Initial surface temperature of the world (at all latitudes)
-\item{\texttt{IceMeltingOn `T/F'}} Is latent heat of melting for ice accounted for in climate calculation? True or False 
+\item{\texttt{IceMeltingOn `T/F'}} Is latent heat of melting for ice accounted for in climate calculation? True or False  (Default: False)
 \end{itemize}
 
 \section{Outputs}:
