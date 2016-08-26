@@ -1,35 +1,36 @@
 #####################################################
 ###                                               ###
-### Makefile for nbody_EBM (manually generated)   ###
+### Makefile for oberon                           ###
 ###                                               ###
-###         Duncan H. Forgan 26/8/2014            ###
+### Duncan H. Forgan 26/8/2014          	  ###
 ###       				          ###
 ###                                               ###
 #####################################################
 
 # Compiler variables:
-FC     = g++
+CC     = g++
 
-FFLAGS = -O3
+# TODO - appropriate compiler flags?
+CFLAGS = -O3
 
 # Create object files:
 %.o: %.cpp
-	$(FC) $(FFLAGS) -c $<
+	$(CC) $(CFLAGS) -c $<
 %.o: %.f90
-	$(FC) $(FFLAGS) -c $<
+	$(CC) $(CFLAGS) -c $<
 
 # Source files (.F90)
 SOURCESA = main.cpp Vector3D.cpp Body.cpp Star.cpp Planet.cpp World.cpp System.cpp parFile.cpp
 OBJECTSA    = $(SOURCESA:.cpp=.o)
 
 # Create executable files:
-build: nbody_EBM
+build: oberon
 
-nbody_EBM:  $(OBJECTSA)
-	$(FC) $(FFLAGS) -o $@ $(OBJECTSA)
+oberon:  $(OBJECTSA)
+	$(CC) $(CFLAGS) -o $@ $(OBJECTSA)
 
 # Clean statements:
 clean: 
-	\rm *.o *.d nbody_EBM
+	\rm *.o *.d oberon
 
 # End Makefile

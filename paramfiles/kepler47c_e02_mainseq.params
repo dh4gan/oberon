@@ -1,10 +1,10 @@
 ParType Orbital
 NBodyOutput kepler47c_nbody.output
-SnapshotTime	1.0e-1
+SnapshotTime	1.0e-2
 NGridPoints	144
 MaximumTime	1.0e2
 SystemName Kepler47
-Number_Bodies 4
+Number_Bodies 3
 Restart F
 --
 BodyName Kepler47A
@@ -33,25 +33,12 @@ MeanAnomaly 4.7123
 Luminosity 0.0
 OrbitCentre 0
 --
-BodyName Kepler47b
-BodyType Planet
-Mass 3.003e-5
-Radius 0.0022
-SemiMajorAxis 0.2956
-Eccentricity 0.034
-Inclination 0.4
-LongAscend 0.0
-Periapsis 0.0
-MeanAnomaly 0.0
-Luminosity 1.0e-10
-OrbitCentre -1
----
 BodyName Kepler47c
 BodyType World
 Mass 1.0e-6
 Radius 1.0e-4
 SemiMajorAxis 0.989
-Eccentricity 0.0
+Eccentricity 0.2
 Inclination 0.0
 LongAscend 0.0
 Periapsis 0.0

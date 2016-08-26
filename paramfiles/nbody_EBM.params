@@ -1,13 +1,13 @@
 ParType Orbital
-NBodyOutput nbody.output
+NBodyOutput trial.txt
 SnapshotTime	1.0e-1
-MaximumTime 	100.0
 NGridPoints	144
+MaximumTime	100.0
 SystemName EarthSun
 Number_Bodies 2
+ObliquityEvolution F
+CarbonateSilicateCycle T
 Restart F
-PlanetaryIllumination F
-TidalHeating F
 --
 BodyName Sun
 BodyType Star
@@ -20,7 +20,7 @@ LongAscend 0.0
 Periapsis 0.0
 MeanAnomaly 0.0
 Luminosity 1.0
-OrbitCentre -1
+OrbitCentre 0
 --
 BodyName Earth
 BodyType World
@@ -32,11 +32,11 @@ Inclination 0.0
 LongAscend 0.0
 Periapsis 0.0
 MeanAnomaly 0.0
-OrbitCentre 1
 RotationPeriod 1.0  (days)
 Obliquity  23.7   (degrees)
 WinterSolstice 0.0	(longitude,degrees)
 OceanFraction 0.7
 InitialTemperature 288.0
-
+OrbitCentre 0
+IceMeltingOn T
 

@@ -1,8 +1,8 @@
 ParType Orbital
 NBodyOutput kepler47c_nbody.output
-SnapshotTime	1.0e2
+SnapshotTime	1.0e-2
 NGridPoints	144
-MaximumTime	1.0e5
+MaximumTime	1.0e2
 SystemName Kepler47moon
 Number_Bodies 5
 Restart F
