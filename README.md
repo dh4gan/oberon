@@ -1,5 +1,22 @@
+OBERON - OBliquity and Energy balance Run on N body systems
+===========================================================
+
 This C++ code combines 1D latitudinal energy balance modelling of Earthlike climates with a
-4th order Hermite N Body integrator.  
+4th order Hermite N Body integrator, and a simple obliquity evolution model.  
+
+Features:
+--------
+* Simple orbital setup routines or direct cartesian vector input positions for bodies
+* 1D latitudinal climate modelling
+* Algorithms to accommodate ice sheet melting (in testing)
+* Carbonate Silicate Cycle Modelling (in testing)
+* Accompanied by a set of python plotting scripts
+* Library of example parameter setups to run
+
+Requirements:
+-------------
+* C++ compiler (g++ recommended)
+* Python for plotting scripts (scripts developed in Python 2.7)
 
 This code utilises object oriented programming - the N Body component of the code
 uses the Body base class and the System class (which contains a vector of pointers to the Body objects in the simulation, and
