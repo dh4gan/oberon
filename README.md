@@ -1,31 +1,39 @@
 OBERON - OBliquity and Energy balance Run on N body systems
 ===========================================================
 
-This C++ code combines 1D latitudinal energy balance modelling of Earthlike climates with a
-4th order Hermite N Body integrator, and a simple obliquity evolution model.  
+This C++ code models the climate of Earthlike planets under the effects of an arbitrary number and arrangement of other bodies, such as stars, planets and moons.
 
 Features:
 --------
 * Simple orbital setup routines or direct cartesian vector input positions for bodies
 * 1D latitudinal climate modelling
+* 4th Order Hermite N Body integration (shared variable timestepping)
+* Obliquity evolution taken from +++
 * Algorithms to accommodate ice sheet melting (in testing)
 * Carbonate Silicate Cycle Modelling (in testing)
-* Accompanied by a set of python plotting scripts
+* Library of Python plotting scripts
 * Library of example parameter setups to run
+
+Possible Future Features/Wishlist:
+-------------------------
+
+* individual timestepping
+* tidal evolution of rotation periods
+* More flexibility in input planet atmospheres
 
 Requirements:
 -------------
 * C++ compiler (g++ recommended) and Makefile software (e.g. gmake)
-* Python for plotting scripts (scripts developed in Python 2.7)
+* Python for plotting scripts (scripts developed in Python 2.7) - dependencies include numpy, matplotlib, scipy
 
-The code reads in a single input file (typically appended .params).  This parameter file contains 
+The code reads in a single input parameter file, which contains 
 a set of global parameters for all bodies in the simulation, along with specific parameters for each
 body included in the simulation. Parameter files can either specify the initial positions of all bodies, or the initial Keplerian orbits of all bodies.
 
-Further details of the parameter file structure can be found in the userguide in `\docs', and example parameter files are given in '\paramfiles'
+Further details of the parameter file structure can be found in the userguide in `\docs`, and example parameter files are given in `\paramfiles`
 
 Once compiled, the code is executed with the command
 
-`> ./nbody_EBM input.params`
+`> ./oberon input.params`
 
-The code was developed using the eclipse CDT, which auto-generates a Makefile to compile the code.  There is also a manual Makefile in `\src' to compile with g++.
+The code was developed using the eclipse CDT, which auto-generates a Makefile to compile the code.  There is also a manual Makefile in `\src` to compile with g++.
