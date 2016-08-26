@@ -5,6 +5,8 @@ NGridPoints	144
 MaximumTime	100.0
 SystemName EarthSun
 Number_Bodies 2
+ObliquityEvolution F
+CarbonateSilicateCycle T
 Restart F
 --
 BodyName Sun

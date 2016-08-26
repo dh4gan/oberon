@@ -1161,7 +1161,7 @@ void World::outputLEBMData(int &snapshotNumber, double &tSnap, bool fullOutput)
 
     formatString = "+%.6E  ";
 
-    for (int icol=0;icol < 17; icol++)
+    for (int icol=0;icol < 19; icol++)
 	{
 	formatString = formatString + "%.6E  ";
 	}
@@ -1171,7 +1171,7 @@ void World::outputLEBMData(int &snapshotNumber, double &tSnap, bool fullOutput)
 	    tSnap, minT, maxT, meanT,meanQ,meanA,meanIR,meanS,meanhab, meanTidal,
 	    semiMajorAxis, eccentricity, inclination,
 	    argumentPeriapsis, longitudeAscendingNode, meanAnomaly,
-	    obliquity*radToDeg,precession*radToDeg, meanCO2p, meanDiffusion);
+	    obliquity*radToDeg,precession*radToDeg,meanCO2p, meanDiffusion);
 
     fflush(logFile);
 
