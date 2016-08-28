@@ -8,10 +8,10 @@ Features:
 * Simple orbital setup routines or direct cartesian vector input positions for bodies
 * 1D latitudinal climate modelling
 * 4th Order Hermite N Body integration (shared variable timestepping)
-* Obliquity evolution taken from +++
+* Obliquity evolution taken from Laskar (1986a, A&A, 157, 59) and Laskar (1986b A&A, 164, 437)
 * Algorithms to accommodate ice sheet melting (in testing)
 * Carbonate Silicate Cycle Modelling (in testing)
-* Library of Python plotting scripts
+* Library of Python plotting scripts (coming soon)
 * Library of example parameter setups to run
 
 Possible Future Features/Wishlist:
