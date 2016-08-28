@@ -22,6 +22,7 @@ Possible Future Features/Wishlist:
 * individual timestepping
 * tidal evolution of rotation periods
 * More flexibility in input planet atmospheres
+* Ability to checkpoint/restart simulations
 
 Requirements:
 -------------
