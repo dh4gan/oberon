@@ -1,6 +1,8 @@
 OBERON - OBliquity and Energy balance Run on N body systems
 ===========================================================
 
+[![DOI](https://zenodo.org/badge/24103/dh4gan/oberon.svg)](https://zenodo.org/badge/latestdoi/24103/dh4gan/oberon)
+
 This C++ code models the climate of Earthlike planets under the effects of an arbitrary number and arrangement of other bodies, such as stars, planets and moons.
 
 Science using this code was first published in Forgan (2016), Monthly Notices of the Royal Astronomical Society, DOI: 10.1093/mnras/stw2098
