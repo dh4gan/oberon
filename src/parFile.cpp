@@ -865,7 +865,6 @@ void parFile::setupRestartPositions()
 
     // Now read final N lines
 
-
     Mass.assign(number_bodies, 0.0);
     Radius.assign(number_bodies, 0.0);
 
