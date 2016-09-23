@@ -167,7 +167,7 @@ public:
 	return -1.0;
 	}
 
-    virtual int findRestartTemperature()
+    virtual int getRestartParameters()
 	{
 	return -1;
 	}

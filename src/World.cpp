@@ -1213,22 +1213,51 @@ void World::outputLEBMData(int &snapshotNumber, double &tSnap, bool fullOutput)
 
     }
 
-int World::findRestartTemperature()
+int World::getRestartParameters()
     {
 
     /*
      * written by dh4gan 13/5/14
-     * Reads last temperature snapshot file for restart purposes
+     * Reads temperature data and obliquity/precession from last file entry for restart purposes
      *
      */
 
     // Read log file to determine how many snapshots there have been
 
     string logFileName = getName()+".log";
+    string latFileName = getName()+".lat";
     string line;
     int nSnap = 0;
-    double blank;
     double dtmax = 1.0e30;
+
+
+    int i;
+    double d;
+
+    // Obtain temperature data from last line of .lat file
+    ifstream latfile(latFileName.c_str());
+
+    if(latfile)
+	{
+	while(getline(latfile,line))
+	    {
+	    i=0;
+	    istringstream iss(line);
+	     while (iss >> d) {
+	        T[i] =d;
+	        i++;
+	     }
+	    }
+	}
+    else
+       	{
+       	cout << "Error: File "<< latFileName << "not found" << endl;
+       	return -1;
+       	}
+
+
+    // Read last line of .log file to obtain obliquity / precession data
+
     ifstream lfile(logFileName.c_str());
 
     if(lfile)
@@ -1241,6 +1270,24 @@ int World::findRestartTemperature()
 
    	cout << "Number of Snapshots is " << nSnap << endl;
 
+   	// Extract data from last line
+
+   	istringstream iss(line);
+
+   	// Skip the other data
+   	for (int icol=0; icol<<15; icol++)
+   	    {
+   	    iss>>d;
+   	    }
+   	iss >> obliquity;
+   	iss >> precession;
+
+   	printf("Obliquity read as %f degrees \n",obliquity);
+   	printf("Precession read as %f degrees \n",precession);
+
+   	obliquity = obliquity/radToDeg;
+   	precession = precession/radToDeg;
+
    	}
        else
    	{
@@ -1250,30 +1297,7 @@ int World::findRestartTemperature()
 
     lfile.close();
 
-    ostringstream convert;
-    convert << nSnap;
-
-    string numString = convert.str();
-    string worldFile = getName()+"."+numString;
-
-    ifstream wfile(worldFile.c_str());
-
-    // Read header (number of grid points, time)
-    getline(wfile,line);
-
-    int i=0;
-
-    while (getline(wfile, line))
-	{
-	istringstream iss(line);
-	iss >> blank;
-	iss >> blank;
-	if (i < nPoints1)
-	    {
-	    iss >> T[i];
-	    }
-	i++;
-	}
+    // Recalculate EBM data model
 
 #pragma omp parallel default(none) \
 	shared(freeze,boil)\

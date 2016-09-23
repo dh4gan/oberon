@@ -74,7 +74,7 @@ public:
     void calcLEBMMeans(double &minT, double &maxT, double &meanT, double &meanQ, double &meanA, double &meanIR, double &meanS,
     	double &meanhab, double &meanTidal, double &meanCO2p, double &meanDiffusion);
 
-    int findRestartTemperature();
+    int getRestartParameters();
 
     // Standard cloning method
     virtual World* Clone()

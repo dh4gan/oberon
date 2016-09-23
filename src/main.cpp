@@ -154,7 +154,7 @@ int main(int argc, char* argv[])
 		if(input.restart)
 		    {
 		    cout << "Reading Temperature data for World " << BodyArray.back()->getName() << endl;
-		    snapshotNumber = BodyArray.back()->findRestartTemperature();
+		    snapshotNumber = BodyArray.back()->getRestartParameters(); // TODO - use new method for restarts
 
 		    if(snapshotNumber==-1)
 			{
