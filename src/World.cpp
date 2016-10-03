@@ -1159,11 +1159,11 @@ void World::outputLEBMData(int &snapshotNumber, double &tSnap, bool fullOutput)
 
     // Also include orbital data here
 
-    formatString = "+%.6E  ";
+    formatString = "+%.8E  ";
 
     for (int icol=0;icol < 19; icol++)
 	{
-	formatString = formatString + "%.6E  ";
+	formatString = formatString + "%.8E  ";
 	}
     formatString = formatString + "\n";
 
@@ -1282,11 +1282,9 @@ int World::getRestartParameters()
    	iss >> obliquity;
    	iss >> precession;
 
-   	printf("Obliquity read as %f degrees \n",obliquity);
-   	printf("Precession read as %f degrees \n",precession);
+   	printf("Obliquity read as %f degrees \n",obliquity*radToDeg);
+   	printf("Precession read as %f degrees \n",precession*radToDeg);
 
-   	obliquity = obliquity/radToDeg;
-   	precession = precession/radToDeg;
 
    	}
        else

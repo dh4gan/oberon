@@ -246,8 +246,6 @@ int main(int argc, char* argv[])
     // Calculate its initial properties
     nBodySystem.calcInitialProperties();
 
-
-
     // Switch Planetary Illumination on/off
     nBodySystem.setIllumination(input.illuminationOn);
 
@@ -275,6 +273,13 @@ int main(int argc, char* argv[])
 
     // Calculate the minimum LEBM timestep for all worlds and NBody timestep
     dtunit = nBodySystem.calcCombinedTimestep();
+
+
+    // If the system is restarting, ramp down the first timestep for stability
+    if(input.restart)
+	{
+	dtunit = dtunit/100.0;
+	}
 
     dtsec = dtunit*unit2sec; // This will be the default timestep measure - derive dtunit = dtsec*2pi/(3.15e7)
     timeunit = input.systemTime*twopi;
