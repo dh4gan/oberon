@@ -5,16 +5,17 @@ OBERON - OBliquity and Energy balance Run on N body systems
 
 This C++ code models the climate of Earthlike planets under the effects of an arbitrary number and arrangement of other bodies, such as stars, planets and moons.
 
-Science using this code was first published in Forgan (2016), Monthly Notices of the Royal Astronomical Society, DOI: 10.1093/mnras/stw2098
+Science using this code was first published in Forgan (2016), Monthly Notices of the Royal Astronomical Society, Volume 463, Issue 3, p.2768-2780, DOI: 10.1093/mnras/stw2098
 
 Features:
 --------
 * Simple orbital setup routines or direct cartesian vector input positions for bodies
-* 1D latitudinal climate modelling
-* 4th Order Hermite N Body integration (shared variable timestepping)
+* 1D latitudinal energy balance (LEBM) climate modelling
+* 4th Order Hermite N Body integration (shared variable timestep)
 * Obliquity evolution taken from Laskar (1986a, A&A, 157, 59) and Laskar (1986b A&A, 164, 437)
+* Ability to checkpoint/restart simulations (with a health warning at albedo transitions)
 * Algorithms to accommodate ice sheet melting (in testing)
-* Carbonate Silicate Cycle Modelling (in testing)
+* Carbonate Silicate Cycle Modelling (Williams and Kasting 1997)
 * Library of Python plotting scripts 
 * Library of example parameter setups to run
 
@@ -22,9 +23,9 @@ Possible Future Features/Wishlist:
 -------------------------
 
 * individual timestepping
-* tidal evolution of rotation periods
+* Better calibrated CO2 modelling (cf Haqq-Misra et al 2016)
+* More sophisticated spin evolution (cf Mercury-T)
 * More flexibility in input planet atmospheres
-* Ability to checkpoint/restart simulations
 
 Requirements:
 -------------
