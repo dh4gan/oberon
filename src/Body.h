@@ -147,7 +147,7 @@ public:
 	virtual void calcMainSequenceLuminosity(){}
 	virtual double getfVisible(){return -1.0;}
 	virtual double getfIR(){return -1.0;}
-	virtual void loadAlbedoCoefficients(string &filename);
+	virtual void loadAlbedoCoefficients(string &filename){};
 	virtual vector<double> getAlbedoCoefficients(double temperature){return vector<double>(1.0,-1.0);}
 
 	// Methods for Planet Class

@@ -735,6 +735,7 @@ void World::calcSurfaceAlbedo(Body* star, int iLatitude, double meanZenith)
      *
      */
 
+    // TODO - handle surface albedo of sea ice
     double aIce,aOcean;
 
     // Calculate ice albedo
@@ -880,42 +881,31 @@ void World::calcCooling(int iLatitude)
     {
     /*
      * Written 9/1/14 by dh4gan
-     *Edited by BenjaminGiblin 13/7/15
+     * Edited by dh4gan 01/05/2017
      * Calculates the Infrared Cooling as a function of optical depth and temperature
      *
      */
 
 	if(CSCycleOn)
 		{
-		double phi = log(CO2pressure[iLatitude]/3.3e-4);
-		double Tmp = T[iLatitude]; //
+		double phi = log10(CO2pressure[iLatitude]);
+		double logT = log10(T[iLatitude]); //
 
-
-		infrared[iLatitude] = 1.e3*(+9.468980 
-				      -7.714727e-5*phi 
-				      -2.794778*Tmp 
-                                      -3.244753e-3*phi*Tmp 
-                                      -3.547406e-4*pow(phi,2.) 
-				      +2.212108e-2*pow(Tmp,2.)
-				      +2.229142e-3*pow(phi,2.)*Tmp 
-				      +3.088497e-5*phi*pow(Tmp,2.)
-				      -2.789815e-5*pow(phi,2.)*pow(Tmp,2.) 
-				      -3.442973e-3*pow(phi,3.)
-				      -3.361939e-5*pow(Tmp,3.)
-				      +9.173169e-3*pow(phi,3.)*Tmp 
-			              -7.775195e-5*pow(phi,3.)*pow(Tmp,2.)
-				      -1.679112e-7*phi*pow(Tmp,3.)
-				      +6.590999e-8*pow(phi,2.)*pow(Tmp,3.)
-				      +1.528125e-7*pow(phi,3.)*pow(Tmp,3.)
-				      -3.367567e-2*pow(phi,4.)
-				      -1.631909e-4*pow(phi,4.)*Tmp
-				      +3.663871e-6*pow(phi,4.)*pow(Tmp,2.)
-				      -9.255646e-9*pow(phi,4.)*pow(Tmp,3.)
-				      -14.06);
-			//erg s^-1 cm^-2
-			//includes 'cloud correction' for absorption
-			//by H20 clouds
-			//-14.06 erg^-1 cm^-2
+		infrared[iLatitude] = ircoeff[0]*logT*logT*logT*logT +
+				    ircoeff[1]*logT*logT*logT*phi +
+				    ircoeff[2]*logT*logT*logT +
+				    ircoeff[3]*logT*logT*phi*phi +
+				    ircoeff[4]*logT*logT*phi +
+				    ircoeff[5]*logT*logT +
+				    ircoeff[6]*logT*phi*phi*phi +
+				    ircoeff[7]*logT*phi*phi +
+				    ircoeff[8]*logT*phi +
+				    ircoeff[9]*logT +
+				    ircoeff[10]*phi*phi*phi*phi +
+				    ircoeff[11]*phi*phi*phi +
+				    ircoeff[12]*phi*phi +
+				    ircoeff[13]*phi +
+				    ircoeff[14];
 		}
 	else{
 		infrared[iLatitude] = sigma_SB*pow(T[iLatitude],4)/(1.0+0.75*tau[iLatitude]); //erg s^-1 cm^-2

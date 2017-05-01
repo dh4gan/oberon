@@ -124,6 +124,8 @@ protected:
     vector<double> CO2pressure, CO2dot, landWeathering, oceanWeathering;
     vector<double> surfaceAlbedo, meanZenith;
 
+    vector<double> ircoeff; // TODO - obtain IR cooling coefficients
+
     FILE *logFile, *snapshotFile, *latFile;
     bool activateMelt;
     bool obliquityEvolutionOn;

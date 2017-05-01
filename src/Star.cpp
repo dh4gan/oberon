@@ -52,6 +52,19 @@ Star::Star(string &namestring, double &m, double &rad, double semimaj, double ec
 Star::~Star() {
 }
 
+void :: Star::loadAlbedoCoefficients(string &filename)
+    /*
+     * Written 01/05/2017 by dh4gan
+     * Loads the albedo fitting function coefficients from file
+     * (also loads the visibility fractions)
+     */
+
+
+    {
+
+
+    }
+
 vector<double> Star::getAlbedoCoefficients(double temperature)
 
 	/*
