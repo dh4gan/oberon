@@ -31,4 +31,8 @@ double fluxsolcgs = fluxsol*1000;
 const double c_cgs = 3.0e10;
 const double c_mau = c_cgs*year/(twopi*AU);
 
+const double CO2Earth = 3.3e-4;
+const double kactive = 0.09;
+const double krun = 0.045;
+
 #endif /* CONSTANTS_H_ */

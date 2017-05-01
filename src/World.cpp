@@ -155,7 +155,7 @@ void World::initialiseLEBM()
    albedo.resize(nPoints1,0.0);
    insol.resize(nPoints1,0.0);
    tidal.resize(nPoints1,0.0);
-   CO2pressure.resize(nPoints1,3.3e-4); //Giblin 10/7/15
+   CO2pressure.resize(nPoints1,CO2Earth);
    diffusion.resize(nPoints1,diffusion0); //Giblin 10/7/15
    tau.resize(nPoints1,0.0);
    C.resize(nPoints1,0.0);
@@ -214,7 +214,7 @@ void World::initialiseLEBM()
 		cout << "calculating heating " << endl;
 		calcTidalHeating(i);}
 
-	    if(CSCycleOn) {calcCO2pressure(i);}
+	    if(CSCycleOn) {calcCO2Rates(i);}
 
 	    calcHabitability(i,freeze,boil);
 	    }
@@ -249,7 +249,7 @@ void World::setTemperature(vector<double>temp){
 		    calcCooling(i);
 
 		    if(tidalHeatingOn) {calcTidalHeating(i);}
-		    if(CSCycleOn) {calcCO2pressure(i);}
+		    if(CSCycleOn) {calcCO2Rates(i);}
 		    calcNetHeating(i);
 		    calcHabitability(i,freeze,boil);
 		    }
@@ -476,7 +476,7 @@ void World::updateLEBM(vector<Body*> bodies, double &G, double &totmass, vector<
 		{
 		cout << "Warning: Host Body undefined, tidal heating inactive" << endl;
 		}
-	    if(CSCycleOn) {calcCO2pressure(i);}
+	    if(CSCycleOn) {calcCO2Rates(i);}
 
 	    calcNetHeating(i);
 
@@ -687,32 +687,26 @@ void World::calcOpticalDepth(int iLatitude)
     }
 
 
-void World::calcCO2pressure(int iLatitude)
+void World::calcCO2Rates(int iLatitude)
     {
     /*
-     * Written 10/7/15 by BenjaminGiblin
-     * Calculates CO2 pressure using regime defined
-     * on pg. 5 of Spiegel et al 2010
+     * Written 01/05/2017 by dh4gan
+     * Calculates the rate of change of CO2 partial pressure using regime defined
+     * in Haqq-Misra et al (2016)
+     *
      */
 
-	if (T[iLatitude] >= 290.)
-	{
-	CO2pressure[iLatitude] = 3.30e-4; //bars
-	}
-    else if (T[iLatitude] < 290. and T[iLatitude] > 250.)
-	{
-	CO2pressure[iLatitude] = pow(10., (-2.-(T[iLatitude]-250.)/27.) ); //bars
-	}
+    // Calculate Weathering Rate
 
-    else if (T[iLatitude] <= 250.)
-	{
-	CO2pressure[iLatitude] = 0.010; //bars
-	}
+    landWeathering[iLatitude] = pow(CO2pressure[iLatitude]/CO2Earth, betaCO2)*(exp(kactive*(T[iLatitude]-288.0)));
+    landWeathering[iLatitude] = landWeathering[iLatitude]*(1.0 + krun*(T[iLatitude]-288.0));
 
-    // Set up diffusion constant
-    diffusion[iLatitude] = 5.8e2*(CO2pressure[iLatitude]/3.3e-4)*pow(rotationPeriod, 2.);
-	//erg cm^-2 s^-1 K^-1
-	//W&K expression	
+    oceanWeathering[iLatitude] = W0*pow(CO2pressure[iLatitude]/CO2Earth, gammaCO2);
+
+
+    CO2dot[iLatitude] = outgassingRate - landWeathering[iLatitude] - oceanWeathering[iLatitude];
+
+
 	   
     }
 
@@ -1062,6 +1056,22 @@ void World::integrate()
 		    }
 
 		}
+
+
+	    // Update the CO2 pressure
+
+	    if(CSCycleOn)
+		{
+		CO2pressure[i] = CO2pressure[i] + CO2dot[i]*dtLEBM;
+		}
+
+
+	    // Set up diffusion constant
+	    diffusion[i] = 5.8e2*(CO2pressure[i]/CO2Earth)*pow(rotationPeriod, 2.);
+		//erg cm^-2 s^-1 K^-1
+		//W&K expression
+
+
 	    // cout <<" Integrate: "<<  i <<"   "<< T[i] <<"   "<< dtLEBM<<"   " << Q[i]<<"   " << Fj <<endl;
 
 	    }

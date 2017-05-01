@@ -56,7 +56,7 @@ public:
     void calcOpticalDepth(int iLatitude);
     void calcCooling(int iLatitude);
     void calcTidalHeating(int iLatitude);
-    void calcCO2pressure(int iLatitude);
+    void calcCO2Rates(int iLatitude);
     void calcNetHeating(int iLatitude);
     void calcHabitability(int iLatitude,double &minT, double &maxT);
     void calcLEBMTimestep(double &dtmax);
@@ -100,7 +100,7 @@ protected:
 
 
     bool CSCycleOn; //Giblin 10/7/15.
-
+    double outgassingRate, betaCO2, gammaCO2, W0;
 
     int nPoints,nPoints1;
 
@@ -110,7 +110,8 @@ protected:
     vector<double> lat, x,coslat,tanlat, deltax;
     vector<double> T, T_old, tau;
     vector<double> iceFraction, C, hab;
-    vector<double> infrared, Q, albedo,tidal, insol, CO2pressure, diffusion;
+    vector<double> infrared, Q, albedo,tidal, insol, diffusion;
+    vector<double> CO2pressure, CO2dot, landWeathering, oceanWeathering;
 
     FILE *logFile, *snapshotFile, *latFile;
     bool activateMelt;
