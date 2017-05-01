@@ -250,6 +250,7 @@ void World::initialiseLEBM()
 
    lat.resize(nPoints1,0.0);
    x.resize(nPoints1,0.0);
+   meanZenith.resize(nPoints1,0.0);
    coslat.resize(nPoints1,0.0);
    tanlat.resize(nPoints1,0.0);
    deltax.resize(nPoints1,0.0);
@@ -312,7 +313,7 @@ void World::initialiseLEBM()
 	    calcIce(i);
 	    calcHeatCapacity(i);
 	    calcOpticalDepth(i);
-	    calcAlbedo(i);
+	    //calcAlbedo(i);
 	    calcCooling(i);
 	    calcNetHeating(i);
 
@@ -351,7 +352,7 @@ void World::setTemperature(vector<double>temp){
 		    calcIce(i);
 		    calcHeatCapacity(i);
 		    calcOpticalDepth(i);
-		    calcAlbedo(i);
+		    //calcAlbedo(i);
 		    calcCooling(i);
 
 		    if(tidalHeatingOn) {calcTidalHeating(i);}
@@ -571,7 +572,7 @@ void World::updateLEBM(vector<Body*> bodies, double &G, double &totmass, vector<
 	    calcIce(i);
 	    calcHeatCapacity(i);
 	    calcOpticalDepth(i);
-	    calcAlbedo(i);
+	    //calcAlbedo(i);
 	    calcCooling(i);
 
 	    if(tidalHeatingOn && hostBody!=0)
@@ -702,10 +703,12 @@ void World::calcInsolation(Body* star, double &eclipsefrac)
 
 	    H = acos(cos_H);
 
+	    meanZenith[i] = x[i] * sind + coslat[i] * cosd * sin(H)/H;
+
 	    insol[i] = insol[i]
 		    + fluxsolcgs * lstar * (1.0 - eclipsefrac)
 			    / (pi * magpos * magpos)
-			    * (H * x[i] * sind + coslat[i] * cosd * sin(H));
+			    * (H*meanZenith[i]);
 
 		if(insol[i]<0.0) {insol[i]=0.0;}
 	    if(insol[i]>1.0e10 or insol[i]!=insol[i] or insol[i] < 0.0){
@@ -716,13 +719,15 @@ void World::calcInsolation(Body* star, double &eclipsefrac)
 		  << sind << "  " << tand << endl;
 
 
+	      calcAlbedo(star,i,meanZenith[i]);
+
 	    }
 	    }
 
 	}
     }
 
-void World::calcSurfaceAlbedo(Body* star, int iLatitude)
+void World::calcSurfaceAlbedo(Body* star, int iLatitude, double meanZenith)
     {
     /*
      * Written 01/05/2017 by dh4gan
@@ -733,17 +738,17 @@ void World::calcSurfaceAlbedo(Body* star, int iLatitude)
     double aIce,aOcean;
 
     // Calculate ice albedo
-    aIce = aIceVisible*star->getfVisible() + aIceIR*star->getfIR;
+    aIce = aIceVisible*star->getfVisible() + aIceIR*star->getfIR();
 
-    // Calculate ocean albedo (WK97) TODO
-    aOcean = 0.0;
+    // Calculate ocean albedo (WK97)
+    aOcean = -0.078 + 0.65*meanZenith;
 
     surfaceAlbedo[iLatitude] = (aLand*landFraction + aOcean*oceanFraction)*(1.0-iceFraction[iLatitude]) +
 	    aIce*iceFraction[iLatitude];
 
 
     }
-void World::calcAlbedo(Body* star, int iLatitude)
+void World::calcAlbedo(Body* star, int iLatitude, double meanZenith)
     {
     /*
      * Written 9/1/14 by dh4gan
@@ -753,7 +758,32 @@ void World::calcAlbedo(Body* star, int iLatitude)
 
     if (CSCycleOn)
 	{
-	calcSurfaceAlbedo(star, iLatitude);
+
+	// If CS Cycle on, use fitting function from Haqq-Misra et al (2016)
+	calcSurfaceAlbedo(star, iLatitude,meanZenith);
+
+	vector<double> coeff = star->getAlbedoCoefficients(T[iLatitude]);
+
+	double as = surfaceAlbedo[iLatitude];
+	double phi = log10(CO2pressure[iLatitude]);
+	double logT = log10(T[iLatitude]);
+	double mu = meanZenith;
+
+	albedo[iLatitude] =  coeff[0]*mu*mu*mu + coeff[1]*mu*mu*as +
+		coeff[2]*mu*mu*logT + coeff[3]*mu*mu*phi + coeff[4]*mu*mu +
+		coeff[5]*mu*as*as + coeff[6]*mu*as*logT + coeff[7]*mu*as*phi +
+		coeff[8]*mu*as + coeff[9]*mu*logT*logT + coeff[10]*mu*logT*phi +
+		coeff[11]*mu*logT + coeff[12]*mu*phi*phi + coeff[13]*mu*phi +
+		coeff[14]*mu + coeff[15]*as*as*as + coeff[16]*as*as*logT +
+		coeff[17]*as*as*phi + coeff[18]*as*as +coeff[19]*as*logT*logT +
+		coeff[20]*as*logT*phi + coeff[21]*as*logT + coeff[22]*as*phi*phi +
+		coeff[22]*as*phi + coeff[23]*as + coeff[24]*logT*logT*logT +
+		coeff[25]*logT*logT*phi + coeff[26]*logT*logT + coeff[27]*logT*phi*phi +
+		coeff[28]*logT*phi + coeff[29]*logT + coeff[30]*phi*phi*phi +
+		coeff[31]*phi*phi + coeff[32]*phi + coeff[33];
+
+
+
 	}
 
     else
@@ -1449,7 +1479,7 @@ int World::getRestartParameters()
 	    calcIce(i);
 	    calcHeatCapacity(i);
 	    calcOpticalDepth(i);
-	    calcAlbedo(i);
+	    //calcAlbedo(i);
 	    calcCooling(i);
 	    calcNetHeating(i);
 	    calcHabitability(i,freeze,boil);

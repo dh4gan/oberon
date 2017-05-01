@@ -13,6 +13,10 @@
 Star::Star() :
 	Body() {
     luminosity = 0.0;
+    albedoCoefficients.resize(30, 0.0);
+    coldAlbedoCoefficients.resize(30, 0.0);
+    hotAlbedoCoefficients.resize(30, 0.0);
+
     calcMainSequenceLuminosity();
 }
 Star::Star(string &namestring, double &m, double &rad, Vector3D  &pos, Vector3D  &vel, double &lum) :
@@ -48,3 +52,23 @@ Star::Star(string &namestring, double &m, double &rad, double semimaj, double ec
 Star::~Star() {
 }
 
+vector<double> Star::getAlbedoCoefficients(double temperature)
+
+	/*
+	 * Written 01/05/2017 by dh4gan
+	 * Returns the albedo coefficients appropriate to the star's spectral
+	 * type and the planet's surface temperature
+	 *
+	 */
+	    {
+
+	    if(temperature < 250.0)
+		{
+		return coldAlbedoCoefficients;
+		}
+	    else
+		{
+		return hotAlbedoCoefficients;
+		}
+
+	    }

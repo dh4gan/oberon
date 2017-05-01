@@ -26,8 +26,11 @@ public:
 
 	double getfVisible(){return fVisible;}
 	double getfIR(){return fIR;}
+	vector<double> getAlbedoCoefficients(double temperature);
 
 	void calcMainSequenceLuminosity(){luminosity = pow(mass,4);}
+
+	void loadAlbedoCoefficients(string &filename); // TODO - write loadAlbedoCoefficients method
 
 	// Standard cloning method
 	virtual Star* Clone() { return new Star(*this); }
@@ -37,6 +40,10 @@ protected:
 	double luminosity; // Luminosity of Star IN SOLAR UNITS
 	double fVisible; // Fraction of flux in visible
 	double fIR; // Fraction of flux in IR
+
+	vector<double> albedoCoefficients;
+	vector<double> coldAlbedoCoefficients;
+	vector<double> hotAlbedoCoefficients;
 
 };
 
