@@ -59,7 +59,8 @@ public:
 
     void calcObliquity(vector<Body*>bodies, double G, double totmass);
     void calcInsolation(Body* star, double &eclipsefrac);
-    void calcAlbedo(int iLatitude);
+    void calcSurfaceAlbedo(Body* star, int iLatitude);
+    void calcAlbedo(Body* star, int iLatitude);
     void calcHeatCapacity(int iLatitude);
     void calcIce(int iLatitude);
     void calcOpticalDepth(int iLatitude);
@@ -121,6 +122,7 @@ protected:
     vector<double> iceFraction, C, hab;
     vector<double> infrared, Q, albedo,tidal, insol, diffusion;
     vector<double> CO2pressure, CO2dot, landWeathering, oceanWeathering;
+    vector<double> surfaceAlbedo;
 
     FILE *logFile, *snapshotFile, *latFile;
     bool activateMelt;

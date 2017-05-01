@@ -145,6 +145,8 @@ public:
 	virtual void setLuminosity(double lum){};
 	virtual double getLuminosity() {return -1.0;}
 	virtual void calcMainSequenceLuminosity(){}
+	virtual double getfVisible(){return -1.0;}
+	virtual double getfIR(){return -1.0;}
 
 	// Methods for Planet Class
 	virtual void setEquilibriumTemperature(double temp){};

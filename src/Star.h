@@ -24,6 +24,9 @@ public:
 	void setLuminosity(double lum){luminosity = lum;}
 	double getLuminosity() {return luminosity;}
 
+	double getfVisible(){return fVisible;}
+	double getfIR(){return fIR;}
+
 	void calcMainSequenceLuminosity(){luminosity = pow(mass,4);}
 
 	// Standard cloning method
@@ -32,6 +35,8 @@ public:
 protected:
 
 	double luminosity; // Luminosity of Star IN SOLAR UNITS
+	double fVisible; // Fraction of flux in visible
+	double fIR; // Fraction of flux in IR
 
 };
 

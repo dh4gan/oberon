@@ -258,6 +258,7 @@ void World::initialiseLEBM()
    infrared.resize(nPoints1,0.0);
    Q.resize(nPoints1,0.0);
    albedo.resize(nPoints1,0.0);
+   surfaceAlbedo.resize(nPoints1,0.0);
    insol.resize(nPoints1,0.0);
    tidal.resize(nPoints1,0.0);
    CO2pressure.resize(nPoints1,CO2Earth);
@@ -659,7 +660,6 @@ void World::calcInsolation(Body* star, double &eclipsefrac)
 
     double declination = safeAcos(rdotn);
 
-
     declination = piby2-declination;
      //cout << "ROTATIONS: " << endl;
     //orbitalAngularMomentum.printVector();
@@ -722,8 +722,28 @@ void World::calcInsolation(Body* star, double &eclipsefrac)
 	}
     }
 
+void World::calcSurfaceAlbedo(Body* star, int iLatitude)
+    {
+    /*
+     * Written 01/05/2017 by dh4gan
+     * Calculates the surface albedo
+     *
+     */
 
-void World::calcAlbedo(int iLatitude)
+    double aIce,aOcean;
+
+    // Calculate ice albedo
+    aIce = aIceVisible*star->getfVisible() + aIceIR*star->getfIR;
+
+    // Calculate ocean albedo (WK97) TODO
+    aOcean = 0.0;
+
+    surfaceAlbedo[iLatitude] = (aLand*landFraction + aOcean*oceanFraction)*(1.0-iceFraction[iLatitude]) +
+	    aIce*iceFraction[iLatitude];
+
+
+    }
+void World::calcAlbedo(Body* star, int iLatitude)
     {
     /*
      * Written 9/1/14 by dh4gan
@@ -731,8 +751,15 @@ void World::calcAlbedo(int iLatitude)
      *
      */
 
-    albedo[iLatitude] = 0.525 - 0.245 * tanh((T[iLatitude] - freeze + 5.0) / 5.0);
+    if (CSCycleOn)
+	{
+	calcSurfaceAlbedo(star, iLatitude);
+	}
 
+    else
+	{
+	albedo[iLatitude] = 0.525 - 0.245 * tanh((T[iLatitude] - freeze + 5.0) / 5.0);
+	}
     }
 
 void World::calcHeatCapacity(int iLatitude)

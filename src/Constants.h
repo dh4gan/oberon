@@ -36,4 +36,8 @@ const double kactive = 0.09;
 const double krun = 0.045;
 const double outgassingRateEarth = 7.0e-8/year; // outgassing rate in bars per second
 
+const double aLand = 0.2;
+const double aIceVisible = 0.8;
+const double aIceIR = 0.5;
+
 #endif /* CONSTANTS_H_ */
