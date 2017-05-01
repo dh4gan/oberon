@@ -149,12 +149,13 @@ int main(int argc, char* argv[])
 			new World(input.BodyNames[i],
 				input.Mass[i], input.Radius[i], body_i_position,
 				body_i_velocity, input.nPoints, input.obliquity[i],input.rotationPeriod[i], input.precession[i],
-				input.oceanFraction[i], input.initialTemperature[i], input.activateMelt[i], input.restart, input.tidalHeatingOn, input.obliquityOn, input.CSCycleOn)); //Fed to parFile.cpp
+				input.oceanFraction[i], input.initialTemperature[i], input.activateMelt[i], input.restart,
+				input.tidalHeatingOn, input.obliquityOn, input.CSCycleOn,input.outgassingRate[i], input.betaCO2[i], input.seafloorWeathering[i], input.gammaCO2[i])); //Fed to parFile.cpp
 
 		if(input.restart)
 		    {
 		    cout << "Reading Temperature data for World " << BodyArray.back()->getName() << endl;
-		    snapshotNumber = BodyArray.back()->getRestartParameters(); // TODO - use new method for restarts
+		    snapshotNumber = BodyArray.back()->getRestartParameters();
 
 		    if(snapshotNumber==-1)
 			{
@@ -216,7 +217,9 @@ int main(int argc, char* argv[])
 				input.inclination[i], input.longAscend[i],
 				input.Periapsis[i], input.meanAnomaly[i], G,
 				input.totalMass,input.nPoints, input.obliquity[i],input.rotationPeriod[i], input.precession[i],
-				input.oceanFraction[i], input.initialTemperature[i], input.activateMelt[i], input.restart, input.tidalHeatingOn, input.obliquityOn, input.CSCycleOn));
+				input.oceanFraction[i], input.initialTemperature[i], input.activateMelt[i], input.restart,
+				input.tidalHeatingOn, input.obliquityOn, input.CSCycleOn,
+				input.outgassingRate[i], input.betaCO2[i], input.seafloorWeathering[i], input.gammaCO2[i]));
 
 
 

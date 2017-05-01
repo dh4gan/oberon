@@ -74,6 +74,10 @@ public:
 	vector<double> precession;
 	vector<double> oceanFraction;
 	vector<double> initialTemperature;
+	vector<double> outgassingRate;
+	vector<double> betaCO2;
+	vector<double> gammaCO2;
+	vector<double> seafloorWeathering;
 	vector<bool> activateMelt;
 
 	vector<int> orbitCentre;

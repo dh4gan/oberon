@@ -85,13 +85,69 @@ World::World(string namestring, double m, double rad,Vector3D pos, Vector3D vel,
     obliquityEvolutionOn = obevol;
 
     CSCycleOn = CScycle;
+
+    outgassingRate = outgassingRateEarth;
+    betaCO2 = 0.5;
+    W0 = 0.0;
+    gammaCO2 = 1.0;
+
+    rho_moon = 5.0e-9; // density in kg m^-3
+    rigid = 4e9;
+    Qtidal = 100.0;
+
     initialiseLEBM();
 
     }
+
+World::World(string namestring, double m, double rad,Vector3D pos, Vector3D vel, int n, double obliq, double rot, double prec,
+	double ocean, double T0,bool melt, bool start, bool tide, bool obevol, bool CScycle,double outgas, double beta, double seaweather, double gamma) :
+
+	Body(namestring, m, rad, pos, vel)
+    {
+    type = "World";
+    nPoints = n;
+    obliquity = obliq;
+    ellipticity = 0.00328005;
+    precession = prec;
+    rotationPeriod = rot;
+    oceanFraction = ocean;
+    landFraction = 1.0-oceanFraction;
+    initialTemperature = T0;
+    nFloat = float(nPoints);
+
+    luminosity = 0.0;
+
+    rho_moon = 5.0e-9; // density in kg m^-3
+    rigid = 4e9; // rigidity in N m^-2 (Pa)
+    Qtidal = 100.0;
+
+
+    nPoints1 = nPoints+1;
+    activateMelt = melt;
+    restart = start;
+
+    tidalHeatingOn = tide;
+    obliquityEvolutionOn = obevol;
+
+    CSCycleOn = CScycle;
+
+    outgassingRate = outgas;
+    betaCO2 = beta;
+    W0 = seaweather;
+    gammaCO2 = gamma;
+
+    rho_moon = 5.0e-9; // density in kg m^-3
+    rigid = 4e9;
+    Qtidal = 100.0;
+
+    initialiseLEBM();
+
+    }
+
+
 World::World(string namestring, double m, double rad,
 	double semimaj, double ecc, double inc, double longascend,
 	double argper, double meananom, double G, double totalMass, int n,
-
 	double obliq, double rot, double prec, double ocean, double T0, bool melt, bool start, bool tide, bool obevol, bool CScycle) :
 	Body(namestring, m, rad, semimaj, ecc, inc, longascend,
 		argper, meananom, G, totalMass)
@@ -116,6 +172,11 @@ World::World(string namestring, double m, double rad,
     luminosity = 0.0;
     CSCycleOn = CScycle;
 
+    outgassingRate = outgassingRateEarth;
+    betaCO2 = 0.5;
+    W0 = 0.0;
+    gammaCO2 = 1.0;
+
     rho_moon = 5.0e-9; // density in kg m^-3
     rigid = 4e9;
     Qtidal = 100.0;
@@ -123,6 +184,50 @@ World::World(string namestring, double m, double rad,
     initialiseLEBM();
 
     }
+
+World::World(string namestring, double m, double rad,
+	double semimaj, double ecc, double inc, double longascend,
+	double argper, double meananom, double G, double totalMass, int n,
+	double obliq, double rot, double prec, double ocean, double T0, bool melt, bool start, bool tide, bool obevol,
+	bool CScycle, double outgas, double beta, double seaweather, double gamma):
+	Body(namestring, m, rad, semimaj, ecc, inc, longascend,
+			argper, meananom, G, totalMass)
+    {
+
+    type = "World";
+    nPoints = n;
+    obliquity = obliq;
+    ellipticity = 0.00328005;
+    precession = prec;
+    rotationPeriod = rot;
+    oceanFraction = ocean;
+    landFraction = 1.0-oceanFraction;
+    initialTemperature = T0;
+    nFloat = float(nPoints);
+    nPoints1 = nPoints+1;
+    activateMelt = melt;
+    restart = start;
+
+    tidalHeatingOn = tide;
+    obliquityEvolutionOn = obevol;
+
+    luminosity = 0.0;
+    CSCycleOn = CScycle;
+
+    outgassingRate = outgas;
+    betaCO2 = beta;
+    W0 = seaweather;
+    gammaCO2 = gamma;
+
+    rho_moon = 5.0e-9; // density in kg m^-3
+    rigid = 4e9;
+    Qtidal = 100.0;
+
+    initialiseLEBM();
+
+    }
+
+
 World::~World()
     {
     }

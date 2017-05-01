@@ -34,5 +34,6 @@ const double c_mau = c_cgs*year/(twopi*AU);
 const double CO2Earth = 3.3e-4;
 const double kactive = 0.09;
 const double krun = 0.045;
+const double outgassingRateEarth = 7.0e-8/year; // outgassing rate in bars per second
 
 #endif /* CONSTANTS_H_ */

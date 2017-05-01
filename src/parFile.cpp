@@ -259,6 +259,7 @@ void parFile::readPosFile()
 	    precession.assign(number_bodies, 0.0);
 	    oceanFraction.assign(number_bodies, 0.0);
 	    initialTemperature.assign(number_bodies, 0.0);
+	    outgassingRate.assign(number_bodies,0.0);
 	    orbitCentre = vector<int>(number_bodies,0);
 	    activateMelt.assign(number_bodies,false);
 	    bodyIndex = -1;
@@ -320,6 +321,7 @@ void parFile::readPosFile()
 
 	    }
 
+
 	else if (par == "RotationPeriod")
 	    {
 	    iss >> val_i;
@@ -353,6 +355,26 @@ void parFile::readPosFile()
 	    {
 	    iss >> val_i;
 	    initialTemperature[bodyIndex] = val_i;
+	    }
+	else if (par == "outgassingRate")
+	    {
+	    iss >> val_i;
+	    outgassingRate[bodyIndex] = val_i;
+	    }
+	else if (par == "landWeatheringParameter")
+	    {
+	    iss >> val_i;
+	    betaCO2[bodyIndex] = val_i;
+	    }
+	else if(par == "oceanWeatheringRate")
+	    {
+	    iss >> val_i;
+	    seafloorWeathering[bodyIndex] = val_i;
+	    }
+	else if(par =="oceanWeatheringParameter")
+	    {
+	    iss >> val_i;
+	    gammaCO2[bodyIndex] = val_i;
 	    }
 	else if(par == "IceMeltingOn")
 	    {
@@ -644,6 +666,26 @@ void parFile::readOrbFile()
 	    {
 	    iss >> val_i;
 	    initialTemperature[bodyIndex] = val_i;
+	    }
+	else if (par == "outgassingRate")
+	    {
+	    iss >> val_i;
+	    outgassingRate[bodyIndex] = val_i;
+	    }
+	else if (par == "landWeatheringParameter")
+	    {
+	    iss >> val_i;
+	    betaCO2[bodyIndex] = val_i;
+	    }
+	else if(par == "oceanWeatheringRate")
+	    {
+	    iss >> val_i;
+	    seafloorWeathering[bodyIndex] = val_i;
+	    }
+	else if(par =="oceanWeatheringParameter")
+	    {
+	    iss >> val_i;
+	    gammaCO2[bodyIndex] = val_i;
 	    }
 	else if(par == "IceMeltingOn")
 	    {
