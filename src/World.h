@@ -108,8 +108,7 @@ protected:
     double rigid;
     double Qtidal;
 
-
-    bool CSCycleOn; //Giblin 10/7/15.
+    bool CSCycleOn;
     double outgassingRate, betaCO2, gammaCO2, W0;
 
     int nPoints,nPoints1;

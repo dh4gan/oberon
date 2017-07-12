@@ -298,6 +298,28 @@ void World::initialiseLEBM()
 
    calcLuminosity();
 
+   // Infrared cooling coefficients (CScycle)
+
+   if(CSCycleOn)
+       {
+	ircoeff.resize(15);
+	ircoeff[0] = 9.12805643734088612007e+00;
+	ircoeff[1] = 4.58408794776474781685e+00;
+	ircoeff[2] = -8.47261075511868995136e+01;
+	ircoeff[3] = +4.35517381110739065786e-01;
+	ircoeff[4] = -2.86355036266497364750e+01;
+	ircoeff[5] = +2.96626642450453971378e+02;
+	ircoeff[6] = -6.01082900358798077889e-02;
+	ircoeff[7] = -2.60414691486032312540e+00;
+	ircoeff[8] = +5.69812976578495309354e+01;
+	ircoeff[9] = -4.62596100050751886101e+02;
+	ircoeff[10] = +2.18159373001554097310e-03;
+	ircoeff[11] = +1.61456772400849241089e-01;
+	ircoeff[12] = +3.75623788186383888998e+00;
+	ircoeff[13] = -3.53347289235212116409e+01;
+	ircoeff[14] = +2.75011005363597746509e+02;
+       }
+
    // Set up files
 
    initialiseOutputVariables(restart);
@@ -719,6 +741,9 @@ void World::calcInsolation(Body* star, double &eclipsefrac)
 		  << sind << "  " << tand << endl;
 
 
+	      // TODO - this will get overwritten for multiple star runs!
+	      // Need to be storing some kind of average value?
+	      // Should also compute S(1-A) here rather than S
 	      calcAlbedo(star,i,meanZenith[i]);
 
 	    }
@@ -735,7 +760,6 @@ void World::calcSurfaceAlbedo(Body* star, int iLatitude, double meanZenith)
      *
      */
 
-    // TODO - handle surface albedo of sea ice
     double aIce,aOcean;
 
     // Calculate ice albedo
