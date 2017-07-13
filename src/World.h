@@ -42,7 +42,8 @@ public:
 
     /* Accessors */
 
-    void setInsolationZero() {insol.assign(nPoints1,0.0);}
+    void setInsolationZero();
+    void resetMeanAlbedo();
     void setTemperature(vector<double> temp);
 
     //void setHostBody(Body* bod){hostBody = bod;}
@@ -119,11 +120,15 @@ protected:
     vector<double> lat, x,coslat,tanlat, deltax;
     vector<double> T, T_old, tau;
     vector<double> iceFraction, C, hab;
-    vector<double> infrared, Q, albedo,tidal, insol, diffusion;
+    vector<double> infrared, Q, albedo, tidal, insol, diffusion;
     vector<double> CO2pressure, CO2dot, landWeathering, oceanWeathering;
     vector<double> surfaceAlbedo, meanZenith;
 
-    vector<double> ircoeff; // TODO - obtain IR cooling coefficients
+
+    vector<double> meanAlbedo; // Stores albedo averaged over all stars in system
+    int albedoCount; // Records how many stars contributing to meanAlbedo
+
+    vector<double> ircoeff;
 
     FILE *logFile, *snapshotFile, *latFile;
     bool activateMelt;

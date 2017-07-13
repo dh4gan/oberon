@@ -233,6 +233,24 @@ World::~World()
     }
 
 
+void World:: setInsolationZero()
+    {
+    insol.assign(nPoints1,0.0);
+    }
+
+
+void World:: resetMeanAlbedo()
+    {
+    /*
+     * Written 13/7/2017 by dh4gan
+     * Resets the arrays storing albedo averaged over all stars
+     *
+     */
+	meanAlbedo.assign(nPoints1,0.0);
+	albedoCount = 0;
+    }
+
+
 void World::initialiseLEBM()
     {
     /*
@@ -251,6 +269,7 @@ void World::initialiseLEBM()
    lat.resize(nPoints1,0.0);
    x.resize(nPoints1,0.0);
    meanZenith.resize(nPoints1,0.0);
+   meanAlbedo.resize(nPoints1,0.0);
    coslat.resize(nPoints1,0.0);
    tanlat.resize(nPoints1,0.0);
    deltax.resize(nPoints1,0.0);
@@ -296,6 +315,7 @@ void World::initialiseLEBM()
    meltTime.resize(nPoints1,0.0);
    melting.resize(nPoints1,false);
 
+   resetMeanAlbedo();
    calcLuminosity();
 
    // Infrared cooling coefficients (CScycle)
@@ -557,6 +577,7 @@ void World::updateLEBM(vector<Body*> bodies, double &G, double &totmass, vector<
      * This assumes the timestep has already been calculated
      */
     setInsolationZero();
+    resetMeanAlbedo();
     int bodyCount = bodies.size();
     int i,b;
 
@@ -808,13 +829,20 @@ void World::calcAlbedo(Body* star, int iLatitude, double meanZenith)
 		coeff[31]*phi*phi + coeff[32]*phi + coeff[33];
 
 
-
+	meanAlbedo[iLatitude] = meanAlbedo[iLatitude] + albedo[iLatitude];
+	albedoCount = albedoCount + 1;
 	}
 
     else
 	{
 	albedo[iLatitude] = 0.525 - 0.245 * tanh((T[iLatitude] - freeze + 5.0) / 5.0);
+	meanAlbedo[iLatitude] = albedo[iLatitude];
+	albedoCount = 1;
 	}
+
+
+
+
     }
 
 void World::calcHeatCapacity(int iLatitude)
@@ -1313,7 +1341,7 @@ void World::calcLEBMMeans(double &minT, double &maxT, double &meanT, double &mea
 	{
 	meanT = meanT + T[i]*0.5*deltax[i];
 	meanQ = meanQ + Q[i]*0.5*deltax[i];
-	meanA = meanA + albedo[i]*0.5*deltax[i];
+	meanA = meanA + meanAlbedo[i]*0.5*deltax[i];
 	meanIR = meanIR + infrared[i]*0.5*deltax[i];
 	meanS = meanS + insol[i]*0.5*deltax[i];
 	meanhab = meanhab + hab[i]*0.5*deltax[i];
@@ -1339,6 +1367,13 @@ void World::outputLEBMData(int &snapshotNumber, double &tSnap, bool fullOutput)
 
     double minT, maxT, meanT, meanQ, meanA, meanIR, meanS, meanhab, meanTidal,meanCO2p, meanDiffusion;
     string formatString;
+
+    // Get meanAlbedo by dividing by number of objects contributing
+
+    for (int i=0; i<nPoints1; i++)
+	{
+	meanAlbedo[i] = meanAlbedo[i]/float(albedoCount);
+	}
 
     // Firstly, write line to log file
     calcLEBMMeans(minT, maxT, meanT, meanQ, meanA, meanIR,meanS, meanhab, meanTidal, meanCO2p, meanDiffusion);
@@ -1392,7 +1427,7 @@ void World::outputLEBMData(int &snapshotNumber, double &tSnap, bool fullOutput)
 	{
 	fprintf(snapshotFile, "%+.6E %+.6E %+.6E %+.6E %+.6E %+.6E %+.6E %+.6E %+.6E %+.6E %+.6E %+.6E %+.6E %+.6E \n",
 		x[i], lat[i], T[i], C[i], Q[i], infrared[i],
-		albedo[i], insol[i], tau[i],iceFraction[i], hab[i], tidal[i], CO2pressure[i], diffusion[i]);
+		meanAlbedo[i], insol[i], tau[i],iceFraction[i], hab[i], tidal[i], CO2pressure[i], diffusion[i]);
 	}
     fclose(snapshotFile);
     }
