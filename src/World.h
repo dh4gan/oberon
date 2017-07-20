@@ -120,7 +120,7 @@ protected:
     vector<double> lat, x,coslat,tanlat, deltax;
     vector<double> T, T_old, tau;
     vector<double> iceFraction, C, hab;
-    vector<double> infrared, Q, albedo, tidal, insol, diffusion;
+    vector<double> infrared, Q, albedo, tidal, insol, absorbedInsol, diffusion;
     vector<double> CO2pressure, CO2dot, landWeathering, oceanWeathering;
     vector<double> surfaceAlbedo, meanZenith;
 
@@ -128,6 +128,7 @@ protected:
     vector<double> meanAlbedo; // Stores albedo averaged over all stars in system
     int albedoCount; // Records how many stars contributing to meanAlbedo
 
+    double TsatSolid;
     vector<double> ircoeff;
 
     FILE *logFile, *snapshotFile, *latFile;

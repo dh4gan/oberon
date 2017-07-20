@@ -39,5 +39,6 @@ const double outgassingRateEarth = 7.0e-8/year; // outgassing rate in bars per s
 const double aLand = 0.2;
 const double aIceVisible = 0.8;
 const double aIceIR = 0.5;
+const double aCO2Ice = 0.35;
 
 #endif /* CONSTANTS_H_ */

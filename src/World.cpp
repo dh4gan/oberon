@@ -236,6 +236,7 @@ World::~World()
 void World:: setInsolationZero()
     {
     insol.assign(nPoints1,0.0);
+    absorbedInsol.assign(nPoints1,0.0);
     }
 
 
@@ -280,6 +281,7 @@ void World::initialiseLEBM()
    albedo.resize(nPoints1,0.0);
    surfaceAlbedo.resize(nPoints1,0.0);
    insol.resize(nPoints1,0.0);
+   absorbedInsol.resize(nPoints1,0.0);
    tidal.resize(nPoints1,0.0);
    CO2pressure.resize(nPoints1,CO2Earth);
    diffusion.resize(nPoints1,diffusion0); //Giblin 10/7/15
@@ -338,6 +340,9 @@ void World::initialiseLEBM()
 	ircoeff[12] = +3.75623788186383888998e+00;
 	ircoeff[13] = -3.53347289235212116409e+01;
 	ircoeff[14] = +2.75011005363597746509e+02;
+
+	TsatSolid = 216.56; // For CO2 vapor pressure calculation (<value = over solid; > value = over liquid)
+
        }
 
    // Set up files
@@ -762,10 +767,13 @@ void World::calcInsolation(Body* star, double &eclipsefrac)
 		  << sind << "  " << tand << endl;
 
 
-	      // TODO - this will get overwritten for multiple star runs!
-	      // Need to be storing some kind of average value?
-	      // Should also compute S(1-A) here rather than S
+	      // Note: albedo variable will get overwritten for multiple star runs!
+	      // Mean albedo over all sources is stored
+
 	      calcAlbedo(star,i,meanZenith[i]);
+
+	      // Also compute absorbed insolation S(1-A) here (makes net heating calculations easier)
+	      absorbedInsol[i] = absorbedInsol[i]+ insol[i]*(1.0-albedo[i]);
 
 	    }
 	    }
@@ -783,15 +791,47 @@ void World::calcSurfaceAlbedo(Body* star, int iLatitude, double meanZenith)
 
     double aIce,aOcean;
 
-    // Calculate ice albedo
-    aIce = aIceVisible*star->getfVisible() + aIceIR*star->getfIR();
+    // Calculate the CO2 saturation vapour pressure
 
-    // Calculate ocean albedo (WK97)
-    aOcean = -0.078 + 0.65*meanZenith;
+    double psat = 0.0;
+    if(T[iLatitude]< TsatSolid)
+	{
 
-    surfaceAlbedo[iLatitude] = (aLand*landFraction + aOcean*oceanFraction)*(1.0-iceFraction[iLatitude]) +
+	psat = 6.760956 - 1284.07/(T[iLatitude] - 4.718) + 1.256E-4*(T[iLatitude] - 143.15);
+	psat = pow(10.0, psat);
+	psat = 1.013*psat;
+
+	}
+
+    else
+	{
+	psat = 3.128082 - 867.2124/T[iLatitude] + 1.865612E-2*T[iLatitude] - 7.248820E-5*T[iLatitude]*T[iLatitude] + 9.3E-8*T[iLatitude]*T[iLatitude]*T[iLatitude];
+	psat = pow(10.0, psat);
+	psat = 1.013*psat;
+
+	}
+
+    // If the local CO2 pressure exceeds this saturation pressure, then CO2 freezes out
+
+    if(CO2pressure[iLatitude]>psat)
+	{
+
+	// Albedo = CO2 ice albedo
+	surfaceAlbedo[iLatitude] = aCO2Ice;
+
+	}
+
+    else
+	{
+	// Calculate ice albedo
+	aIce = aIceVisible*star->getfVisible() + aIceIR*star->getfIR();
+
+	// Calculate ocean albedo (WK97)
+	aOcean = -0.078 + 0.65*meanZenith;
+
+	surfaceAlbedo[iLatitude] = (aLand*landFraction + aOcean*oceanFraction)*(1.0-iceFraction[iLatitude]) +
 	    aIce*iceFraction[iLatitude];
-
+	}
 
     }
 void World::calcAlbedo(Body* star, int iLatitude, double meanZenith)
@@ -1013,7 +1053,7 @@ void World::calcNetHeating(int iLatitude)
      *
      */
 
-	Q[iLatitude] = insol[iLatitude]*(1.0-albedo[iLatitude]) + tidal[iLatitude]- infrared[iLatitude];
+	Q[iLatitude] = absorbedInsol[iLatitude] + tidal[iLatitude]- infrared[iLatitude];
     }
 
 
