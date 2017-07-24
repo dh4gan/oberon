@@ -796,20 +796,16 @@ void World::calcSurfaceAlbedo(Body* star, int iLatitude, double meanZenith)
     double psat = 0.0;
     if(T[iLatitude]< TsatSolid)
 	{
-
 	psat = 6.760956 - 1284.07/(T[iLatitude] - 4.718) + 1.256E-4*(T[iLatitude] - 143.15);
-	psat = pow(10.0, psat);
-	psat = 1.013*psat;
-
 	}
 
     else
 	{
 	psat = 3.128082 - 867.2124/T[iLatitude] + 1.865612E-2*T[iLatitude] - 7.248820E-5*T[iLatitude]*T[iLatitude] + 9.3E-8*T[iLatitude]*T[iLatitude]*T[iLatitude];
-	psat = pow(10.0, psat);
-	psat = 1.013*psat;
-
 	}
+    psat = pow(10.0, psat);
+    psat = 1.013*psat;
+
 
     // If the local CO2 pressure exceeds this saturation pressure, then CO2 freezes out
 

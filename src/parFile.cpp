@@ -251,6 +251,7 @@ void parFile::readPosFile()
 	    z_velocity.assign(number_bodies,0.0);
 
 	    luminosity.assign(number_bodies, 0.0);
+	    spectralType.assign(number_bodies, "G"); // G is the default spectral type
 	    albedo.assign(number_bodies,0.0);
 
 
@@ -314,7 +315,15 @@ void parFile::readPosFile()
 
 	    }
 
-	else if (par == "Albedo")
+	else if (par == "SpectralType")
+	    {
+
+	    iss >> val_i;
+	    spectralType[bodyIndex] = val_i;
+
+	    }
+
+	else if (par == "Albedo") // For Planet objects only
 	    {
 	    iss >> val_i;
 	    albedo[bodyIndex]=val_i;
@@ -538,6 +547,7 @@ void parFile::readOrbFile()
 	    meanAnomaly.assign(number_bodies, 0.0);
 
 	    luminosity.assign(number_bodies, 0.0);
+	    spectralType.assign(number_bodies, "G"); // G is the default spectral type
 	    albedo.assign(number_bodies,0.0);
 
 	    rotationPeriod.assign(number_bodies, 0.0);
@@ -627,6 +637,14 @@ void parFile::readOrbFile()
 	    {
 	    iss >> val_i;
 	    luminosity[bodyIndex] = val_i;
+	    }
+
+	else if (par == "SpectralType")
+	    {
+
+	    iss >> val_i;
+	    spectralType[bodyIndex] = val_i;
+
 	    }
 
 	else if (par == "Albedo")

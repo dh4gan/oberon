@@ -19,6 +19,8 @@
 #include <sstream>
 //using namespace std;
 
+// TODO - rewrite parFile class using STL map objects
+
 class parFile {
 public:
 	parFile( );
@@ -66,6 +68,7 @@ public:
 	vector<double> Periapsis;
 	vector<double> meanAnomaly;
 
+	vector<string> spectralType;
 	vector<double> luminosity;
 	vector<double> albedo;
 

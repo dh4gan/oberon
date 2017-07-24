@@ -121,7 +121,7 @@ int main(int argc, char* argv[])
 		BodyArray.push_back(
 			new Star(input.BodyNames[i],
 				input.Mass[i], input.Radius[i], body_i_position,
-				body_i_velocity, input.luminosity[i]));
+				body_i_velocity, input.luminosity[i], input.spectralType[i]));
 		}
 
 	    // If the Body is a Planet, add a Planet Object
@@ -182,7 +182,7 @@ int main(int argc, char* argv[])
 				input.semiMajorAxis[i], input.eccentricity[i],
 				input.inclination[i], input.longAscend[i],
 				input.Periapsis[i], input.meanAnomaly[i], G,
-				input.totalMass, input.luminosity[i]));
+				input.totalMass, input.luminosity[i], input.spectralType[i]));
 
 		}
 
