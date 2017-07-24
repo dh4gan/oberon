@@ -170,7 +170,7 @@ int main(int argc, char* argv[])
 	    }
 	else if (fileType == 1 and input.restart==false)
 	    {
-	   	printf("setting up body with orbital parameters \n");
+	    printf("setting up body %s with orbital parameters \n", input.BodyNames[i].c_str());
 
 	    // If the Body is a Star, add a Star Object
 	    if (input.BodyTypes[i] == "Star")
@@ -202,6 +202,8 @@ int main(int argc, char* argv[])
 	    // If the Body is a World, add a World Object and set up LEBM
 	    if (input.BodyTypes[i] == "World")
 		{
+
+
 
 		if (input.initialTemperature[i] == 0.0)
 		    {

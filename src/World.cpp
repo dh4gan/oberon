@@ -751,12 +751,21 @@ void World::calcInsolation(Body* star, double &eclipsefrac)
 
 	    H = acos(cos_H);
 
-	    meanZenith[i] = x[i] * sind + coslat[i] * cosd * sin(H)/H;
+	    meanZenith[i] = H*x[i] * sind + coslat[i] * cosd * sin(H);
 
 	    insol[i] = insol[i]
 		    + fluxsolcgs * lstar * (1.0 - eclipsefrac)
 			    / (pi * magpos * magpos)
-			    * (H*meanZenith[i]);
+			    * (meanZenith[i]);
+
+	    if(H>0.0)
+		{
+	    meanZenith[i] = meanZenith[i]/H;
+		}
+	    else
+		{
+		meanZenith[i] = 0.0;
+		}
 
 		if(insol[i]<0.0) {insol[i]=0.0;}
 	    if(insol[i]>1.0e10 or insol[i]!=insol[i] or insol[i] < 0.0){
@@ -764,18 +773,19 @@ void World::calcInsolation(Body* star, double &eclipsefrac)
 	      cout << "ERROR: Negative insolation calculated " << endl;
 	      cout << i << "  " << star->getName () << "  " << insol[i] << "  "
 		  << precession << "  " << obliquity << "   " << "   " << cosd << "  "
-		  << sind << "  " << tand << endl;
+		  << sind << "  " << tand << "  " << cos_H << "   " << meanZenith[i] << endl;
+	    }
 
 
-	      // Note: albedo variable will get overwritten for multiple star runs!
-	      // Mean albedo over all sources is stored
+	      // Note: albedo variable (and meanZenith) will get overwritten for multiple star runs!
+	      // Need to calculate and use it here
 
 	      calcAlbedo(star,i,meanZenith[i]);
 
 	      // Also compute absorbed insolation S(1-A) here (makes net heating calculations easier)
 	      absorbedInsol[i] = absorbedInsol[i]+ insol[i]*(1.0-albedo[i]);
 
-	    }
+
 	    }
 
 	}

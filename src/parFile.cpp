@@ -7,6 +7,7 @@
  */
 
 #include "parFile.h"
+#include "Constants.h"
 #include <iostream> // Included for debug lines only
 #include <math.h>
 #include <string>
@@ -260,7 +261,10 @@ void parFile::readPosFile()
 	    precession.assign(number_bodies, 0.0);
 	    oceanFraction.assign(number_bodies, 0.0);
 	    initialTemperature.assign(number_bodies, 0.0);
-	    outgassingRate.assign(number_bodies,0.0);
+	    outgassingRate.assign(number_bodies,outgassingRateEarth); // outgassing rate set to Earth by default
+	    seafloorWeathering.assign(number_bodies,0.0); // seafloor weathering off by default
+	    betaCO2.assign(number_bodies, 0.5); // Set this to 0.5 as default
+	    gammaCO2.assign(number_bodies,1.0); // Set this to unity as default
 	    orbitCentre = vector<int>(number_bodies,0);
 	    activateMelt.assign(number_bodies,false);
 	    bodyIndex = -1;
@@ -379,6 +383,12 @@ void parFile::readPosFile()
 	    {
 	    iss >> val_i;
 	    seafloorWeathering[bodyIndex] = val_i;
+	    }
+
+	else if(par =="abioticWeatheringParameter")
+	    {
+	    iss >> val_i;
+	    betaCO2[bodyIndex] = val_i;
 	    }
 	else if(par =="oceanWeatheringParameter")
 	    {
@@ -555,6 +565,12 @@ void parFile::readOrbFile()
 	    precession.assign(number_bodies, 0.0);
 	    oceanFraction.assign(number_bodies, 0.0);
 	    initialTemperature.assign(number_bodies, 0.0);
+	    outgassingRate.assign(number_bodies,outgassingRateEarth);
+	    seafloorWeathering.assign(number_bodies,0.0); // seafloor weathering off by default
+	    betaCO2.assign(number_bodies, 0.5); // Set this to 0.5 as default
+	    gammaCO2.assign(number_bodies,1.0); // Set this to unity as default
+
+
 	    orbitCentre = vector<int>(number_bodies,0);
 	    activateMelt.assign(number_bodies,false);
 	    bodyIndex = -1;
