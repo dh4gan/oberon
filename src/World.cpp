@@ -133,7 +133,7 @@ World::World(string namestring, double m, double rad,Vector3D pos, Vector3D vel,
 
     outgassingRate = outgas;
     betaCO2 = beta;
-    W0 = seaweather;
+    W0 = seaweather/year;
     gammaCO2 = gamma;
 
     rho_moon = 5.0e-9; // density in kg m^-3
@@ -216,7 +216,7 @@ World::World(string namestring, double m, double rad,
 
     outgassingRate = outgas;
     betaCO2 = beta;
-    W0 = seaweather;
+    W0 = seaweather/year;
     gammaCO2 = gamma;
 
     rho_moon = 5.0e-9; // density in kg m^-3
@@ -263,7 +263,7 @@ void World::initialiseLEBM()
     double dtmax = 1.0e30;
     // Set length of vectors
 
-
+    printf("Initialising EBM \n");
    // Set up diffusion constant
    diffusion0 = 5.394e2 * rotationPeriod*rotationPeriod;
 
@@ -284,9 +284,14 @@ void World::initialiseLEBM()
    absorbedInsol.resize(nPoints1,0.0);
    tidal.resize(nPoints1,0.0);
    CO2pressure.resize(nPoints1,CO2Earth);
-   diffusion.resize(nPoints1,diffusion0); //Giblin 10/7/15
+   diffusion.resize(nPoints1,diffusion0);
    tau.resize(nPoints1,0.0);
    C.resize(nPoints1,0.0);
+
+   landWeathering.resize(nPoints1,0.0);
+   oceanWeathering.resize(nPoints1,0.0);
+   CO2dot.resize(nPoints1,0.0);
+
 
    // Set temperature equal to initial temperature
    T.resize(nPoints1,initialTemperature);
@@ -320,36 +325,13 @@ void World::initialiseLEBM()
    resetMeanAlbedo();
    calcLuminosity();
 
-   // Infrared cooling coefficients (CScycle)
-
-   if(CSCycleOn)
-       {
-	ircoeff.resize(15);
-	ircoeff[0] = 9.12805643734088612007e+00;
-	ircoeff[1] = 4.58408794776474781685e+00;
-	ircoeff[2] = -8.47261075511868995136e+01;
-	ircoeff[3] = +4.35517381110739065786e-01;
-	ircoeff[4] = -2.86355036266497364750e+01;
-	ircoeff[5] = +2.96626642450453971378e+02;
-	ircoeff[6] = -6.01082900358798077889e-02;
-	ircoeff[7] = -2.60414691486032312540e+00;
-	ircoeff[8] = +5.69812976578495309354e+01;
-	ircoeff[9] = -4.62596100050751886101e+02;
-	ircoeff[10] = +2.18159373001554097310e-03;
-	ircoeff[11] = +1.61456772400849241089e-01;
-	ircoeff[12] = +3.75623788186383888998e+00;
-	ircoeff[13] = -3.53347289235212116409e+01;
-	ircoeff[14] = +2.75011005363597746509e+02;
-
-	TsatSolid = 216.56; // For CO2 vapor pressure calculation (<value = over solid; > value = over liquid)
-
-       }
-
+   printf("Initialising EBM \n");
    // Set up files
 
    initialiseOutputVariables(restart);
    // Calculate initial parameters
 
+   printf("Initialising EBM3 \n");
 #pragma omp parallel default(none) \
 	shared(freeze,boil,cout)\
 	private(i)
@@ -360,7 +342,6 @@ void World::initialiseLEBM()
 	    calcIce(i);
 	    calcHeatCapacity(i);
 	    calcOpticalDepth(i);
-	    //calcAlbedo(i);
 	    calcCooling(i);
 	    calcNetHeating(i);
 
@@ -373,6 +354,7 @@ void World::initialiseLEBM()
 	    calcHabitability(i,freeze,boil);
 	    }
 	}
+	printf("Initialising EBM \n");
    calcLEBMTimestep(dtmax);
 
     }
@@ -789,6 +771,8 @@ void World::calcInsolation(Body* star, double &eclipsefrac)
 	    }
 
 	}
+
+	albedoCount = albedoCount +1;
     }
 
 void World::calcSurfaceAlbedo(Body* star, int iLatitude, double meanZenith)
@@ -833,10 +817,13 @@ void World::calcSurfaceAlbedo(Body* star, int iLatitude, double meanZenith)
 	aIce = aIceVisible*star->getfVisible() + aIceIR*star->getfIR();
 
 	// Calculate ocean albedo (WK97)
-	aOcean = -0.078 + 0.65*meanZenith;
+	double aCloud = -0.078 + 0.65*meanZenith;
+	aOcean = 0.8; // TODO - get true ocean albedo (email Jacob)
 
 	surfaceAlbedo[iLatitude] = (aLand*landFraction + aOcean*oceanFraction)*(1.0-iceFraction[iLatitude]) +
 	    aIce*iceFraction[iLatitude];
+
+	//printf("AS: %e %e %e %e \n", surfaceAlbedo[iLatitude], aLand, aOcean, aIce);
 	}
 
     }
@@ -869,14 +856,12 @@ void World::calcAlbedo(Body* star, int iLatitude, double meanZenith)
 		coeff[14]*mu + coeff[15]*as*as*as + coeff[16]*as*as*logT +
 		coeff[17]*as*as*phi + coeff[18]*as*as +coeff[19]*as*logT*logT +
 		coeff[20]*as*logT*phi + coeff[21]*as*logT + coeff[22]*as*phi*phi +
-		coeff[22]*as*phi + coeff[23]*as + coeff[24]*logT*logT*logT +
-		coeff[25]*logT*logT*phi + coeff[26]*logT*logT + coeff[27]*logT*phi*phi +
-		coeff[28]*logT*phi + coeff[29]*logT + coeff[30]*phi*phi*phi +
-		coeff[31]*phi*phi + coeff[32]*phi + coeff[33];
-
+		coeff[23]*as*phi + coeff[24]*as + coeff[25]*logT*logT*logT +
+		coeff[26]*logT*logT*phi + coeff[27]*logT*logT + coeff[28]*logT*phi*phi +
+		coeff[29]*logT*phi + coeff[30]*logT + coeff[31]*phi*phi*phi +
+		coeff[32]*phi*phi + coeff[33]*phi + coeff[34];
 
 	meanAlbedo[iLatitude] = meanAlbedo[iLatitude] + albedo[iLatitude];
-	albedoCount = albedoCount + 1;
 	}
 
     else
@@ -960,13 +945,13 @@ void World::calcCO2Rates(int iLatitude)
     // Calculate Weathering Rate
 
     landWeathering[iLatitude] = pow(CO2pressure[iLatitude]/CO2Earth, betaCO2)*(exp(kactive*(T[iLatitude]-288.0)));
-    landWeathering[iLatitude] = landWeathering[iLatitude]*(1.0 + krun*(T[iLatitude]-288.0));
+    landWeathering[iLatitude] = outgassingRate*landWeathering[iLatitude]*(1.0 + krun*(T[iLatitude]-288.0))/year;
 
     oceanWeathering[iLatitude] = W0*pow(CO2pressure[iLatitude]/CO2Earth, gammaCO2);
 
 
     CO2dot[iLatitude] = outgassingRate - landWeathering[iLatitude] - oceanWeathering[iLatitude];
-
+    //printf("CO2 dot: %e %e %e %e %e %e %e %e \n", CO2dot[iLatitude], T[iLatitude]-288.0,betaCO2,kactive,krun, outgassingRate, landWeathering[iLatitude],oceanWeathering[iLatitude]);
 
 	   
     }
@@ -989,6 +974,7 @@ void World::calcCooling(int iLatitude)
 		double phi = log10(CO2pressure[iLatitude]);
 		double logT = log10(T[iLatitude]); //
 
+		// Cooling function in (W m^-2)
 		infrared[iLatitude] = ircoeff[0]*logT*logT*logT*logT +
 				    ircoeff[1]*logT*logT*logT*phi +
 				    ircoeff[2]*logT*logT*logT +
@@ -1004,6 +990,12 @@ void World::calcCooling(int iLatitude)
 				    ircoeff[12]*phi*phi +
 				    ircoeff[13]*phi +
 				    ircoeff[14];
+
+		// convert to erg s^-1 cm^-2
+		infrared[iLatitude] = infrared[iLatitude]*1000.0;
+
+
+		//printf("%i %f %f %f %f \n", iLatitude, CO2pressure[iLatitude],CO2Earth,logT, infrared[iLatitude]);
 		}
 	else{
 		infrared[iLatitude] = sigma_SB*pow(T[iLatitude],4)/(1.0+0.75*tau[iLatitude]); //erg s^-1 cm^-2
@@ -1060,6 +1052,7 @@ void World::calcNetHeating(int iLatitude)
      */
 
 	Q[iLatitude] = absorbedInsol[iLatitude] + tidal[iLatitude]- infrared[iLatitude];
+	//printf("Q: %e %e %e \n", absorbedInsol[iLatitude], tidal[iLatitude], infrared[iLatitude]);
     }
 
 
@@ -1308,11 +1301,12 @@ void World::integrate()
 		}
 
 
-	    // Update the CO2 pressure
+	    // Update the CO2 pressure (rates /second)
 
 	    if(CSCycleOn)
 		{
 		CO2pressure[i] = CO2pressure[i] + CO2dot[i]*dtLEBM;
+		printf("CO2 update: %e %e %e \n", CO2pressure[i], CO2dot[i], dtLEBM);
 		}
 
 

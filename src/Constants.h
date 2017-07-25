@@ -50,6 +50,8 @@ const double gStarFVisible = 0.52;
 const double kStarFVisible = 0.32;
 const double mStarFVisible = 0.1;
 
+const double TsatSolid = 216.56;
+
 // IR cooling coefficients
 
 const double irco[] =

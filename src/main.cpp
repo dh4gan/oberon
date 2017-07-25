@@ -203,8 +203,6 @@ int main(int argc, char* argv[])
 	    if (input.BodyTypes[i] == "World")
 		{
 
-
-
 		if (input.initialTemperature[i] == 0.0)
 		    {
 		    printf(

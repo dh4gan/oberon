@@ -129,7 +129,6 @@ protected:
     int albedoCount; // Records how many stars contributing to meanAlbedo
 
     double TsatSolid;
-    vector<double> ircoeff;
 
     FILE *logFile, *snapshotFile, *latFile;
     bool activateMelt;
