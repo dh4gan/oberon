@@ -800,7 +800,6 @@ void World::calcSurfaceAlbedo(Body* star, int iLatitude, double meanZenith)
     psat = pow(10.0, psat);
     psat = 1.013*psat;
 
-
     // If the local CO2 pressure exceeds this saturation pressure, then CO2 freezes out
 
     if(CO2pressure[iLatitude]>psat)
@@ -992,10 +991,27 @@ void World::calcCooling(int iLatitude)
 				    ircoeff[14];
 
 		// convert to erg s^-1 cm^-2
-		infrared[iLatitude] = infrared[iLatitude]*1000.0;
+		//infrared[iLatitude] = infrared[iLatitude]*1000.0;
 
 
-		//printf("%i %f %f %f %f \n", iLatitude, CO2pressure[iLatitude],CO2Earth,logT, infrared[iLatitude]);
+		printf("logT %f, phi %f \n",logT,phi);
+		printf("%f \n", ircoeff[0]*logT*logT*logT*logT);
+		printf("%f \n",	ircoeff[1]*logT*logT*logT*phi);
+		printf("%f \n",	ircoeff[2]*logT*logT*logT);
+		printf("%f \n",	ircoeff[3]*logT*logT*phi*phi);
+		printf("%f \n",ircoeff[4]*logT*logT*phi);
+		printf("%f \n",	ircoeff[5]*logT*logT);
+		printf("%f \n", ircoeff[6]*logT*phi*phi*phi);
+		printf("%f \n", ircoeff[7]*logT*phi*phi);
+		printf("%f \n",ircoeff[8]*logT*phi);
+		printf("%f \n",	ircoeff[9]*logT);
+		printf("%f \n",ircoeff[10]*phi*phi*phi*phi);
+		printf("%f \n",	ircoeff[11]*phi*phi*phi);
+		printf("%f \n",ircoeff[12]*phi*phi);
+		printf("%f \n", ircoeff[13]*phi);
+		printf("%f \n",ircoeff[14]);
+		printf("END: %f \n", infrared[iLatitude]);
+		//printf("%i %f %f %f %f \n", iLatitude, CO2pressure[iLatitude],logT, infrared[iLatitude]);
 		}
 	else{
 		infrared[iLatitude] = sigma_SB*pow(T[iLatitude],4)/(1.0+0.75*tau[iLatitude]); //erg s^-1 cm^-2
@@ -1306,7 +1322,7 @@ void World::integrate()
 	    if(CSCycleOn)
 		{
 		CO2pressure[i] = CO2pressure[i] + CO2dot[i]*dtLEBM;
-		printf("CO2 update: %e %e %e \n", CO2pressure[i], CO2dot[i], dtLEBM);
+		//printf("CO2 update: %e %e %e \n", CO2pressure[i], CO2dot[i], dtLEBM);
 		}
 
 
