@@ -974,6 +974,26 @@ void World::calcCooling(int iLatitude)
 		double logT = log10(T[iLatitude]); //
 
 		// Cooling function in (W m^-2)
+
+		double term1 =  ircoeff[0]*logT*logT*logT*logT +
+			    ircoeff[1]*logT*logT*logT*phi +
+			    ircoeff[2]*logT*logT*logT +
+			    ircoeff[3]*logT*logT*phi*phi +
+			    ircoeff[4]*logT*logT*phi +
+			    ircoeff[5]*logT*logT +
+			    ircoeff[6]*logT*phi*phi*phi +
+			    ircoeff[7]*logT*phi*phi +
+			    ircoeff[8]*logT*phi;
+
+		double term2 = ircoeff[9]*logT +
+			    ircoeff[10]*phi*phi*phi*phi +
+			    ircoeff[11]*phi*phi*phi +
+			    ircoeff[12]*phi*phi +
+			    ircoeff[13]*phi +
+			    ircoeff[14];
+
+		double totalterm = term1 + term2;
+
 		infrared[iLatitude] = ircoeff[0]*logT*logT*logT*logT +
 				    ircoeff[1]*logT*logT*logT*phi +
 				    ircoeff[2]*logT*logT*logT +
@@ -995,21 +1015,10 @@ void World::calcCooling(int iLatitude)
 
 
 		printf("logT %f, phi %f \n",logT,phi);
-		printf("%f \n", ircoeff[0]*logT*logT*logT*logT);
-		printf("%f \n",	ircoeff[1]*logT*logT*logT*phi);
-		printf("%f \n",	ircoeff[2]*logT*logT*logT);
-		printf("%f \n",	ircoeff[3]*logT*logT*phi*phi);
-		printf("%f \n",ircoeff[4]*logT*logT*phi);
-		printf("%f \n",	ircoeff[5]*logT*logT);
-		printf("%f \n", ircoeff[6]*logT*phi*phi*phi);
-		printf("%f \n", ircoeff[7]*logT*phi*phi);
-		printf("%f \n",ircoeff[8]*logT*phi);
-		printf("%f \n",	ircoeff[9]*logT);
-		printf("%f \n",ircoeff[10]*phi*phi*phi*phi);
-		printf("%f \n",	ircoeff[11]*phi*phi*phi);
-		printf("%f \n",ircoeff[12]*phi*phi);
-		printf("%f \n", ircoeff[13]*phi);
-		printf("%f \n",ircoeff[14]);
+		printf("term1: %f \n", term1);
+		printf("term2: %f \n", term2);
+		printf("totalterm: %f %f\n",totalterm, infrared[iLatitude]);
+
 		printf("END: %f \n", infrared[iLatitude]);
 		//printf("%i %f %f %f %f \n", iLatitude, CO2pressure[iLatitude],logT, infrared[iLatitude]);
 		}
