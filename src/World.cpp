@@ -817,10 +817,10 @@ void World::calcSurfaceAlbedo(Body* star, int iLatitude, double meanZenith)
 
 	// Calculate ocean albedo (WK97)
 	double aCloud = -0.078 + 0.65*meanZenith;
-	aOcean = 0.8; // TODO - get true ocean albedo (email Jacob)
+	aOcean = 0.02; // TODO - get true ocean albedo (email Jacob)
 
 	surfaceAlbedo[iLatitude] = (aLand*landFraction + aOcean*oceanFraction)*(1.0-iceFraction[iLatitude]) +
-	    aIce*iceFraction[iLatitude];
+	    aIce*iceFraction[iLatitude] + aCloud;
 
 	//printf("AS: %e %e %e %e \n", surfaceAlbedo[iLatitude], aLand, aOcean, aIce);
 	}
@@ -992,9 +992,9 @@ void World::calcCooling(int iLatitude)
 			    ircoeff[13]*phi +
 			    ircoeff[14];
 
-		double totalterm = term1 + term2;
 
-		infrared[iLatitude] = ircoeff[0]*logT*logT*logT*logT +
+		infrared[iLatitude] = pow(10,term1+term2); // Gives OLR in erg cm^-2 s^-1
+		/*infrared[iLatitude] = ircoeff[0]*logT*logT*logT*logT +
 				    ircoeff[1]*logT*logT*logT*phi +
 				    ircoeff[2]*logT*logT*logT +
 				    ircoeff[3]*logT*logT*phi*phi +
@@ -1008,18 +1008,18 @@ void World::calcCooling(int iLatitude)
 				    ircoeff[11]*phi*phi*phi +
 				    ircoeff[12]*phi*phi +
 				    ircoeff[13]*phi +
-				    ircoeff[14];
+				    ircoeff[14];*/
 
 		// convert to erg s^-1 cm^-2
 		//infrared[iLatitude] = infrared[iLatitude]*1000.0;
 
 
-		printf("logT %f, phi %f \n",logT,phi);
-		printf("term1: %f \n", term1);
-		printf("term2: %f \n", term2);
-		printf("totalterm: %f %f\n",totalterm, infrared[iLatitude]);
+		//printf("logT %f, phi %f \n",logT,phi);
+		//printf("term1: %f \n", term1);
+		//printf("term2: %f \n", term2);
+		//printf("totalterm: %f %f\n",totalterm, infrared[iLatitude]);
 
-		printf("END: %f \n", infrared[iLatitude]);
+		//printf("OLR: %f \n", infrared[iLatitude]);
 		//printf("%i %f %f %f %f \n", iLatitude, CO2pressure[iLatitude],logT, infrared[iLatitude]);
 		}
 	else{
