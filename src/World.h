@@ -61,6 +61,7 @@ public:
     void calcObliquity(vector<Body*>bodies, double G, double totmass);
     void calcInsolation(Body* star, double &eclipsefrac);
     void calcSurfaceAlbedo(Body* star, int iLatitude, double meanZenith);
+    double calcOceanAlbedo(double meanZenith);
     void calcAlbedo(Body* star, int iLatitude, double meanZenith);
     void calcHeatCapacity(int iLatitude);
     void calcIce(int iLatitude);

@@ -107,7 +107,7 @@ void parFile::readPosFile()
 
     string par;
     string line;
-    string BodyType,BodyName;
+    string BodyType,BodyName,spectral;
     string meltChoice, restartChoice, illumChoice, tidalChoice;
     string obliqChoice, CScycleChoice, fullOutputChoice;
 
@@ -322,8 +322,8 @@ void parFile::readPosFile()
 	else if (par == "SpectralType")
 	    {
 
-	    iss >> val_i;
-	    spectralType[bodyIndex] = val_i;
+	    iss >> spectral;
+	    spectralType[bodyIndex] = spectral;
 
 	    }
 
@@ -428,7 +428,7 @@ void parFile::readOrbFile()
     int bodyIndex;
     string par;
     string line;
-    string BodyType, BodyName;
+    string BodyType, BodyName,spectral;
 
     string meltChoice, restartChoice, illumChoice, tidalChoice;
     string obliqChoice, CScycleChoice, fullOutputChoice;
@@ -658,8 +658,8 @@ void parFile::readOrbFile()
 	else if (par == "SpectralType")
 	    {
 
-	    iss >> val_i;
-	    spectralType[bodyIndex] = val_i;
+	    iss >> spectral;
+	    spectralType[bodyIndex] = spectral;
 
 	    }
 

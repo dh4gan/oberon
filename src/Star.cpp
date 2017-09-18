@@ -24,6 +24,7 @@ Star::Star(string &namestring, double &m, double &rad, Vector3D  &pos, Vector3D 
 	Body(namestring, m, rad, pos, vel) {
 
 	type = "Star";
+
 	spectralType = spec;
 	loadAlbedoCoefficients();
 	if(lum > 0.0)
@@ -40,6 +41,7 @@ Star::Star(string &namestring, double &m, double &rad, double semimaj, double ec
 			double longascend, double argper, double meananom, double G, double totalMass, double &lum, string &spec):
 			Body(namestring, m, rad, semimaj,ecc,inc,longascend,argper,meananom,G,totalMass) {
 	type = "Star";
+
 	spectralType = spec;
 
 	loadAlbedoCoefficients();

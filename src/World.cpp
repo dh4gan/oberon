@@ -263,7 +263,6 @@ void World::initialiseLEBM()
     double dtmax = 1.0e30;
     // Set length of vectors
 
-    printf("Initialising EBM \n");
    // Set up diffusion constant
    diffusion0 = 5.394e2 * rotationPeriod*rotationPeriod;
 
@@ -325,13 +324,11 @@ void World::initialiseLEBM()
    resetMeanAlbedo();
    calcLuminosity();
 
-   printf("Initialising EBM \n");
    // Set up files
 
    initialiseOutputVariables(restart);
    // Calculate initial parameters
 
-   printf("Initialising EBM3 \n");
 #pragma omp parallel default(none) \
 	shared(freeze,boil,cout)\
 	private(i)
@@ -354,7 +351,6 @@ void World::initialiseLEBM()
 	    calcHabitability(i,freeze,boil);
 	    }
 	}
-	printf("Initialising EBM \n");
    calcLEBMTimestep(dtmax);
 
     }
@@ -762,6 +758,7 @@ void World::calcInsolation(Body* star, double &eclipsefrac)
 	      // Note: albedo variable (and meanZenith) will get overwritten for multiple star runs!
 	      // Need to calculate and use it here
 
+	      calcIce(i);
 	      calcAlbedo(star,i,meanZenith[i]);
 
 	      // Also compute absorbed insolation S(1-A) here (makes net heating calculations easier)
@@ -817,15 +814,60 @@ void World::calcSurfaceAlbedo(Body* star, int iLatitude, double meanZenith)
 
 	// Calculate ocean albedo (WK97)
 	double aCloud = -0.078 + 0.65*meanZenith;
-	aOcean = 0.02; // TODO - get true ocean albedo (email Jacob)
+	aOcean = calcOceanAlbedo(meanZenith);
 
 	surfaceAlbedo[iLatitude] = (aLand*landFraction + aOcean*oceanFraction)*(1.0-iceFraction[iLatitude]) +
 	    aIce*iceFraction[iLatitude] + aCloud;
 
-	//printf("AS: %e %e %e %e \n", surfaceAlbedo[iLatitude], aLand, aOcean, aIce);
+	//printf("AS: %f %f %f %f\n", surfaceAlbedo[iLatitude], aLand, aOcean, aIce);
 	}
 
     }
+
+
+double World::calcOceanAlbedo(double meanZenith)
+
+    {
+/*
+ * Written 18/9/17 by dh4gan
+ * Computes the ocean albedo given incident angle (& Fresnel reflectance table)
+ *
+ */
+
+
+    // Find entry in Fresnel table i = int(meanZenith (degrees))
+
+    double zenithDegrees = acos(meanZenith)*180.0/pi;
+    int itable = int(zenithDegrees);
+    double difference = zenithDegrees - double(itable);
+
+
+    // If at the end of the table, read last value
+    if(itable>89)
+	{
+	return oceanAlbedo[89];
+	}
+
+    else if(itable <0.0)
+	{
+	return oceanAlbedo[0];
+	}
+    // Otherwise linearly interpolate between entries (equally spaced by 1 degree)
+    else
+	{
+
+	double alb1 = oceanAlbedo[itable];
+	double alb2 = oceanAlbedo[itable+1];
+	//double albedo = alb1+ (alb2-alb1)*difference;
+
+	//printf("OCEAN ALBEDO: zenith %f, itable %i difference %f, alb1 %f alb2 %f alb %f \n",zenithDegrees,itable,difference, alb1,alb2,albedo);
+	return alb1 + (alb2-alb1)*difference;
+	}
+
+
+
+    }
+
 void World::calcAlbedo(Body* star, int iLatitude, double meanZenith)
     {
     /*
@@ -859,6 +901,8 @@ void World::calcAlbedo(Body* star, int iLatitude, double meanZenith)
 		coeff[26]*logT*logT*phi + coeff[27]*logT*logT + coeff[28]*logT*phi*phi +
 		coeff[29]*logT*phi + coeff[30]*logT + coeff[31]*phi*phi*phi +
 		coeff[32]*phi*phi + coeff[33]*phi + coeff[34];
+
+	printf("ALBEDO %i %f: as %f, phi %f logT %f, mu %f \n",iLatitude, albedo[iLatitude],as,phi,logT,mu);
 
 	meanAlbedo[iLatitude] = meanAlbedo[iLatitude] + albedo[iLatitude];
 	}
@@ -993,7 +1037,7 @@ void World::calcCooling(int iLatitude)
 			    ircoeff[14];
 
 
-		infrared[iLatitude] = pow(10,term1+term2); // Gives OLR in erg cm^-2 s^-1
+		infrared[iLatitude] = pow(10,term1+term2) - 8500; // Gives OLR in erg cm^-2 s^-1 (subtract cloud retention)
 		/*infrared[iLatitude] = ircoeff[0]*logT*logT*logT*logT +
 				    ircoeff[1]*logT*logT*logT*phi +
 				    ircoeff[2]*logT*logT*logT +

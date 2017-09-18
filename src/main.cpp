@@ -99,8 +99,6 @@ int main(int argc, char* argv[])
 		cout << "CS cycle is ON" << endl;
 	}
 
-
-
     //First loop through each of the bodies in the system and set them up
     //adding them to the BodyArray
     for (i = 0; i < input.number_bodies; i++)
