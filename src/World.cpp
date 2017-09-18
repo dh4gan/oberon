@@ -787,18 +787,19 @@ void World::calcSurfaceAlbedo(Body* star, int iLatitude, double meanZenith)
     double psat = 0.0;
     if(T[iLatitude]< TsatSolid)
 	{
-	psat = 6.760956 - 1284.07/(T[iLatitude] - 4.718) + 1.256E-4*(T[iLatitude] - 143.15);
+	psat = 6.760956 - 1284.07/(T[iLatitude] - 4.718) + 1.256e-4*(T[iLatitude] - 143.15);
 	}
 
     else
 	{
-	psat = 3.128082 - 867.2124/T[iLatitude] + 1.865612E-2*T[iLatitude] - 7.248820E-5*T[iLatitude]*T[iLatitude] + 9.3E-8*T[iLatitude]*T[iLatitude]*T[iLatitude];
+	psat = 3.128082 - 867.2124/T[iLatitude] + 1.865612e-2*T[iLatitude] - 7.248820e-5*T[iLatitude]*T[iLatitude] + 9.3E-8*T[iLatitude]*T[iLatitude]*T[iLatitude];
 	}
     psat = pow(10.0, psat);
     psat = 1.013*psat;
 
     // If the local CO2 pressure exceeds this saturation pressure, then CO2 freezes out
 
+    //printf("T %f Tsat %f CO2 %f, psat %f \n", T[iLatitude], TsatSolid, CO2pressure[iLatitude],psat);
     if(CO2pressure[iLatitude]>psat)
 	{
 
@@ -819,7 +820,7 @@ void World::calcSurfaceAlbedo(Body* star, int iLatitude, double meanZenith)
 	surfaceAlbedo[iLatitude] = (aLand*landFraction + aOcean*oceanFraction)*(1.0-iceFraction[iLatitude]) +
 	    aIce*iceFraction[iLatitude] + aCloud;
 
-	//printf("AS: %f %f %f %f\n", surfaceAlbedo[iLatitude], aLand, aOcean, aIce);
+	//printf("AS: %f %f %f %f %f\n", surfaceAlbedo[iLatitude], aLand, aOcean, aIce,aCloud);
 	}
 
     }
@@ -902,7 +903,7 @@ void World::calcAlbedo(Body* star, int iLatitude, double meanZenith)
 		coeff[29]*logT*phi + coeff[30]*logT + coeff[31]*phi*phi*phi +
 		coeff[32]*phi*phi + coeff[33]*phi + coeff[34];
 
-	printf("ALBEDO %i %f: as %f, phi %f logT %f, mu %f \n",iLatitude, albedo[iLatitude],as,phi,logT,mu);
+	//printf("ALBEDO %i %f: as %f, phi %f logT %f, mu %f \n",iLatitude, albedo[iLatitude],as,phi,logT,mu);
 
 	meanAlbedo[iLatitude] = meanAlbedo[iLatitude] + albedo[iLatitude];
 	}
@@ -1037,7 +1038,7 @@ void World::calcCooling(int iLatitude)
 			    ircoeff[14];
 
 
-		infrared[iLatitude] = pow(10,term1+term2) - 8500; // Gives OLR in erg cm^-2 s^-1 (subtract cloud retention)
+		infrared[iLatitude] = pow(10,term1+term2); // Gives OLR in erg cm^-2 s^-1 (subtract cloud retention)
 		/*infrared[iLatitude] = ircoeff[0]*logT*logT*logT*logT +
 				    ircoeff[1]*logT*logT*logT*phi +
 				    ircoeff[2]*logT*logT*logT +

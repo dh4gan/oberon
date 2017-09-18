@@ -129,8 +129,6 @@ protected:
     vector<double> meanAlbedo; // Stores albedo averaged over all stars in system
     int albedoCount; // Records how many stars contributing to meanAlbedo
 
-    double TsatSolid;
-
     FILE *logFile, *snapshotFile, *latFile;
     bool activateMelt;
     bool obliquityEvolutionOn;
