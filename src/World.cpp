@@ -264,7 +264,8 @@ void World::initialiseLEBM()
     // Set length of vectors
 
    // Set up diffusion constant
-   diffusion0 = 5.394e2 * rotationPeriod*rotationPeriod;
+   //diffusion0 = 5.394e2 * rotationPeriod*rotationPeriod;
+   diffusion0 = 5.8e2 * rotationPeriod*rotationPeriod;
 
    lat.resize(nPoints1,0.0);
    x.resize(nPoints1,0.0);
@@ -729,21 +730,19 @@ void World::calcInsolation(Body* star, double &eclipsefrac)
 
 	    H = acos(cos_H);
 
-	    meanZenith[i] = H*x[i] * sind + coslat[i] * cosd * sin(H);
+	    meanZenith[i] = (H*x[i] * sind + coslat[i] * cosd * sin(H))/pi;
+
+	    /*if(H<=0.0)
+		{
+	    meanZenith[i] = 0.0;
+		}*/
 
 	    insol[i] = insol[i]
 		    + fluxsolcgs * lstar * (1.0 - eclipsefrac)
-			    / (pi * magpos * magpos)
+			    / (magpos * magpos)
 			    * (meanZenith[i]);
 
-	    if(H>0.0)
-		{
-	    meanZenith[i] = meanZenith[i]/H;
-		}
-	    else
-		{
-		meanZenith[i] = 0.0;
-		}
+
 
 		if(insol[i]<0.0) {insol[i]=0.0;}
 	    if(insol[i]>1.0e10 or insol[i]!=insol[i] or insol[i] < 0.0){
@@ -782,6 +781,8 @@ void World::calcSurfaceAlbedo(Body* star, int iLatitude, double meanZenith)
 
     double aIce,aOcean;
 
+    calcIce(iLatitude);
+
     // Calculate the CO2 saturation vapour pressure
 
     double psat = 0.0;
@@ -799,10 +800,11 @@ void World::calcSurfaceAlbedo(Body* star, int iLatitude, double meanZenith)
 
     // If the local CO2 pressure exceeds this saturation pressure, then CO2 freezes out
 
-    //printf("T %f Tsat %f CO2 %f, psat %f \n", T[iLatitude], TsatSolid, CO2pressure[iLatitude],psat);
+
     if(CO2pressure[iLatitude]>psat)
 	{
 
+	 printf("CO2 Ice: T %f Tsat %f CO2 %f, psat %f \n", T[iLatitude], TsatSolid, CO2pressure[iLatitude],psat);
 	// Albedo = CO2 ice albedo
 	surfaceAlbedo[iLatitude] = aCO2Ice;
 
@@ -813,15 +815,21 @@ void World::calcSurfaceAlbedo(Body* star, int iLatitude, double meanZenith)
 	// Calculate ice albedo
 	aIce = aIceVisible*star->getfVisible() + aIceIR*star->getfIR();
 
-	// Calculate ocean albedo (WK97)
-	double aCloud = -0.078 + 0.65*meanZenith;
+	// Cloud albedo (WK97)
+	double aCloud = -0.078 + 0.65*acos(meanZenith);
+
+	//if(aCloud < 0.0) {aCloud = 0.0;}
+
+	// Ocean Albedo (WK97)
 	aOcean = calcOceanAlbedo(meanZenith);
 
-	surfaceAlbedo[iLatitude] = (aLand*landFraction + aOcean*oceanFraction)*(1.0-iceFraction[iLatitude]) +
-	    aIce*iceFraction[iLatitude] + aCloud;
+	surfaceAlbedo[iLatitude] = (1.0-fCloud)*((aLand*landFraction + oceanFraction*aOcean)*(1.0-iceFraction[iLatitude]) +
+	    aIce*iceFraction[iLatitude]) + fCloud*aCloud;
 
-	//printf("AS: %f %f %f %f %f\n", surfaceAlbedo[iLatitude], aLand, aOcean, aIce,aCloud);
-	}
+	//printf("AS %f; aOcean %f aCloud %f aIce %f mu %f Z %f \n", surfaceAlbedo[iLatitude], aOcean, aCloud, aIce, meanZenith, acos(meanZenith));
+	    }
+
+
 
     }
 
@@ -844,7 +852,7 @@ double World::calcOceanAlbedo(double meanZenith)
 
 
     // If at the end of the table, read last value
-    if(itable>89)
+    if(itable>=89)
 	{
 	return oceanAlbedo[89];
 	}
@@ -859,9 +867,9 @@ double World::calcOceanAlbedo(double meanZenith)
 
 	double alb1 = oceanAlbedo[itable];
 	double alb2 = oceanAlbedo[itable+1];
-	//double albedo = alb1+ (alb2-alb1)*difference;
+	double albedo = alb1+ (alb2-alb1)*difference;
 
-	//printf("OCEAN ALBEDO: zenith %f, itable %i difference %f, alb1 %f alb2 %f alb %f \n",zenithDegrees,itable,difference, alb1,alb2,albedo);
+	if(albedo < 0.0) printf("OCEAN ALBEDO: zenith %f, itable %i difference %f, alb1 %f alb2 %f alb %f \n",zenithDegrees,itable,difference, alb1,alb2,albedo);
 	return alb1 + (alb2-alb1)*difference;
 	}
 
@@ -928,7 +936,7 @@ void World::calcHeatCapacity(int iLatitude)
      *
      */
     double C_ice = 0.0;
-    double C_land = 5.25e9; //differs by factor 1000 to W&K...
+    double C_land = 5.25e9; //differs by factor 1000 to W&K due to units...
     double C_ocean = 40.0 * C_land;
 
     if (T[iLatitude] >= freeze)
@@ -1018,6 +1026,7 @@ void World::calcCooling(int iLatitude)
 		double phi = log10(CO2pressure[iLatitude]);
 		double logT = log10(T[iLatitude]); //
 
+
 		// Cooling function in (W m^-2)
 
 		double term1 =  ircoeff[0]*logT*logT*logT*logT +
@@ -1038,34 +1047,8 @@ void World::calcCooling(int iLatitude)
 			    ircoeff[14];
 
 
-		infrared[iLatitude] = pow(10,term1+term2); // Gives OLR in erg cm^-2 s^-1 (subtract cloud retention)
-		/*infrared[iLatitude] = ircoeff[0]*logT*logT*logT*logT +
-				    ircoeff[1]*logT*logT*logT*phi +
-				    ircoeff[2]*logT*logT*logT +
-				    ircoeff[3]*logT*logT*phi*phi +
-				    ircoeff[4]*logT*logT*phi +
-				    ircoeff[5]*logT*logT +
-				    ircoeff[6]*logT*phi*phi*phi +
-				    ircoeff[7]*logT*phi*phi +
-				    ircoeff[8]*logT*phi +
-				    ircoeff[9]*logT +
-				    ircoeff[10]*phi*phi*phi*phi +
-				    ircoeff[11]*phi*phi*phi +
-				    ircoeff[12]*phi*phi +
-				    ircoeff[13]*phi +
-				    ircoeff[14];*/
+		infrared[iLatitude] = pow(10,term1+term2) - 8500; // Gives OLR in erg cm^-2 s^-1 (subtract cloud retention)
 
-		// convert to erg s^-1 cm^-2
-		//infrared[iLatitude] = infrared[iLatitude]*1000.0;
-
-
-		//printf("logT %f, phi %f \n",logT,phi);
-		//printf("term1: %f \n", term1);
-		//printf("term2: %f \n", term2);
-		//printf("totalterm: %f %f\n",totalterm, infrared[iLatitude]);
-
-		//printf("OLR: %f \n", infrared[iLatitude]);
-		//printf("%i %f %f %f %f \n", iLatitude, CO2pressure[iLatitude],logT, infrared[iLatitude]);
 		}
 	else{
 		infrared[iLatitude] = sigma_SB*pow(T[iLatitude],4)/(1.0+0.75*tau[iLatitude]); //erg s^-1 cm^-2
@@ -1122,7 +1105,7 @@ void World::calcNetHeating(int iLatitude)
      */
 
 	Q[iLatitude] = absorbedInsol[iLatitude] + tidal[iLatitude]- infrared[iLatitude];
-	//printf("Q: %e %e %e \n", absorbedInsol[iLatitude], tidal[iLatitude], infrared[iLatitude]);
+	//printf("Q: %e %e %e %e %e \n",Q[iLatitude], insol[iLatitude], absorbedInsol[iLatitude], tidal[iLatitude], infrared[iLatitude]);
     }
 
 
@@ -1488,6 +1471,7 @@ void World::outputLEBMData(int &snapshotNumber, double &tSnap, bool fullOutput)
     // Firstly, write line to log file
     calcLEBMMeans(minT, maxT, meanT, meanQ, meanA, meanIR,meanS, meanhab, meanTidal, meanCO2p, meanDiffusion);
 
+    printf("Mean T %f , mean Q %f, mean A %f \n", meanT, meanQ, meanA);
     // Also include orbital data here
 
     formatString = "+%.8E  ";

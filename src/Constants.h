@@ -21,7 +21,7 @@ const double Gmau = 1.0;  // Value of G for solar mass-AU units (time units...2p
 const double Gmau_day = 2.959e-4; // Value of G for (Msol, AU, day) unit system)
 const double AU = 1.496e11;
 const double msol = 1.99e30;
-const double lsol = 3.826e26;
+const double lsol = 3.827e26;
 const double rsol = 6.955e8;
 
 const double fluxsol = lsol/(4.0*pi*AU*AU);
@@ -33,7 +33,7 @@ const double c_mau = c_cgs*year/(twopi*AU);
 
 // Parameters necessary for the CS cycle calculations
 
-const double CO2Earth = 3.3e-4;
+const double CO2Earth = 1.8e-3;
 const double kactive = 0.09;
 const double krun = 0.045;
 const double outgassingRateEarth = 7.0e-8/year; // outgassing rate in bars per second
@@ -42,6 +42,7 @@ const double aLand = 0.2;
 const double aIceVisible = 0.8;
 const double aIceIR = 0.5;
 const double aCO2Ice = 0.35;
+const double fCloud = 0.1; // Fraction of H2O cloud cover
 
 // Fraction of spectrum in visible for F,G,K,M stars
 
