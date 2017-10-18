@@ -33,7 +33,7 @@ const double c_mau = c_cgs*year/(twopi*AU);
 
 // Parameters necessary for the CS cycle calculations
 
-const double CO2Earth = 1.8e-3;
+const double CO2Earth = 3.3e-4;
 const double kactive = 0.09;
 const double krun = 0.045;
 const double outgassingRateEarth = 7.0e-8/year; // outgassing rate in bars per second
@@ -42,7 +42,7 @@ const double aLand = 0.2;
 const double aIceVisible = 0.8;
 const double aIceIR = 0.5;
 const double aCO2Ice = 0.35;
-const double fCloud = 0.1; // Fraction of H2O cloud cover
+const double fCloud = 0.5; // Fraction of H2O cloud cover
 
 // Fraction of spectrum in visible for F,G,K,M stars
 

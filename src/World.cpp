@@ -768,7 +768,10 @@ void World::calcInsolation(Body* star, double &eclipsefrac)
 
 	}
 
-	albedoCount = albedoCount +1;
+	if(CSCycleOn)
+	    {
+	    albedoCount = albedoCount +1;
+	    }
     }
 
 void World::calcSurfaceAlbedo(Body* star, int iLatitude, double meanZenith)
@@ -825,6 +828,9 @@ void World::calcSurfaceAlbedo(Body* star, int iLatitude, double meanZenith)
 
 	surfaceAlbedo[iLatitude] = (1.0-fCloud)*((aLand*landFraction + oceanFraction*aOcean)*(1.0-iceFraction[iLatitude]) +
 	    aIce*iceFraction[iLatitude]) + fCloud*aCloud;
+
+	//surfaceAlbedo[iLatitude] = (1.0-fCloud)*(aLand*landFraction + oceanFraction*(aIce*iceFraction[iLatitude] + (1.0-iceFraction[iLatitude])*aOcean))
+	//	+fCloud*aCloud;
 
 	//printf("AS %f; aOcean %f aCloud %f aIce %f mu %f Z %f \n", surfaceAlbedo[iLatitude], aOcean, aCloud, aIce, meanZenith, acos(meanZenith));
 	    }
@@ -969,7 +975,7 @@ void World:: calcIce(int iLatitude)
      *
      */
 
-	iceFraction[iLatitude] = 1.0 - exp(-(freeze-T[iLatitude])/10.0);
+	iceFraction[iLatitude] = 1.0 - exp((T[iLatitude]-freeze)/10.0);
 	if (iceFraction[iLatitude] <0.0) iceFraction[iLatitude]=0.0;
 
     }
