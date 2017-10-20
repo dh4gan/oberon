@@ -549,68 +549,84 @@ void System::setupOrbits(vector<int> orbitCentre)
     // Transform them to COM Frame
     transformToCOMFrame(participants);
 
+
+    // Set up bodies with specific hosts
+    // i) - place satellites in orbits assuming host is at the centre
+    // ii) - shift host so that CoM of host-satellite system follows original orbit specified for host
+
+
+    // r_host new =  1/m_host* (r_host*mtot - (sum_i(i/=host) m_i r_i))
+    // similar for v_host
+
+    // r_host new = r_host as mass of satellites goes to zero
+
+
+    // Define arrays to compute total mass of host systems and CoM of satellites
+    vector<double> totalMassAroundHost(bodyCount,0.0);
+    vector<Vector3D> xCOMroundHost(bodyCount);
+    vector<Vector3D> vCOMroundHost(bodyCount);
+
+    // i) Place satellites around host at centre
+
     for (int b = 0; b < bodyCount; b++)
 	{
 	if (orbitCentre[b] > 0)
 	    {
 
-		hosts[orbitCentre[b]-1]=1;  // Record host status for later
+	    int ihost = orbitCentre[b]-1;
+	    hosts[ihost]=1;  // Record host status for later
 
 		// Setup bodies in orbit around the host
 
 
 	    bodies[b]->calcVectorFromOrbit(G,
-		    bodies[orbitCentre[b] - 1]->getHostMass());
+		    bodies[ihost]->getHostMass());
 
 	    Vector3D framepos =
-		    bodies[orbitCentre[b] - 1]->getPosition().scaleVector(-1.0);
+		    bodies[ihost]->getPosition().scaleVector(-1.0);
 	    Vector3D framevel =
-		    bodies[orbitCentre[b] - 1]->getVelocity().scaleVector(-1.0);
+		    bodies[ihost]->getVelocity().scaleVector(-1.0);
 	    bodies[b]->changeFrame(framepos, framevel);
 
+	    // Compute additions to total mass for this host
+
+	    totalMassAroundHost[ihost] = totalMassAroundHost[ihost]+bodies[b]->getMass();
+
+	    // Compute COM of host system (minus host contribution)
+	    xCOMroundHost[ihost] = xCOMroundHost[ihost].addVector(bodies[b]->getPosition().scaleVector(bodies[b]->getMass()));
+	    vCOMroundHost[ihost] = vCOMroundHost[ihost].addVector(bodies[b]->getVelocity().scaleVector(bodies[b]->getMass()));
 
 	    }
 
 	}
 
-    // Finally, ensure that each host system is setup such that the CoM of the system
+    // Now ensure that each host system is setup such that the CoM of the system
     // moves along the host's assigned orbit
 
- //   participants.assign(bodyCount,0);
+    // Do this by moving the host and altering its velocity as specified in above comments
 
-//	for (int b = 0; b < bodyCount; b++) {
-//		// If body b is a host for other bodies
-//		if (hosts[b] == 1) {
-//			// Store host position, velocity
-//
-//			hostPosition = bodies[b]->getPosition();
-//			hostVelocity = bodies[b]->getVelocity();
-//
-//			// calculate CoM of host system
-//
-//			calcHostCOMFrame(bodies[b], hostCOM, hostvelCOM);
-//
-//			// Find all bodies with this host
-//			for (int i = 0; i < bodyCount; i++) {
-//				if (bodies[i] == bodies[b]) {
-//					participants[i] = 1;
-//				}
-//				if (bodies[i]->getHostBody() == bodies[b]) {
-//					participants[i] = 1;
-//				}
-//
-//			}
-//
-//			// Move system such that CoM occupies host's old position,velocity
-//
-//			hostCOM = hostCOM.subtractVector(hostPosition);
-//			hostvelCOM = hostvelCOM.subtractVector(hostVelocity);
-//
-//			transformToArbitraryFrame(hostCOM, hostvelCOM, participants);
-//
-//		}
-//
-//	}
+    for (int b=0; b<bodyCount; b++)
+
+      {
+
+	// If this body is a host, then alter its position and velocity
+	if (hosts[b]==1)
+	  {
+
+	    totalMassAroundHost[b] = totalMassAroundHost[b]+ bodies[b]->getMass();
+
+	    Vector3D newPosition = bodies[b]->getPosition().scaleVector(totalMassAroundHost[b]).subtractVector(xCOMroundHost[b]);
+	    newPosition = newPosition.scaleVector(1.0/bodies[b]->getMass());
+
+	    Vector3D newVelocity = bodies[b]->getVelocity().scaleVector(totalMassAroundHost[b]).subtractVector(vCOMroundHost[b]);
+	    	    newVelocity = newVelocity.scaleVector(1.0/bodies[b]->getMass());
+
+	    bodies[b]->setPosition(newPosition);
+	    bodies[b]->setVelocity(newVelocity);
+
+	  }
+      }
+
 
 }
 
