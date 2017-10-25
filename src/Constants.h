@@ -42,7 +42,7 @@ const double aLand = 0.2;
 const double aIceVisible = 0.8;
 const double aIceIR = 0.5;
 const double aCO2Ice = 0.35;
-const double fCloud = 0.5; // Fraction of H2O cloud cover
+const double fCloud = 0.07; // Fraction of H2O cloud cover
 
 // Fraction of spectrum in visible for F,G,K,M stars
 
