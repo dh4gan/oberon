@@ -85,13 +85,69 @@ World::World(string namestring, double m, double rad,Vector3D pos, Vector3D vel,
     obliquityEvolutionOn = obevol;
 
     CSCycleOn = CScycle;
+
+    outgassingRate = outgassingRateEarth;
+    betaCO2 = 0.5;
+    W0 = 0.0;
+    gammaCO2 = 1.0;
+
+    rho_moon = 5.0e-9; // density in kg m^-3
+    rigid = 4e9;
+    Qtidal = 100.0;
+
     initialiseLEBM();
 
     }
+
+World::World(string namestring, double m, double rad,Vector3D pos, Vector3D vel, int n, double obliq, double rot, double prec,
+	double ocean, double T0,bool melt, bool start, bool tide, bool obevol, bool CScycle,double outgas, double beta, double seaweather, double gamma) :
+
+	Body(namestring, m, rad, pos, vel)
+    {
+    type = "World";
+    nPoints = n;
+    obliquity = obliq;
+    ellipticity = 0.00328005;
+    precession = prec;
+    rotationPeriod = rot;
+    oceanFraction = ocean;
+    landFraction = 1.0-oceanFraction;
+    initialTemperature = T0;
+    nFloat = float(nPoints);
+
+    luminosity = 0.0;
+
+    rho_moon = 5.0e-9; // density in kg m^-3
+    rigid = 4e9; // rigidity in N m^-2 (Pa)
+    Qtidal = 100.0;
+
+
+    nPoints1 = nPoints+1;
+    activateMelt = melt;
+    restart = start;
+
+    tidalHeatingOn = tide;
+    obliquityEvolutionOn = obevol;
+
+    CSCycleOn = CScycle;
+
+    outgassingRate = outgas;
+    betaCO2 = beta;
+    W0 = seaweather/year;
+    gammaCO2 = gamma;
+
+    rho_moon = 5.0e-9; // density in kg m^-3
+    rigid = 4e9;
+    Qtidal = 100.0;
+
+    initialiseLEBM();
+
+    }
+
+
 World::World(string namestring, double m, double rad,
 	double semimaj, double ecc, double inc, double longascend,
 	double argper, double meananom, double G, double totalMass, int n,
-
 	double obliq, double rot, double prec, double ocean, double T0, bool melt, bool start, bool tide, bool obevol, bool CScycle) :
 	Body(namestring, m, rad, semimaj, ecc, inc, longascend,
 		argper, meananom, G, totalMass)
@@ -116,6 +172,11 @@ World::World(string namestring, double m, double rad,
     luminosity = 0.0;
     CSCycleOn = CScycle;
 
+    outgassingRate = outgassingRateEarth;
+    betaCO2 = 0.5;
+    W0 = 0.0;
+    gammaCO2 = 1.0;
+
     rho_moon = 5.0e-9; // density in kg m^-3
     rigid = 4e9;
     Qtidal = 100.0;
@@ -123,8 +184,71 @@ World::World(string namestring, double m, double rad,
     initialiseLEBM();
 
     }
+
+World::World(string namestring, double m, double rad,
+	double semimaj, double ecc, double inc, double longascend,
+	double argper, double meananom, double G, double totalMass, int n,
+	double obliq, double rot, double prec, double ocean, double T0, bool melt, bool start, bool tide, bool obevol,
+	bool CScycle, double outgas, double beta, double seaweather, double gamma):
+	Body(namestring, m, rad, semimaj, ecc, inc, longascend,
+			argper, meananom, G, totalMass)
+    {
+
+    type = "World";
+    nPoints = n;
+    obliquity = obliq;
+    ellipticity = 0.00328005;
+    precession = prec;
+    rotationPeriod = rot;
+    oceanFraction = ocean;
+    landFraction = 1.0-oceanFraction;
+    initialTemperature = T0;
+    nFloat = float(nPoints);
+    nPoints1 = nPoints+1;
+    activateMelt = melt;
+    restart = start;
+
+    tidalHeatingOn = tide;
+    obliquityEvolutionOn = obevol;
+
+    luminosity = 0.0;
+    CSCycleOn = CScycle;
+
+    outgassingRate = outgas;
+    betaCO2 = beta;
+    W0 = seaweather/year;
+    gammaCO2 = gamma;
+
+    rho_moon = 5.0e-9; // density in kg m^-3
+    rigid = 4e9;
+    Qtidal = 100.0;
+
+    initialiseLEBM();
+
+    }
+
+
 World::~World()
     {
+    }
+
+
+void World:: setInsolationZero()
+    {
+    insol.assign(nPoints1,0.0);
+    absorbedInsol.assign(nPoints1,0.0);
+    }
+
+
+void World:: resetMeanAlbedo()
+    {
+    /*
+     * Written 13/7/2017 by dh4gan
+     * Resets the arrays storing albedo averaged over all stars
+     *
+     */
+	meanAlbedo.assign(nPoints1,0.0);
+	albedoCount = 0;
     }
 
 
@@ -139,12 +263,14 @@ void World::initialiseLEBM()
     double dtmax = 1.0e30;
     // Set length of vectors
 
-
    // Set up diffusion constant
-   diffusion0 = 5.394e2 * rotationPeriod*rotationPeriod;
+   //diffusion0 = 5.394e2 * rotationPeriod*rotationPeriod;
+   diffusion0 = 5.8e2 * rotationPeriod*rotationPeriod;
 
    lat.resize(nPoints1,0.0);
    x.resize(nPoints1,0.0);
+   meanZenith.resize(nPoints1,0.0);
+   meanAlbedo.resize(nPoints1,0.0);
    coslat.resize(nPoints1,0.0);
    tanlat.resize(nPoints1,0.0);
    deltax.resize(nPoints1,0.0);
@@ -153,12 +279,19 @@ void World::initialiseLEBM()
    infrared.resize(nPoints1,0.0);
    Q.resize(nPoints1,0.0);
    albedo.resize(nPoints1,0.0);
+   surfaceAlbedo.resize(nPoints1,0.0);
    insol.resize(nPoints1,0.0);
+   absorbedInsol.resize(nPoints1,0.0);
    tidal.resize(nPoints1,0.0);
-   CO2pressure.resize(nPoints1,3.3e-4); //Giblin 10/7/15
-   diffusion.resize(nPoints1,diffusion0); //Giblin 10/7/15
+   CO2pressure.resize(nPoints1,CO2Earth);
+   diffusion.resize(nPoints1,diffusion0);
    tau.resize(nPoints1,0.0);
    C.resize(nPoints1,0.0);
+
+   landWeathering.resize(nPoints1,0.0);
+   oceanWeathering.resize(nPoints1,0.0);
+   CO2dot.resize(nPoints1,0.0);
+
 
    // Set temperature equal to initial temperature
    T.resize(nPoints1,initialTemperature);
@@ -189,6 +322,7 @@ void World::initialiseLEBM()
    meltTime.resize(nPoints1,0.0);
    melting.resize(nPoints1,false);
 
+   resetMeanAlbedo();
    calcLuminosity();
 
    // Set up files
@@ -206,7 +340,6 @@ void World::initialiseLEBM()
 	    calcIce(i);
 	    calcHeatCapacity(i);
 	    calcOpticalDepth(i);
-	    calcAlbedo(i);
 	    calcCooling(i);
 	    calcNetHeating(i);
 
@@ -214,7 +347,7 @@ void World::initialiseLEBM()
 		cout << "calculating heating " << endl;
 		calcTidalHeating(i);}
 
-	    if(CSCycleOn) {calcCO2pressure(i);}
+	    if(CSCycleOn) {calcCO2Rates(i);}
 
 	    calcHabitability(i,freeze,boil);
 	    }
@@ -245,11 +378,11 @@ void World::setTemperature(vector<double>temp){
 		    calcIce(i);
 		    calcHeatCapacity(i);
 		    calcOpticalDepth(i);
-		    calcAlbedo(i);
+		    //calcAlbedo(i);
 		    calcCooling(i);
 
 		    if(tidalHeatingOn) {calcTidalHeating(i);}
-		    if(CSCycleOn) {calcCO2pressure(i);}
+		    if(CSCycleOn) {calcCO2Rates(i);}
 		    calcNetHeating(i);
 		    calcHabitability(i,freeze,boil);
 		    }
@@ -428,6 +561,7 @@ void World::updateLEBM(vector<Body*> bodies, double &G, double &totmass, vector<
      * This assumes the timestep has already been calculated
      */
     setInsolationZero();
+    resetMeanAlbedo();
     int bodyCount = bodies.size();
     int i,b;
 
@@ -465,7 +599,7 @@ void World::updateLEBM(vector<Body*> bodies, double &G, double &totmass, vector<
 	    calcIce(i);
 	    calcHeatCapacity(i);
 	    calcOpticalDepth(i);
-	    calcAlbedo(i);
+	    //calcAlbedo(i);
 	    calcCooling(i);
 
 	    if(tidalHeatingOn && hostBody!=0)
@@ -476,7 +610,7 @@ void World::updateLEBM(vector<Body*> bodies, double &G, double &totmass, vector<
 		{
 		cout << "Warning: Host Body undefined, tidal heating inactive" << endl;
 		}
-	    if(CSCycleOn) {calcCO2pressure(i);}
+	    if(CSCycleOn) {calcCO2Rates(i);}
 
 	    calcNetHeating(i);
 
@@ -554,7 +688,6 @@ void World::calcInsolation(Body* star, double &eclipsefrac)
 
     double declination = safeAcos(rdotn);
 
-
     declination = piby2-declination;
      //cout << "ROTATIONS: " << endl;
     //orbitalAngularMomentum.printVector();
@@ -597,10 +730,19 @@ void World::calcInsolation(Body* star, double &eclipsefrac)
 
 	    H = acos(cos_H);
 
+	    meanZenith[i] = (H*x[i] * sind + coslat[i] * cosd * sin(H))/pi;
+
+	    /*if(H<=0.0)
+		{
+	    meanZenith[i] = 0.0;
+		}*/
+
 	    insol[i] = insol[i]
 		    + fluxsolcgs * lstar * (1.0 - eclipsefrac)
-			    / (pi * magpos * magpos)
-			    * (H * x[i] * sind + coslat[i] * cosd * sin(H));
+			    / (magpos * magpos)
+			    * (meanZenith[i]);
+
+
 
 		if(insol[i]<0.0) {insol[i]=0.0;}
 	    if(insol[i]>1.0e10 or insol[i]!=insol[i] or insol[i] < 0.0){
@@ -608,17 +750,140 @@ void World::calcInsolation(Body* star, double &eclipsefrac)
 	      cout << "ERROR: Negative insolation calculated " << endl;
 	      cout << i << "  " << star->getName () << "  " << insol[i] << "  "
 		  << precession << "  " << obliquity << "   " << "   " << cosd << "  "
-		  << sind << "  " << tand << endl;
-
-
+		  << sind << "  " << tand << "  " << cos_H << "   " << meanZenith[i] << endl;
 	    }
+
+
+	      // Note: albedo variable (and meanZenith) will get overwritten for multiple star runs!
+	      // Need to calculate and use it here
+
+	      calcIce(i);
+	      calcAlbedo(star,i,meanZenith[i]);
+
+	      // Also compute absorbed insolation S(1-A) here (makes net heating calculations easier)
+	      absorbedInsol[i] = absorbedInsol[i]+ insol[i]*(1.0-albedo[i]);
+
+
 	    }
 
 	}
+
+	if(CSCycleOn)
+	    {
+	    albedoCount = albedoCount +1;
+	    }
+    }
+
+void World::calcSurfaceAlbedo(Body* star, int iLatitude, double meanZenith)
+    {
+    /*
+     * Written 01/05/2017 by dh4gan
+     * Calculates the surface albedo
+     *
+     */
+
+    double aIce,aOcean;
+
+    calcIce(iLatitude);
+
+    // Calculate the CO2 saturation vapour pressure
+
+    double psat = 0.0;
+    if(T[iLatitude]< TsatSolid)
+	{
+	psat = 6.760956 - 1284.07/(T[iLatitude] - 4.718) + 1.256e-4*(T[iLatitude] - 143.15);
+	}
+
+    else
+	{
+	psat = 3.128082 - 867.2124/T[iLatitude] + 1.865612e-2*T[iLatitude] - 7.248820e-5*T[iLatitude]*T[iLatitude] + 9.3E-8*T[iLatitude]*T[iLatitude]*T[iLatitude];
+	}
+    psat = pow(10.0, psat);
+    psat = 1.013*psat;
+
+    // If the local CO2 pressure exceeds this saturation pressure, then CO2 freezes out
+
+
+    if(CO2pressure[iLatitude]>psat)
+	{
+
+	 printf("CO2 Ice: T %f Tsat %f CO2 %f, psat %f \n", T[iLatitude], TsatSolid, CO2pressure[iLatitude],psat);
+	// Albedo = CO2 ice albedo
+	surfaceAlbedo[iLatitude] = aCO2Ice;
+
+	}
+
+    else
+	{
+	// Calculate ice albedo
+	aIce = aIceVisible*star->getfVisible() + aIceIR*star->getfIR();
+
+	// Cloud albedo (WK97)
+	double aCloud = -0.078 + 0.65*acos(meanZenith);
+
+	//if(aCloud < 0.0) {aCloud = 0.0;}
+
+	// Ocean Albedo (WK97)
+	aOcean = calcOceanAlbedo(meanZenith);
+
+	surfaceAlbedo[iLatitude] = (1.0-fCloud)*((aLand*landFraction + oceanFraction*aOcean)*(1.0-iceFraction[iLatitude]) +
+	    aIce*iceFraction[iLatitude]) + fCloud*aCloud;
+
+	//surfaceAlbedo[iLatitude] = (1.0-fCloud)*(aLand*landFraction + oceanFraction*(aIce*iceFraction[iLatitude] + (1.0-iceFraction[iLatitude])*aOcean))
+	//	+fCloud*aCloud;
+
+	//printf("AS %f; aOcean %f aCloud %f aIce %f mu %f Z %f \n", surfaceAlbedo[iLatitude], aOcean, aCloud, aIce, meanZenith, acos(meanZenith));
+	    }
+
+
+
     }
 
 
-void World::calcAlbedo(int iLatitude)
+double World::calcOceanAlbedo(double meanZenith)
+
+    {
+/*
+ * Written 18/9/17 by dh4gan
+ * Computes the ocean albedo given incident angle (& Fresnel reflectance table)
+ *
+ */
+
+
+    // Find entry in Fresnel table i = int(meanZenith (degrees))
+
+    double zenithDegrees = acos(meanZenith)*180.0/pi;
+    int itable = int(zenithDegrees);
+    double difference = zenithDegrees - double(itable);
+
+
+    // If at the end of the table, read last value
+    if(itable>=89)
+	{
+	return oceanAlbedo[89];
+	}
+
+    else if(itable <0.0)
+	{
+	return oceanAlbedo[0];
+	}
+    // Otherwise linearly interpolate between entries (equally spaced by 1 degree)
+    else
+	{
+
+	double alb1 = oceanAlbedo[itable];
+	double alb2 = oceanAlbedo[itable+1];
+	double albedo = alb1+ (alb2-alb1)*difference;
+
+	if(albedo < 0.0) printf("OCEAN ALBEDO: zenith %f, itable %i difference %f, alb1 %f alb2 %f alb %f \n",zenithDegrees,itable,difference, alb1,alb2,albedo);
+	return alb1 + (alb2-alb1)*difference;
+	}
+
+
+
+    }
+
+void World::calcAlbedo(Body* star, int iLatitude, double meanZenith)
     {
     /*
      * Written 9/1/14 by dh4gan
@@ -626,7 +891,46 @@ void World::calcAlbedo(int iLatitude)
      *
      */
 
-    albedo[iLatitude] = 0.525 - 0.245 * tanh((T[iLatitude] - freeze + 5.0) / 5.0);
+    if (CSCycleOn)
+	{
+
+	// If CS Cycle on, use fitting function from Haqq-Misra et al (2016)
+	calcSurfaceAlbedo(star, iLatitude,meanZenith);
+
+	vector<double> coeff = star->getAlbedoCoefficients(T[iLatitude]);
+
+	double as = surfaceAlbedo[iLatitude];
+	double phi = log10(CO2pressure[iLatitude]);
+	double logT = log10(T[iLatitude]);
+	double mu = meanZenith;
+
+	albedo[iLatitude] =  coeff[0]*mu*mu*mu + coeff[1]*mu*mu*as +
+		coeff[2]*mu*mu*logT + coeff[3]*mu*mu*phi + coeff[4]*mu*mu +
+		coeff[5]*mu*as*as + coeff[6]*mu*as*logT + coeff[7]*mu*as*phi +
+		coeff[8]*mu*as + coeff[9]*mu*logT*logT + coeff[10]*mu*logT*phi +
+		coeff[11]*mu*logT + coeff[12]*mu*phi*phi + coeff[13]*mu*phi +
+		coeff[14]*mu + coeff[15]*as*as*as + coeff[16]*as*as*logT +
+		coeff[17]*as*as*phi + coeff[18]*as*as +coeff[19]*as*logT*logT +
+		coeff[20]*as*logT*phi + coeff[21]*as*logT + coeff[22]*as*phi*phi +
+		coeff[23]*as*phi + coeff[24]*as + coeff[25]*logT*logT*logT +
+		coeff[26]*logT*logT*phi + coeff[27]*logT*logT + coeff[28]*logT*phi*phi +
+		coeff[29]*logT*phi + coeff[30]*logT + coeff[31]*phi*phi*phi +
+		coeff[32]*phi*phi + coeff[33]*phi + coeff[34];
+
+	//printf("ALBEDO %i %f: as %f, phi %f logT %f, mu %f \n",iLatitude, albedo[iLatitude],as,phi,logT,mu);
+
+	meanAlbedo[iLatitude] = meanAlbedo[iLatitude] + albedo[iLatitude];
+	}
+
+    else
+	{
+	albedo[iLatitude] = 0.525 - 0.245 * tanh((T[iLatitude] - freeze + 5.0) / 5.0);
+	meanAlbedo[iLatitude] = albedo[iLatitude];
+	albedoCount = 1;
+	}
+
+
+
 
     }
 
@@ -638,7 +942,7 @@ void World::calcHeatCapacity(int iLatitude)
      *
      */
     double C_ice = 0.0;
-    double C_land = 5.25e9; //differs by factor 1000 to W&K...
+    double C_land = 5.25e9; //differs by factor 1000 to W&K due to units...
     double C_ocean = 40.0 * C_land;
 
     if (T[iLatitude] >= freeze)
@@ -671,7 +975,7 @@ void World:: calcIce(int iLatitude)
      *
      */
 
-	iceFraction[iLatitude] = 1.0 - exp(-(freeze-T[iLatitude])/10.0);
+	iceFraction[iLatitude] = 1.0 - exp((T[iLatitude]-freeze)/10.0);
 	if (iceFraction[iLatitude] <0.0) iceFraction[iLatitude]=0.0;
 
     }
@@ -687,32 +991,26 @@ void World::calcOpticalDepth(int iLatitude)
     }
 
 
-void World::calcCO2pressure(int iLatitude)
+void World::calcCO2Rates(int iLatitude)
     {
     /*
-     * Written 10/7/15 by BenjaminGiblin
-     * Calculates CO2 pressure using regime defined
-     * on pg. 5 of Spiegel et al 2010
+     * Written 01/05/2017 by dh4gan
+     * Calculates the rate of change of CO2 partial pressure using regime defined
+     * in Haqq-Misra et al (2016)
+     *
      */
 
-	if (T[iLatitude] >= 290.)
-	{
-	CO2pressure[iLatitude] = 3.30e-4; //bars
-	}
-    else if (T[iLatitude] < 290. and T[iLatitude] > 250.)
-	{
-	CO2pressure[iLatitude] = pow(10., (-2.-(T[iLatitude]-250.)/27.) ); //bars
-	}
+    // Calculate Weathering Rate
 
-    else if (T[iLatitude] <= 250.)
-	{
-	CO2pressure[iLatitude] = 0.010; //bars
-	}
+    landWeathering[iLatitude] = pow(CO2pressure[iLatitude]/CO2Earth, betaCO2)*(exp(kactive*(T[iLatitude]-288.0)));
+    landWeathering[iLatitude] = outgassingRate*landWeathering[iLatitude]*(1.0 + krun*(T[iLatitude]-288.0))/year;
 
-    // Set up diffusion constant
-    diffusion[iLatitude] = 5.8e2*(CO2pressure[iLatitude]/3.3e-4)*pow(rotationPeriod, 2.);
-	//erg cm^-2 s^-1 K^-1
-	//W&K expression	
+    oceanWeathering[iLatitude] = W0*pow(CO2pressure[iLatitude]/CO2Earth, gammaCO2);
+
+
+    CO2dot[iLatitude] = outgassingRate - landWeathering[iLatitude] - oceanWeathering[iLatitude];
+    //printf("CO2 dot: %e %e %e %e %e %e %e %e \n", CO2dot[iLatitude], T[iLatitude]-288.0,betaCO2,kactive,krun, outgassingRate, landWeathering[iLatitude],oceanWeathering[iLatitude]);
+
 	   
     }
 
@@ -724,42 +1022,39 @@ void World::calcCooling(int iLatitude)
     {
     /*
      * Written 9/1/14 by dh4gan
-     *Edited by BenjaminGiblin 13/7/15
+     * Edited by dh4gan 01/05/2017
      * Calculates the Infrared Cooling as a function of optical depth and temperature
      *
      */
 
 	if(CSCycleOn)
 		{
-		double phi = log(CO2pressure[iLatitude]/3.3e-4);
-		double Tmp = T[iLatitude]; //
+		double phi = log10(CO2pressure[iLatitude]);
+		double logT = log10(T[iLatitude]); //
 
 
-		infrared[iLatitude] = 1.e3*(+9.468980 
-				      -7.714727e-5*phi 
-				      -2.794778*Tmp 
-                                      -3.244753e-3*phi*Tmp 
-                                      -3.547406e-4*pow(phi,2.) 
-				      +2.212108e-2*pow(Tmp,2.)
-				      +2.229142e-3*pow(phi,2.)*Tmp 
-				      +3.088497e-5*phi*pow(Tmp,2.)
-				      -2.789815e-5*pow(phi,2.)*pow(Tmp,2.) 
-				      -3.442973e-3*pow(phi,3.)
-				      -3.361939e-5*pow(Tmp,3.)
-				      +9.173169e-3*pow(phi,3.)*Tmp 
-			              -7.775195e-5*pow(phi,3.)*pow(Tmp,2.)
-				      -1.679112e-7*phi*pow(Tmp,3.)
-				      +6.590999e-8*pow(phi,2.)*pow(Tmp,3.)
-				      +1.528125e-7*pow(phi,3.)*pow(Tmp,3.)
-				      -3.367567e-2*pow(phi,4.)
-				      -1.631909e-4*pow(phi,4.)*Tmp
-				      +3.663871e-6*pow(phi,4.)*pow(Tmp,2.)
-				      -9.255646e-9*pow(phi,4.)*pow(Tmp,3.)
-				      -14.06);
-			//erg s^-1 cm^-2
-			//includes 'cloud correction' for absorption
-			//by H20 clouds
-			//-14.06 erg^-1 cm^-2
+		// Cooling function in (W m^-2)
+
+		double term1 =  ircoeff[0]*logT*logT*logT*logT +
+			    ircoeff[1]*logT*logT*logT*phi +
+			    ircoeff[2]*logT*logT*logT +
+			    ircoeff[3]*logT*logT*phi*phi +
+			    ircoeff[4]*logT*logT*phi +
+			    ircoeff[5]*logT*logT +
+			    ircoeff[6]*logT*phi*phi*phi +
+			    ircoeff[7]*logT*phi*phi +
+			    ircoeff[8]*logT*phi;
+
+		double term2 = ircoeff[9]*logT +
+			    ircoeff[10]*phi*phi*phi*phi +
+			    ircoeff[11]*phi*phi*phi +
+			    ircoeff[12]*phi*phi +
+			    ircoeff[13]*phi +
+			    ircoeff[14];
+
+
+		infrared[iLatitude] = pow(10,term1+term2) - 8500; // Gives OLR in erg cm^-2 s^-1 (subtract cloud retention)
+
 		}
 	else{
 		infrared[iLatitude] = sigma_SB*pow(T[iLatitude],4)/(1.0+0.75*tau[iLatitude]); //erg s^-1 cm^-2
@@ -815,7 +1110,8 @@ void World::calcNetHeating(int iLatitude)
      *
      */
 
-	Q[iLatitude] = insol[iLatitude]*(1.0-albedo[iLatitude]) + tidal[iLatitude]- infrared[iLatitude];
+	Q[iLatitude] = absorbedInsol[iLatitude] + tidal[iLatitude]- infrared[iLatitude];
+	//printf("Q: %e %e %e %e %e \n",Q[iLatitude], insol[iLatitude], absorbedInsol[iLatitude], tidal[iLatitude], infrared[iLatitude]);
     }
 
 
@@ -1062,6 +1358,23 @@ void World::integrate()
 		    }
 
 		}
+
+
+	    // Update the CO2 pressure (rates /second)
+
+	    if(CSCycleOn)
+		{
+		CO2pressure[i] = CO2pressure[i] + CO2dot[i]*dtLEBM;
+		//printf("CO2 update: %e %e %e \n", CO2pressure[i], CO2dot[i], dtLEBM);
+		}
+
+
+	    // Set up diffusion constant
+	    diffusion[i] = 5.8e2*(CO2pressure[i]/CO2Earth)*pow(rotationPeriod, 2.);
+		//erg cm^-2 s^-1 K^-1
+		//W&K expression
+
+
 	    // cout <<" Integrate: "<<  i <<"   "<< T[i] <<"   "<< dtLEBM<<"   " << Q[i]<<"   " << Fj <<endl;
 
 	    }
@@ -1127,7 +1440,7 @@ void World::calcLEBMMeans(double &minT, double &maxT, double &meanT, double &mea
 	{
 	meanT = meanT + T[i]*0.5*deltax[i];
 	meanQ = meanQ + Q[i]*0.5*deltax[i];
-	meanA = meanA + albedo[i]*0.5*deltax[i];
+	meanA = meanA + meanAlbedo[i]*0.5*deltax[i];
 	meanIR = meanIR + infrared[i]*0.5*deltax[i];
 	meanS = meanS + insol[i]*0.5*deltax[i];
 	meanhab = meanhab + hab[i]*0.5*deltax[i];
@@ -1154,9 +1467,17 @@ void World::outputLEBMData(int &snapshotNumber, double &tSnap, bool fullOutput)
     double minT, maxT, meanT, meanQ, meanA, meanIR, meanS, meanhab, meanTidal,meanCO2p, meanDiffusion;
     string formatString;
 
+    // Get meanAlbedo by dividing by number of objects contributing
+
+    for (int i=0; i<nPoints1; i++)
+	{
+	meanAlbedo[i] = meanAlbedo[i]/float(albedoCount);
+	}
+
     // Firstly, write line to log file
     calcLEBMMeans(minT, maxT, meanT, meanQ, meanA, meanIR,meanS, meanhab, meanTidal, meanCO2p, meanDiffusion);
 
+    printf("Mean T %f , mean Q %f, mean A %f \n", meanT, meanQ, meanA);
     // Also include orbital data here
 
     formatString = "+%.8E  ";
@@ -1206,7 +1527,7 @@ void World::outputLEBMData(int &snapshotNumber, double &tSnap, bool fullOutput)
 	{
 	fprintf(snapshotFile, "%+.6E %+.6E %+.6E %+.6E %+.6E %+.6E %+.6E %+.6E %+.6E %+.6E %+.6E %+.6E %+.6E %+.6E \n",
 		x[i], lat[i], T[i], C[i], Q[i], infrared[i],
-		albedo[i], insol[i], tau[i],iceFraction[i], hab[i], tidal[i], CO2pressure[i], diffusion[i]);
+		meanAlbedo[i], insol[i], tau[i],iceFraction[i], hab[i], tidal[i], CO2pressure[i], diffusion[i]);
 	}
     fclose(snapshotFile);
     }
@@ -1307,7 +1628,7 @@ int World::getRestartParameters()
 	    calcIce(i);
 	    calcHeatCapacity(i);
 	    calcOpticalDepth(i);
-	    calcAlbedo(i);
+	    //calcAlbedo(i);
 	    calcCooling(i);
 	    calcNetHeating(i);
 	    calcHabitability(i,freeze,boil);

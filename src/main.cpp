@@ -99,8 +99,6 @@ int main(int argc, char* argv[])
 		cout << "CS cycle is ON" << endl;
 	}
 
-
-
     //First loop through each of the bodies in the system and set them up
     //adding them to the BodyArray
     for (i = 0; i < input.number_bodies; i++)
@@ -121,7 +119,7 @@ int main(int argc, char* argv[])
 		BodyArray.push_back(
 			new Star(input.BodyNames[i],
 				input.Mass[i], input.Radius[i], body_i_position,
-				body_i_velocity, input.luminosity[i]));
+				body_i_velocity, input.luminosity[i], input.spectralType[i]));
 		}
 
 	    // If the Body is a Planet, add a Planet Object
@@ -149,12 +147,13 @@ int main(int argc, char* argv[])
 			new World(input.BodyNames[i],
 				input.Mass[i], input.Radius[i], body_i_position,
 				body_i_velocity, input.nPoints, input.obliquity[i],input.rotationPeriod[i], input.precession[i],
-				input.oceanFraction[i], input.initialTemperature[i], input.activateMelt[i], input.restart, input.tidalHeatingOn, input.obliquityOn, input.CSCycleOn)); //Fed to parFile.cpp
+				input.oceanFraction[i], input.initialTemperature[i], input.activateMelt[i], input.restart,
+				input.tidalHeatingOn, input.obliquityOn, input.CSCycleOn,input.outgassingRate[i], input.betaCO2[i], input.seafloorWeathering[i], input.gammaCO2[i])); //Fed to parFile.cpp
 
 		if(input.restart)
 		    {
 		    cout << "Reading Temperature data for World " << BodyArray.back()->getName() << endl;
-		    snapshotNumber = BodyArray.back()->getRestartParameters(); // TODO - use new method for restarts
+		    snapshotNumber = BodyArray.back()->getRestartParameters();
 
 		    if(snapshotNumber==-1)
 			{
@@ -169,7 +168,7 @@ int main(int argc, char* argv[])
 	    }
 	else if (fileType == 1 and input.restart==false)
 	    {
-	   	printf("setting up body with orbital parameters \n");
+	    printf("setting up body %s with orbital parameters \n", input.BodyNames[i].c_str());
 
 	    // If the Body is a Star, add a Star Object
 	    if (input.BodyTypes[i] == "Star")
@@ -181,7 +180,7 @@ int main(int argc, char* argv[])
 				input.semiMajorAxis[i], input.eccentricity[i],
 				input.inclination[i], input.longAscend[i],
 				input.Periapsis[i], input.meanAnomaly[i], G,
-				input.totalMass, input.luminosity[i]));
+				input.totalMass, input.luminosity[i], input.spectralType[i]));
 
 		}
 
@@ -216,7 +215,9 @@ int main(int argc, char* argv[])
 				input.inclination[i], input.longAscend[i],
 				input.Periapsis[i], input.meanAnomaly[i], G,
 				input.totalMass,input.nPoints, input.obliquity[i],input.rotationPeriod[i], input.precession[i],
-				input.oceanFraction[i], input.initialTemperature[i], input.activateMelt[i], input.restart, input.tidalHeatingOn, input.obliquityOn, input.CSCycleOn));
+				input.oceanFraction[i], input.initialTemperature[i], input.activateMelt[i], input.restart,
+				input.tidalHeatingOn, input.obliquityOn, input.CSCycleOn,
+				input.outgassingRate[i], input.betaCO2[i], input.seafloorWeathering[i], input.gammaCO2[i]));
 
 
 

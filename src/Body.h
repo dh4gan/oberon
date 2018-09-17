@@ -145,6 +145,10 @@ public:
 	virtual void setLuminosity(double lum){};
 	virtual double getLuminosity() {return -1.0;}
 	virtual void calcMainSequenceLuminosity(){}
+	virtual double getfVisible(){return -1.0;}
+	virtual double getfIR(){return -1.0;}
+	virtual void loadAlbedoCoefficients(){};
+	virtual vector<double> getAlbedoCoefficients(double temperature){return vector<double>(1.0,-1.0);}
 
 	// Methods for Planet Class
 	virtual void setEquilibriumTemperature(double temp){};
@@ -181,13 +185,12 @@ public:
 	    double &dtmax,bool &planetaryIllumination){};
 
     virtual void calcInsolation(Body* star, double &eclipsefrac){};
-    virtual void calcAlbedo(int iLatitude){};
+    virtual void calcAlbedo(Body* star, int iLatitude, double meanZenith){};
     virtual void calcHeatCapacity(int iLatitude){};
     virtual void calcIce(int iLatitude){};
     virtual void calcOpticalDepth(int iLatitude){};
     virtual void calcCooling(int iLatitude){};
-    //virtual void calcCO2pressure(int iLatitude){}; //NOT SURE IF THIS 
-						   //SHOULD BE HERE...
+
     virtual void calcNetHeating(int iLatitude){};
     virtual void calcHabitability(int iLatitude,double &minT, double &maxT){};
     virtual void calcLEBMTimestep(double &dtmax){};

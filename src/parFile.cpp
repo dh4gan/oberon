@@ -7,6 +7,7 @@
  */
 
 #include "parFile.h"
+#include "Constants.h"
 #include <iostream> // Included for debug lines only
 #include <math.h>
 #include <string>
@@ -106,7 +107,7 @@ void parFile::readPosFile()
 
     string par;
     string line;
-    string BodyType,BodyName;
+    string BodyType,BodyName,spectral;
     string meltChoice, restartChoice, illumChoice, tidalChoice;
     string obliqChoice, CScycleChoice, fullOutputChoice;
 
@@ -251,6 +252,7 @@ void parFile::readPosFile()
 	    z_velocity.assign(number_bodies,0.0);
 
 	    luminosity.assign(number_bodies, 0.0);
+	    spectralType.assign(number_bodies, "G"); // G is the default spectral type
 	    albedo.assign(number_bodies,0.0);
 
 
@@ -259,6 +261,10 @@ void parFile::readPosFile()
 	    precession.assign(number_bodies, 0.0);
 	    oceanFraction.assign(number_bodies, 0.0);
 	    initialTemperature.assign(number_bodies, 0.0);
+	    outgassingRate.assign(number_bodies,outgassingRateEarth); // outgassing rate set to Earth by default
+	    seafloorWeathering.assign(number_bodies,0.0); // seafloor weathering off by default
+	    betaCO2.assign(number_bodies, 0.5); // Set this to 0.5 as default
+	    gammaCO2.assign(number_bodies,1.0); // Set this to unity as default
 	    orbitCentre = vector<int>(number_bodies,0);
 	    activateMelt.assign(number_bodies,false);
 	    bodyIndex = -1;
@@ -313,12 +319,21 @@ void parFile::readPosFile()
 
 	    }
 
-	else if (par == "Albedo")
+	else if (par == "SpectralType")
+	    {
+
+	    iss >> spectral;
+	    spectralType[bodyIndex] = spectral;
+
+	    }
+
+	else if (par == "Albedo") // For Planet objects only
 	    {
 	    iss >> val_i;
 	    albedo[bodyIndex]=val_i;
 
 	    }
+
 
 	else if (par == "RotationPeriod")
 	    {
@@ -354,6 +369,32 @@ void parFile::readPosFile()
 	    iss >> val_i;
 	    initialTemperature[bodyIndex] = val_i;
 	    }
+	else if (par == "outgassingRate")
+	    {
+	    iss >> val_i;
+	    outgassingRate[bodyIndex] = val_i;
+	    }
+	else if (par == "landWeatheringParameter")
+	    {
+	    iss >> val_i;
+	    betaCO2[bodyIndex] = val_i;
+	    }
+	else if(par == "oceanWeatheringRate")
+	    {
+	    iss >> val_i;
+	    seafloorWeathering[bodyIndex] = val_i;
+	    }
+
+	else if(par =="abioticWeatheringParameter")
+	    {
+	    iss >> val_i;
+	    betaCO2[bodyIndex] = val_i;
+	    }
+	else if(par =="oceanWeatheringParameter")
+	    {
+	    iss >> val_i;
+	    gammaCO2[bodyIndex] = val_i;
+	    }
 	else if(par == "IceMeltingOn")
 	    {
 	    iss >> meltChoice;
@@ -387,7 +428,7 @@ void parFile::readOrbFile()
     int bodyIndex;
     string par;
     string line;
-    string BodyType, BodyName;
+    string BodyType, BodyName,spectral;
 
     string meltChoice, restartChoice, illumChoice, tidalChoice;
     string obliqChoice, CScycleChoice, fullOutputChoice;
@@ -516,6 +557,7 @@ void parFile::readOrbFile()
 	    meanAnomaly.assign(number_bodies, 0.0);
 
 	    luminosity.assign(number_bodies, 0.0);
+	    spectralType.assign(number_bodies, "G"); // G is the default spectral type
 	    albedo.assign(number_bodies,0.0);
 
 	    rotationPeriod.assign(number_bodies, 0.0);
@@ -523,6 +565,12 @@ void parFile::readOrbFile()
 	    precession.assign(number_bodies, 0.0);
 	    oceanFraction.assign(number_bodies, 0.0);
 	    initialTemperature.assign(number_bodies, 0.0);
+	    outgassingRate.assign(number_bodies,outgassingRateEarth);
+	    seafloorWeathering.assign(number_bodies,0.0); // seafloor weathering off by default
+	    betaCO2.assign(number_bodies, 0.5); // Set this to 0.5 as default
+	    gammaCO2.assign(number_bodies,1.0); // Set this to unity as default
+
+
 	    orbitCentre = vector<int>(number_bodies,0);
 	    activateMelt.assign(number_bodies,false);
 	    bodyIndex = -1;
@@ -607,6 +655,14 @@ void parFile::readOrbFile()
 	    luminosity[bodyIndex] = val_i;
 	    }
 
+	else if (par == "SpectralType")
+	    {
+
+	    iss >> spectral;
+	    spectralType[bodyIndex] = spectral;
+
+	    }
+
 	else if (par == "Albedo")
 	    {
 	    iss >> val_i;
@@ -644,6 +700,26 @@ void parFile::readOrbFile()
 	    {
 	    iss >> val_i;
 	    initialTemperature[bodyIndex] = val_i;
+	    }
+	else if (par == "outgassingRate")
+	    {
+	    iss >> val_i;
+	    outgassingRate[bodyIndex] = val_i;
+	    }
+	else if (par == "landWeatheringParameter")
+	    {
+	    iss >> val_i;
+	    betaCO2[bodyIndex] = val_i;
+	    }
+	else if(par == "oceanWeatheringRate")
+	    {
+	    iss >> val_i;
+	    seafloorWeathering[bodyIndex] = val_i;
+	    }
+	else if(par =="oceanWeatheringParameter")
+	    {
+	    iss >> val_i;
+	    gammaCO2[bodyIndex] = val_i;
 	    }
 	else if(par == "IceMeltingOn")
 	    {

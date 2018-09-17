@@ -29,11 +29,21 @@ public:
 	    int n, double obliq, double rot, double prec,
 	    double ocean, double T0, bool melt, bool start, bool tide, bool obevol, bool CScycle);
 
+    World(string namestring, double m, double rad,Vector3D pos, Vector3D vel, int n, double obliq, double rot, double prec,
+	    double ocean, double T0, bool melt, bool start, bool tide, bool obevol, bool CScycle, double outgas, double beta, double seaweather, double gamma);
+
+    World(string namestring, double m, double rad,
+	    double semimaj, double ecc, double inc, double longascend,
+	    double argper, double meananom, double G, double totalMass,
+	    int n, double obliq, double rot, double prec,
+	    double ocean, double T0, bool melt, bool start, bool tide, bool obevol, bool CScycle, double outgas, double beta, double seaweather, double gamma);
+
     virtual ~World();
 
     /* Accessors */
 
-    void setInsolationZero() {insol.assign(nPoints1,0.0);}
+    void setInsolationZero();
+    void resetMeanAlbedo();
     void setTemperature(vector<double> temp);
 
     //void setHostBody(Body* bod){hostBody = bod;}
@@ -50,13 +60,15 @@ public:
 
     void calcObliquity(vector<Body*>bodies, double G, double totmass);
     void calcInsolation(Body* star, double &eclipsefrac);
-    void calcAlbedo(int iLatitude);
+    void calcSurfaceAlbedo(Body* star, int iLatitude, double meanZenith);
+    double calcOceanAlbedo(double meanZenith);
+    void calcAlbedo(Body* star, int iLatitude, double meanZenith);
     void calcHeatCapacity(int iLatitude);
     void calcIce(int iLatitude);
     void calcOpticalDepth(int iLatitude);
     void calcCooling(int iLatitude);
     void calcTidalHeating(int iLatitude);
-    void calcCO2pressure(int iLatitude);
+    void calcCO2Rates(int iLatitude);
     void calcNetHeating(int iLatitude);
     void calcHabitability(int iLatitude,double &minT, double &maxT);
     void calcLEBMTimestep(double &dtmax);
@@ -98,9 +110,8 @@ protected:
     double rigid;
     double Qtidal;
 
-
-    bool CSCycleOn; //Giblin 10/7/15.
-
+    bool CSCycleOn;
+    double outgassingRate, betaCO2, gammaCO2, W0;
 
     int nPoints,nPoints1;
 
@@ -110,7 +121,13 @@ protected:
     vector<double> lat, x,coslat,tanlat, deltax;
     vector<double> T, T_old, tau;
     vector<double> iceFraction, C, hab;
-    vector<double> infrared, Q, albedo,tidal, insol, CO2pressure, diffusion;
+    vector<double> infrared, Q, albedo, tidal, insol, absorbedInsol, diffusion;
+    vector<double> CO2pressure, CO2dot, landWeathering, oceanWeathering;
+    vector<double> surfaceAlbedo, meanZenith;
+
+
+    vector<double> meanAlbedo; // Stores albedo averaged over all stars in system
+    int albedoCount; // Records how many stars contributing to meanAlbedo
 
     FILE *logFile, *snapshotFile, *latFile;
     bool activateMelt;
