@@ -14,8 +14,8 @@ Features:
 * 4th Order Hermite N Body integration (shared variable timestep)
 * Obliquity evolution taken from Laskar (1986a, A&A, 157, 59) and Laskar (1986b A&A, 164, 437)
 * Ability to checkpoint/restart simulations (with a health warning at albedo transitions)
-* Algorithms to accommodate ice sheet melting (in testing)
-* Carbonate Silicate Cycle Modelling (Williams and Kasting 1997)
+* Algorithms to accommodate ice sheet melting
+* Carbonate Silicate Cycle Modelling (Williams and Kasting 1997, Haqq-Misra et al 2016)
 * Library of Python plotting scripts 
 * Library of example parameter setups to run
 
@@ -23,7 +23,6 @@ Possible Future Features/Wishlist:
 -------------------------
 
 * individual timestepping
-* Better calibrated CO2 modelling (cf Haqq-Misra et al 2016)
 * More sophisticated spin evolution (cf Mercury-T)
 * More flexibility in input planet atmospheres
 
@@ -32,8 +31,7 @@ Requirements:
 * C++ compiler (g++ recommended) and Makefile software (e.g. gmake)
 * Python for plotting scripts (scripts developed in Python 2.7) - dependencies include numpy, matplotlib, scipy
 
-The code reads in a single input parameter file, which contains 
-a set of global parameters for all bodies in the simulation, along with specific parameters for each
+The code reads in a single input parameter file, which contains a set of global parameters for all bodies in the simulation, along with specific parameters for each
 body included in the simulation. Parameter files can either specify the initial positions of all bodies, or the initial Keplerian orbits of all bodies.
 
 Further details of the parameter file structure can be found in the userguide in `\docs`, and example parameter files are given in `\paramfiles`
