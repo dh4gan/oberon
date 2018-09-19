@@ -345,7 +345,7 @@ void parFile::readPosFile()
 	else if (par == "Obliquity")
 	    {
 	    iss >> val_i;
-	    val_i = val_i *3.1415/180.0;
+	    val_i = val_i *degToRad;
 	    obliquity[bodyIndex]=val_i;
 
 	    }
@@ -353,7 +353,7 @@ void parFile::readPosFile()
 	else if (par == "Precession" or par =="WinterSolstice")
 	    {
 	    iss >> val_i;
-	    val_i = val_i *3.1415/180.0;
+	    val_i = val_i *degToRad; // Convert to radians
 	    precession[bodyIndex]=val_i;
 
 	    }
@@ -679,14 +679,14 @@ void parFile::readOrbFile()
 	else if (par == "Obliquity")
 	    {
 	    iss >> val_i;
-	    val_i = val_i *3.1415/180.0;
+	    val_i = val_i *degToRad;
 	    obliquity[bodyIndex] = val_i;
 	    }
 
 	else if (par == "Precession" or par =="WinterSolstice")
 	    {
 	    iss >> val_i;
-	    val_i = val_i *3.1415/180.0;
+	    val_i = val_i *degToRad;
 	    precession[bodyIndex] = val_i;
 	    }
 
