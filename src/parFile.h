@@ -12,6 +12,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <map>
 #include "System.h"
 #include "Star.h"
 
@@ -21,21 +22,49 @@
 
 // TODO - rewrite parFile class using STL map objects
 
+const string stringType = "string";
+const string intType = "int";
+const string doubleType = "double";
+const string vectorIntType = "vectorInt";
+const string vectorDoubleType = "vectorDouble";
+const string vectorStringType = "vectorString";
+
 class parFile {
 public:
 	parFile( );
 	parFile(string name);
+    
 
+    
+    
 	string NBodyFile;
 	string parFileName;
 	string SystemName;
 	string fileType;
 
+    
+    
+    
+    // Map objects to store variable data as it is read
+    
+    std::map < string, string > stringVariables;
+    std::map < string, double > doubleVariables;
+    std::map < string, int > intVariables;
+    
+    
+    std::map < string, vector<int> > vectorIntVariables;
+    std::map < string, vector<double> > vectorDoubleVariables;
+    std::map < string, vector<string> > vectorStringVariables;
+    
+    // This map stores which map each variable lives in
+    std::map< string, string > variableLocations;
+    
+    
 	bool restart;
 	bool illuminationOn;
 	bool obliquityOn;
 	bool tidalHeatingOn;
-        bool CSCycleOn;
+    bool CSCycleOn;
 	bool fullOutput;
 
 	int number_bodies;
@@ -96,6 +125,34 @@ public:
 	int parType();
 	int parType(string fileName);
 
+    
+    void setVariableLocations();
+      
+    void readVariable(string &par, istringstream &iss, int &bodyIndex);
+    void readIntVariable(string &par, istringstream &iss);
+    void readStringVariable(string &par, istringstream &iss);
+    void readDoubleVariable(string &par, istringstream &iss);
+    
+    void read3DVector(string &par, istringstream &iss, int &bodyIndex);
+    
+    void readVectorVariable(string &par, istringstream &iss);
+    
+    void readVectorIntVariable(string &par, istringstream &iss, int &bodyIndex);
+    void readVectorDoubleVariable(string &par, istringstream &iss, int &bodyIndex);
+    void readVectorStringVariable(string &par, istringstream &iss, int &bodyIndex);
+    
+    // TODO - write initialiseVectors and initialiseBooleans
+    void initialiseVectors(int nBodies);
+    void initialiseBooleans();
+    
+    string getStringVariable(string &par){return stringVariables[par];}
+    string getStringVariable(string &par, int bodyIndex){return vectorStringVariables[par][bodyIndex];}
+    
+    int getIntVariable(string &par){return intVariables[par];}
+    int getIntVariable(string &par, int &bodyIndex){return vectorIntVariables[par][bodyIndex];}
+    double getDoubleVariable(string &par){return doubleVariables[par];}
+    double getDoubleVariable(string &par, int &bodyIndex){return vectorDoubleVariables[par][bodyIndex];}
+    
 	void setupRestartPositions();
 
 

@@ -32,6 +32,8 @@ parFile::parFile()
     snapshotNumber =0;
     nPoints = 0;
     number_bodies = 0;
+        
+    setVariableLocations();
 
     }
 
@@ -56,6 +58,8 @@ parFile::parFile(string name)
 
     nPoints =0;
     number_bodies = 0;
+        
+    setVariableLocations();
 
     }
 
@@ -95,6 +99,207 @@ Vector3D parFile::getBodyVelocity(int index)
 
     }
 
+void parFile::setVariableLocations()
+
+
+{
+    
+    /*
+     * Written 19/09/2018 by dh4gan
+     * Sets up the mapping of variables to map objects
+     *
+     */
+    
+    
+    // String variables
+    
+    variableLocations["ParType"] = stringType;
+    variableLocations["NBodyOutput"] = stringType;
+    variableLocations["SystemName"] = stringType;
+    variableLocations["Restart"] = stringType;
+    variableLocations["ObliquityEvolution"] = stringType;
+    variableLocations["CarbonateSilicateCycle"] = stringType;
+    variableLocations["TidalHeating"] = stringType;
+    variableLocations["PlanetaryIllumination"] = stringType;
+    variableLocations["FullOutput"] = stringType;
+    
+    
+    // scalar (int) variables
+    
+    variableLocations["NGridPoints"] = intType;
+    variableLocations["Number_Bodies"] = intType;
+    
+    // Scalar (double) variables
+    
+    variableLocations["SnapshotTime"] = doubleType;
+    variableLocations["MaximumTime"] = doubleType;
+    
+    // Vector (string) variables
+    
+    variableLocations["BodyName"] = vectorStringType;
+    variableLocations["BodyType"] = vectorStringType;
+    variableLocations["IceMeltingOn"] = vectorStringType;
+    
+    
+    // vector (int) variables
+    variableLocations["orbitCentre"] = vectorIntType;
+    
+    
+    // Vector (double) variables
+    
+    variableLocations["Mass"] = vectorDoubleType;
+    variableLocations["Radius"] = vectorDoubleType;
+    variableLocations["Position"] = vectorDoubleType;
+    
+     // TODO - what about positions/velocities?
+    variableLocations["XPosition"] = vectorDoubleType;
+    variableLocations["YPosition"] = vectorDoubleType;
+    variableLocations["ZPosition"] = vectorDoubleType;
+    
+    variableLocations["Velocity"] = vectorDoubleType;
+    
+    variableLocations["XVelocity"] = vectorDoubleType;
+    variableLocations["YVelocity"] = vectorDoubleType;
+    variableLocations["ZVelocity"] = vectorDoubleType;
+    
+    variableLocations["SemiMajorAxis"] = vectorDoubleType;
+    variableLocations["Eccentricity"] = vectorDoubleType;
+    variableLocations["Inclination"] = vectorDoubleType;
+    variableLocations["LongAscend"] = vectorDoubleType;
+    variableLocations["Periapsis"] = vectorDoubleType;
+    variableLocations["MeanAnomaly"] = vectorDoubleType;
+    
+    variableLocations["RotationPeriod"] = vectorDoubleType;
+    variableLocations["Obliquity"] = vectorDoubleType;
+    variableLocations["WinterSolstice"] = vectorDoubleType;
+    variableLocations["OceanFraction"] = vectorDoubleType;
+    variableLocations["InitialTemperature"] = vectorDoubleType;
+    variableLocations["Luminosity"] = vectorDoubleType;
+    
+}
+
+
+void parFile::readVariable(string &par, istringstream &iss, int &bodyIndex)
+
+
+{
+    string value;
+    iss >> value;
+    
+    if(variableLocations[par]==stringType) {readStringVariable(par,iss);}
+    
+    
+    if(variableLocations[par]==intType){
+        readIntVariable(par,iss);
+    
+        // If we have read Number of Bodies, then initialise vectors
+        if(par=="Number_Bodies") {
+            initialiseVectors(intVariables["Number_Bodies"]);
+        }
+    }
+    
+    if(variableLocations[par]==doubleType){
+        
+        if(par=="Position" or par=="Velocity")
+        {
+            read3DVector(par,iss,bodyIndex);
+        }
+        else
+        {
+        readDoubleVariable(par,iss);}
+    }
+    if(variableLocations[par]==vectorStringType){
+        // If reading BodyName, assume we are on the next body
+        if(par=="BodyName")
+        {
+            bodyIndex++;
+        }
+        
+        readVectorStringVariable(par,iss,bodyIndex);
+    }
+    if(variableLocations[par]==vectorIntType){readVectorIntVariable(par,iss,bodyIndex);}
+    if(variableLocations[par]==vectorDoubleType){readVectorDoubleVariable(par,iss,bodyIndex);}
+    
+
+    
+}
+
+
+void parFile::read3DVector(string &par,istringstream &iss,int &bodyIndex)
+
+
+{
+    double x,y,z;
+    iss >> x >> y >> z;
+
+    doubleVariables["X"+par] = x;
+    doubleVariables["X"+par] = y;
+    doubleVariables["X"+par] = z;
+    
+}
+
+void parFile::readStringVariable(string &par,istringstream &iss)
+
+{
+    string value;
+    iss >> value;
+    stringVariables[par] = value;
+}
+
+void parFile::readIntVariable(string &par,istringstream &iss)
+
+{
+    int value;
+    iss >> value;
+    intVariables[par] = value;
+}
+
+void parFile::readDoubleVariable(string &par,istringstream &iss)
+
+{
+    double value;
+    iss >> value;
+    doubleVariables[par] = value;
+}
+
+void parFile::readVectorIntVariable(string &par, istringstream &iss, int &bodyIndex)
+{
+    int value;
+    iss>> value;
+    
+    vectorIntVariables[par][bodyIndex] = value;
+}
+
+void parFile::readVectorDoubleVariable(string &par, istringstream &iss, int &bodyIndex)
+{
+    double value;
+    iss>> value;
+    
+    vectorDoubleVariables[par][bodyIndex] = value;
+}
+
+void parFile::readVectorStringVariable(string &par, istringstream &iss, int &bodyIndex)
+{
+    double value;
+    iss>> value;
+    
+    vectorStringVariables[par][bodyIndex] = value;
+}
+
+void parFile::initialiseVectors(int nBodies)
+{
+    /*
+     * Written 19/09/2018 by dh4gan
+     * Once the number of bodies is known, creates storage to hold all data
+     */
+    
+    // Assign zeros to int vectors
+    
+    // Assign zeros to double vectors
+    
+    // Assign zeros to string vectors
+}
+
 void parFile::readPosFile()
     {
     /*
@@ -111,7 +316,7 @@ void parFile::readPosFile()
     string meltChoice, restartChoice, illumChoice, tidalChoice;
     string obliqChoice, CScycleChoice, fullOutputChoice;
 
-    int bodyIndex;
+    int bodyIndex=-1;
 
     char inputfile[100];
 
@@ -149,6 +354,8 @@ void parFile::readPosFile()
 	{
 	istringstream iss(line);
 	iss >> par;
+        
+        readVariable(par,iss,bodyIndex)
 
 	if (par == "Restart")
 	    {
