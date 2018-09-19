@@ -1212,7 +1212,6 @@ void World::integrate()
     int i;
     double Tminus1,Tplus1, Dplus,Dminus;
     double T1,dx,dx1,Fj, period;
-    double year = 3.15e7;
 
     T_old = T;
 

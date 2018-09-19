@@ -6,7 +6,7 @@
  */
 
 #include "System.h"
-//#include "Constants.h"
+#include "Constants.h"
 #include <iostream>
 #include <stdio.h>
 #include <algorithm>
@@ -723,8 +723,6 @@ vector<double> System::checkForEclipses(int bodyIndex)
      The method returns a vector of doubles, describing what fraction of the star is eclipsed [0,1]
      */
 
-	double pi = 3.14159265285;
-
 	vector<double> eclipsefrac(bodyCount,0.0);
 	Vector3D vector_i, vector_j;
 	double mag_i, mag_j, idotj, b;
@@ -988,12 +986,6 @@ void System::calcPlanetaryEquilibriumTemperatures()
      */
 
     double sep, temp, lum, rad, albedo;
-    double pi = 3.141592653;
-    double sigma_SB = 5.67e-8;
-
-    double AU = 1.496e11;
-    double lsol = 3.826e26;
-    double rsol = 6.955e8;
 
     for (int j=0; j< bodyCount; j++)
 	{
@@ -1078,8 +1070,7 @@ double System::calcCombinedTimestep()
      */
 
     double LEBMmin;
-    double twopi = 2.0*3.141592;
-    double tunit = 3.15e7/(twopi);
+    double tunit = year/(twopi);
 
     double nbodymin = 1.0e30;
     // Calculate N Body minimum timestep in code units

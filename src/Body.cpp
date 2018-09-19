@@ -6,6 +6,7 @@
  */
 
 #include "Body.h"
+#include "Constants.h"
 #include <iostream> // Included for debug lines only
 #include <math.h>
 
@@ -209,7 +210,6 @@ void Body::calcOrbitFromVector(double G, double totmass)
      * Calls calcOrbitalAngularMomentum, calcEccentricity in the process
      */
 
-    double pi = 3.141592658285;
     Vector3D nplane; // Vector pointing toward Ascending Node
     double edotR, ndotR, edotn, ndotV, rdotV;
     double magpos, nscalar;
@@ -368,7 +368,12 @@ void Body::calcOrbitFromVector(double G, Body* parentBody)
 
 double Body::calcPeriod(double G, double totalMass)
 	    {
-    double pi = 3.1415926585;
+    /*
+     * Written by dh4gan 19/09/2018
+     * Computes the period of the Body according to Kepler's Third Law
+     *
+     */
+     
     double period;
 
     period = sqrt(4.0 * pi * pi * semiMajorAxis * semiMajorAxis * semiMajorAxis / (G
@@ -434,14 +439,9 @@ void Body::calcTrueAnomaly(double G, double totalMass, double time)
      *
      */
 
-    double period;
-
-    double pi = 3.1415926585;
-
-
     // Calculate period
 
-    period = calcPeriod(G,totalMass);
+    double period = calcPeriod(G,totalMass);
 
     // Calculate mean anomaly
     meanAnomaly = fmod(2.0*pi*time / period, 2.0*pi);
