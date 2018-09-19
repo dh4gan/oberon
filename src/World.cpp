@@ -7,15 +7,13 @@
 
 #include "World.h"
 #include "Constants.h"
+#include "LEBMConstants.h"
+#include "CSCycleConstants.h"
 #include <stdlib.h>
 #include <fstream>
 #include <sstream>
 #include <algorithm>
 #include <numeric>
-
-double freeze = 273.0;
-double boil = 373.0;
-double sigma_SB = 5.67e-5; //erg s^-1 cm^-2 K^-4
 
 World::World() :
 	Body()
@@ -36,7 +34,6 @@ World::World() :
      rho_moon = 5.0e-9; // density in kg m^-3
      rigid = 4e9; // rigidity in N m^-2 (Pa)
      Qtidal = 100.0;
-
 
      nPoints1 = nPoints+1;
      activateMelt = false;
@@ -539,10 +536,6 @@ void World::calcLuminosity()
  * Calculates the luminosity of the Planet, given its temperature and reflected starlight
  *
  */
-    double pi = 3.141592653;
-    double sigma_SB =5.67e-8;
-    double AU = 1.496e11;
-    double lsol = 3.8626e26;
 
     double minT, maxT,meanT,meanQ,meanA,meanIR,meanS,meanhab,meanTidal, meanCO2p, meanDiffusion;
 
@@ -939,12 +932,11 @@ void World::calcHeatCapacity(int iLatitude)
     /*
      * Written 9/1/14 by dh4gan
      * Calculation of Heat Capacity of the atmosphere as a function of the local temperature
-     *
+     * Note that C_land and C_ocean are defined in LEBMConstants.h
+     
      */
+    
     double C_ice = 0.0;
-    double C_land = 5.25e9; //differs by factor 1000 to W&K due to units...
-    double C_ocean = 40.0 * C_land;
-
     if (T[iLatitude] >= freeze)
 	{
 	C_ice = 0.0;
@@ -1116,7 +1108,7 @@ void World::calcNetHeating(int iLatitude)
 
 
 
-void World::calcHabitability(int iLatitude, double &minT, double &maxT)
+void World::calcHabitability(int iLatitude, const double &minT, const double &maxT)
     {
     /*
      * Written 9/1/14 by dh4gan

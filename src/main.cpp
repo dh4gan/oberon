@@ -14,6 +14,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "Constants.h"
 #include "System.h"
 #include "Star.h"
 #include "Planet.h"
@@ -27,10 +28,7 @@ using namespace std;
 int main(int argc, char* argv[])
     {
 
-    double G = 1;
-    double pi = 3.141592654;
-    double twopi = 2.0*pi;
-    double year =  3.1556926e7;
+    double G = Gmau;
     double unit2sec = year/twopi;
 
 

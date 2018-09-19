@@ -70,7 +70,7 @@ public:
     void calcTidalHeating(int iLatitude);
     void calcCO2Rates(int iLatitude);
     void calcNetHeating(int iLatitude);
-    void calcHabitability(int iLatitude,double &minT, double &maxT);
+    void calcHabitability(int iLatitude,const double &minT, const double &maxT);
     void calcLEBMTimestep(double &dtmax);
 
     void integrate();

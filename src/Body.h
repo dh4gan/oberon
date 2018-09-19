@@ -192,7 +192,7 @@ public:
     virtual void calcCooling(int iLatitude){};
 
     virtual void calcNetHeating(int iLatitude){};
-    virtual void calcHabitability(int iLatitude,double &minT, double &maxT){};
+    virtual void calcHabitability(int iLatitude,const double &minT, const double &maxT){};
     virtual void calcLEBMTimestep(double &dtmax){};
 
     virtual void integrate(){};

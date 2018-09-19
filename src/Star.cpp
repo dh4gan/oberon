@@ -7,7 +7,7 @@
 
 #include "Star.h"
 #include "Constants.h"
-#include "RadiationConstants.h"
+#include "CSCycleConstants.h"
 #include <iostream>
 #include <fstream>
 #include <sstream>

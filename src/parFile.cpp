@@ -8,11 +8,11 @@
 
 #include "parFile.h"
 #include "Constants.h"
+#include "CSCycleConstants.h"
 #include <iostream> // Included for debug lines only
 #include <math.h>
 #include <string>
 
-double solradToAU = 0.00467580213904;
 
 parFile::parFile()
     {
