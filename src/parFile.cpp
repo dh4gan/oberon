@@ -89,6 +89,7 @@ Vector3D parFile::getBodyVelocity(int index)
      *
      */
 
+        //TODO - fix getBodyVelocity and getBodyPosition methods
     Vector3D velocity;
 
     velocity.elements[0] = x_velocity[index];
@@ -110,36 +111,42 @@ void parFile::setVariableLocations()
      *
      */
     
-    
     // String variables
     
-    variableLocations["ParType"] = stringType;
-    variableLocations["NBodyOutput"] = stringType;
-    variableLocations["SystemName"] = stringType;
-    variableLocations["Restart"] = stringType;
-    variableLocations["ObliquityEvolution"] = stringType;
-    variableLocations["CarbonateSilicateCycle"] = stringType;
-    variableLocations["TidalHeating"] = stringType;
-    variableLocations["PlanetaryIllumination"] = stringType;
-    variableLocations["FullOutput"] = stringType;
+    string stringVar[] = {"ParType", "NBodyOutput", "SystemName","Restart","ObliquityEvolution", "CarbonateSilicateCycle", "TidalHeating","PlanetaryIllumination","FullOutput"};
     
+    for (int i=0; i<sizeof(stringVar);i++)
+    {
+        variableLocations[stringVar[i]] = stringType;
+    }
+
     
     // scalar (int) variables
     
-    variableLocations["NGridPoints"] = intType;
-    variableLocations["Number_Bodies"] = intType;
+    string intVar[] = {"NGridPoints","Number_Bodies"};
+    
+    for (int i=0; i<sizeof(intVar);i++)
+    {
+        variableLocations[intVar[i]] = intType;
+    }
     
     // Scalar (double) variables
     
-    variableLocations["SnapshotTime"] = doubleType;
-    variableLocations["MaximumTime"] = doubleType;
+    string doubleVar[] = {"SnapshotTime","MaximumTime"};
+    
+    for (int i=0; i<sizeof(doubleVar);i++)
+    {
+        variableLocations[doubleVar[i]] = doubleType;
+    }
     
     // Vector (string) variables
     
-    variableLocations["BodyName"] = vectorStringType;
-    variableLocations["BodyType"] = vectorStringType;
-    variableLocations["IceMeltingOn"] = vectorStringType;
-    
+    string vectorStringVar[] = {"BodyName", "BodyType", "IceMeltingOn"};
+
+    for (int i=0; i<sizeof(vectorStringVar);i++)
+    {
+        variableLocations[vectorStringVar[i]] = vectorStringType;
+    }
     
     // vector (int) variables
     variableLocations["orbitCentre"] = vectorIntType;
@@ -147,34 +154,12 @@ void parFile::setVariableLocations()
     
     // Vector (double) variables
     
-    variableLocations["Mass"] = vectorDoubleType;
-    variableLocations["Radius"] = vectorDoubleType;
-    variableLocations["Position"] = vectorDoubleType;
+    string vectorDoubleVar[] = {"Mass", "Radius", "Position", "XPosition", "YPosition", "ZPosition", "Velocity", "XVelocity", "YVelocity", "ZVelocity", "SemiMajorAxis", "Eccentricity", "Inclination", "LongAscend", "Periapsis", "MeanAnomaly", "RotationPeriod", "Obliquity", "WinterSolstice", "OceanFraction", "InitialTemperature", "Luminosity"};
     
-     // TODO - what about positions/velocities?
-    variableLocations["XPosition"] = vectorDoubleType;
-    variableLocations["YPosition"] = vectorDoubleType;
-    variableLocations["ZPosition"] = vectorDoubleType;
-    
-    variableLocations["Velocity"] = vectorDoubleType;
-    
-    variableLocations["XVelocity"] = vectorDoubleType;
-    variableLocations["YVelocity"] = vectorDoubleType;
-    variableLocations["ZVelocity"] = vectorDoubleType;
-    
-    variableLocations["SemiMajorAxis"] = vectorDoubleType;
-    variableLocations["Eccentricity"] = vectorDoubleType;
-    variableLocations["Inclination"] = vectorDoubleType;
-    variableLocations["LongAscend"] = vectorDoubleType;
-    variableLocations["Periapsis"] = vectorDoubleType;
-    variableLocations["MeanAnomaly"] = vectorDoubleType;
-    
-    variableLocations["RotationPeriod"] = vectorDoubleType;
-    variableLocations["Obliquity"] = vectorDoubleType;
-    variableLocations["WinterSolstice"] = vectorDoubleType;
-    variableLocations["OceanFraction"] = vectorDoubleType;
-    variableLocations["InitialTemperature"] = vectorDoubleType;
-    variableLocations["Luminosity"] = vectorDoubleType;
+    for (int i=0; i<sizeof(vectorDoubleVar);i++)
+    {
+        variableLocations[vectorDoubleVar[i]] = vectorDoubleType;
+    }
     
 }
 
@@ -188,8 +173,7 @@ void parFile::readVariable(string &par, istringstream &iss, int &bodyIndex)
     
     if(variableLocations[par]==stringType) {readStringVariable(par,iss);}
     
-    
-    if(variableLocations[par]==intType){
+    else if(variableLocations[par]==intType){
         readIntVariable(par,iss);
     
         // If we have read Number of Bodies, then initialise vectors
@@ -198,8 +182,9 @@ void parFile::readVariable(string &par, istringstream &iss, int &bodyIndex)
         }
     }
     
-    if(variableLocations[par]==doubleType){
+    else if(variableLocations[par]==doubleType){
         
+        // If reading 3D vectors, ensure these are stored correctly
         if(par=="Position" or par=="Velocity")
         {
             read3DVector(par,iss,bodyIndex);
@@ -208,8 +193,9 @@ void parFile::readVariable(string &par, istringstream &iss, int &bodyIndex)
         {
         readDoubleVariable(par,iss);}
     }
-    if(variableLocations[par]==vectorStringType){
-        // If reading BodyName, assume we are on the next body
+    else if(variableLocations[par]==vectorStringType){
+        
+        // If reading BodyName, assume we have moved on to the next body
         if(par=="BodyName")
         {
             bodyIndex++;
@@ -217,16 +203,18 @@ void parFile::readVariable(string &par, istringstream &iss, int &bodyIndex)
         
         readVectorStringVariable(par,iss,bodyIndex);
     }
-    if(variableLocations[par]==vectorIntType){readVectorIntVariable(par,iss,bodyIndex);}
-    if(variableLocations[par]==vectorDoubleType){readVectorDoubleVariable(par,iss,bodyIndex);}
+    else if(variableLocations[par]==vectorIntType){readVectorIntVariable(par,iss,bodyIndex);}
+    else if(variableLocations[par]==vectorDoubleType){readVectorDoubleVariable(par,iss,bodyIndex);}
     
-
+    else
+    {
+        cout << "ERROR: parameter " << par << " not recognised " << endl;
+    }
     
 }
 
 
 void parFile::read3DVector(string &par,istringstream &iss,int &bodyIndex)
-
 
 {
     double x,y,z;
@@ -295,9 +283,31 @@ void parFile::initialiseVectors(int nBodies)
     
     // Assign zeros to int vectors
     
+    std::map < string, vector<int> >:: iterator iti = vectorIntVariables.begin();
+    
+    while(iti!=vectorIntVariables.end())
+    {
+        iti->second.assign(nBodies,0);
+    }
+    
     // Assign zeros to double vectors
     
+    std::map < string, vector<double> >:: iterator itd = vectorDoubleVariables.begin();
+    
+    while(itd!=vectorDoubleVariables.end())
+    {
+        itd->second.assign(nBodies,0);
+    }
+    
     // Assign zeros to string vectors
+    
+    std::map < string, vector<string> >:: iterator its = vectorStringVariables.begin();
+    
+    while(its!=vectorStringVariables.end())
+    {
+        its->second.assign(nBodies,0);
+    }
+    
 }
 
 void parFile::readPosFile()
@@ -355,7 +365,7 @@ void parFile::readPosFile()
 	istringstream iss(line);
 	iss >> par;
         
-        readVariable(par,iss,bodyIndex)
+        //readVariable(par,iss,bodyIndex);
 
 	if (par == "Restart")
 	    {
