@@ -73,9 +73,9 @@ Vector3D parFile::getBodyPosition(int index)
 
     Vector3D position;
 
-    position.elements[0] = x_position[index];
-    position.elements[1] = y_position[index];
-    position.elements[2] = z_position[index];
+    position.elements[0] = vectorDoubleVariables["XPosition"][index];
+    position.elements[1] = vectorDoubleVariables["YPosition"][index];
+    position.elements[2] = vectorDoubleVariables["ZPosition"][index];
 
     return position;
 
@@ -89,12 +89,11 @@ Vector3D parFile::getBodyVelocity(int index)
      *
      */
 
-        //TODO - fix getBodyVelocity and getBodyPosition methods
     Vector3D velocity;
 
-    velocity.elements[0] = x_velocity[index];
-    velocity.elements[1] = y_velocity[index];
-    velocity.elements[2] = z_velocity[index];
+    velocity.elements[0] = vectorDoubleVariables["XVelocity"][index];
+    velocity.elements[1] = vectorDoubleVariables["YVelocity"][index];
+    velocity.elements[2] = vectorDoubleVariables["ZVelocity"][index];
 
     return velocity;
 
@@ -120,6 +119,16 @@ void parFile::setVariableLocations()
         variableLocations[stringVar[i]] = stringType;
     }
 
+  
+    // Of those, which are boolean?
+    
+    
+    string boolVar[] = {"Restart","ObliquityEvolution", "CarbonateSilicateCycle", "TidalHeating","PlanetaryIllumination","FullOutput"};
+    
+    for (int i=0; i<sizeof(stringVar);i++)
+    {
+        boolVariables[boolVar[i]]=false;
+    }
     
     // scalar (int) variables
     
@@ -309,6 +318,97 @@ void parFile::initialiseVectors(int nBodies)
     }
     
 }
+
+
+void parFile::convertToRadians(int nBodies)
+
+{
+    
+    string degreeVariables[] = {"Obliquity","WinterSolstice"};
+    
+    for (int i=0; i< sizeof(degreeVariables); i++)
+    {
+        for (int ibody=0; ibody<nBodies; ibody++)
+        {
+        vectorDoubleVariables[degreeVariables[i]][ibody] = vectorDoubleVariables[degreeVariables[i]][ibody]*degToRad;
+        
+    }
+    }
+    
+}
+
+bool parFile::initialiseBoolean(string &par)
+
+{
+    bool choice=false;
+    if(stringVariables[par].compare("T")==0 or stringVariables[par].compare("t")==0 or stringVariables[par].compare("Y")==0 or stringVariables[par].compare("y")==0 )
+    {
+        boolVariables[par]=true;
+    }
+    
+    return choice;
+}
+
+
+void parFile::initialiseAllBooleans()
+
+{
+    // Booleans
+    string boolVar[] = {"Restart", "ObliquityEvolution","CarbonateSilicateCycle","TidalHeating","PlanetaryIllumination","FullOutput"};
+    
+    for (int i=0; i<sizeof(boolVar); i++)
+    {
+        boolVariables[boolVar[i]] = initialiseBoolean(boolVar[i]);
+    }
+    
+}
+
+
+
+void parFile::readFile()
+
+{
+    /*
+     * Written 20/09/18 by dh4gan
+     * Read in data from the OBERON parameter file
+     *
+     */
+    
+    
+    string par;
+    string line;
+    
+    int bodyIndex=-1;
+    
+    snapshotNumber = 0;
+    
+    ifstream myfile(parFileName.c_str());
+    
+    // Then loop through each line using getline and then
+    //assign to vectors
+    
+    
+    while (getline(myfile, line))
+    {
+        istringstream iss(line);
+        iss >> par;
+        
+        readVariable(par,iss,bodyIndex);
+        
+    }
+    myfile.close();
+    
+    // Convert any variables read in degrees to radians
+    convertToRadians();
+    
+    systemTime = 0.0;
+    if(restart)
+    {
+        setupRestartPositions();
+    }
+    
+}
+
 
 void parFile::readPosFile()
     {
@@ -1124,7 +1224,11 @@ void parFile::setupRestartPositions()
     int ibody;
     double blank;
     string line, name;
-
+    
+        
+    int Nbodies = intVariables["Number_Bodies"];
+    string NBodyFile = stringVariables["NBodyOutput"];
+        
     // Read Last N Lines of NBody File for time, orbital elements
 
     cout << "Generating Positions for system restart " << endl;
@@ -1150,24 +1254,24 @@ void parFile::setupRestartPositions()
 	{
 	cout << "Warning: File " << NBodyFile << " not found" << endl;
 	cout << "Assuming that is not a restart!" << endl;
-	restart=false;
+	boolVariables["Restart"]=false;
 	return;
 	}
 
     myfile.close();
 
     // Now read final N lines
+        
+    vectorDoubleVariables["Mass"].assign(Nbodies, 0.0);
+    vectorDoubleVariables["Radius"].assign(Nbodies, 0.0);
 
-    Mass.assign(number_bodies, 0.0);
-    Radius.assign(number_bodies, 0.0);
+    vectorDoubleVariables["XPosition"].assign(Nbodies, 0.0);
+    vectorDoubleVariables["YPosition"].assign(Nbodies, 0.0);
+    vectorDoubleVariables["YPosition"].assign(Nbodies, 0.0);
 
-    x_position.assign(number_bodies, 0.0);
-    y_position.assign(number_bodies, 0.0);
-    z_position.assign(number_bodies, 0.0);
-
-    x_velocity.assign(number_bodies, 0.0);
-    y_velocity.assign(number_bodies, 0.0);
-    z_velocity.assign(number_bodies, 0.0);
+    vectorDoubleVariables["XVelocity"].assign(Nbodies, 0.0);
+    vectorDoubleVariables["YVelocity"].assign(Nbodies, 0.0);
+    vectorDoubleVariables["ZVelocity"].assign(Nbodies, 0.0);
 
     myfile.open(NBodyFile.c_str());
 
@@ -1191,7 +1295,7 @@ void parFile::setupRestartPositions()
 		}
 	    istringstream iss(line);
 
-	    iss >> systemTime;
+	    iss >> doubleVariables["systemTime"];
 	    iss >> blank;
 	    iss >> name;
 
@@ -1202,27 +1306,27 @@ void parFile::setupRestartPositions()
 		}
 
 	    // Mass, Radius
-	    iss >> Mass[ibody];
-	    iss >> Radius[ibody];
+	    iss >> vectorDoubleVariables["Mass"][ibody];
+	    iss >> vectorDoubleVariables["Radius"][ibody];
 
 	    // X, Y, Z, VX, VY, VZ
 
-	    iss >> x_position[ibody];
-	    iss >> y_position[ibody];
-	    iss >> z_position[ibody];
+	    iss >> vectorDoubleVariables["XPosition"][ibody];
+	    iss >> vectorDoubleVariables["YPosition"][ibody];
+	    iss >> vectorDoubleVariables["ZPosition"][ibody];
 
-	    iss >> x_velocity[ibody];
-	    iss >> y_velocity[ibody];
-	    iss >> z_velocity[ibody];
+	    iss >> vectorDoubleVariables["XVelocity"][ibody];
+	    iss >> vectorDoubleVariables["YVelocity"][ibody];
+	    iss >> vectorDoubleVariables["ZVelocity"][ibody];
 
 	    // Orbital Parameters
 
-	    iss >> semiMajorAxis[ibody];
-	    iss >> eccentricity[ibody];
-	    iss >> inclination[ibody];
-	    iss >> longAscend[ibody];
-	    iss >> Periapsis[ibody];
-	    iss >> meanAnomaly[ibody];
+	    iss >> vectorDoubleVariables["semiMajorAxis"][ibody];
+	    iss >> vectorDoubleVariables["eccentricity"][ibody];
+	    iss >> vectorDoubleVariables["Inclination"][ibody];
+	    iss >> vectorDoubleVariables["LongAscend"][ibody];
+	    iss >> vectorDoubleVariables["Periapsis"][ibody];
+	    iss >> vectorDoubleVariables["MeanAnomaly"][ibody];
 
 	    }
 	}

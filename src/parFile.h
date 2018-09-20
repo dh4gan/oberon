@@ -35,8 +35,6 @@ public:
 	parFile(string name);
     
 
-    
-    
 	string NBodyFile;
 	string parFileName;
 	string SystemName;
@@ -50,6 +48,7 @@ public:
     std::map < string, string > stringVariables;
     std::map < string, double > doubleVariables;
     std::map < string, int > intVariables;
+    std::map < string, bool > boolVariables;
     
     
     std::map < string, vector<int> > vectorIntVariables;
@@ -117,6 +116,9 @@ public:
 	Vector3D getBodyPosition(int index);
 	Vector3D getBodyVelocity(int index);
 
+    
+    void readFile();
+    
 	int readParFile();
 	int readParFile(string fileName);
 
@@ -141,9 +143,12 @@ public:
     void readVectorDoubleVariable(string &par, istringstream &iss, int &bodyIndex);
     void readVectorStringVariable(string &par, istringstream &iss, int &bodyIndex);
     
-    // TODO - write initialiseVectors and initialiseBooleans
     void initialiseVectors(int nBodies);
-    void initialiseBooleans();
+    void convertToRadians(int nBodies);
+    
+    bool initialiseBoolean(string &par);
+    
+    void initialiseAllBooleans();
     
     string getStringVariable(string &par){return stringVariables[par];}
     string getStringVariable(string &par, int bodyIndex){return vectorStringVariables[par][bodyIndex];}
