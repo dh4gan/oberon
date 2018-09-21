@@ -112,19 +112,12 @@ void parFile::setVariableLocations()
     
     // String variables
     
-    string stringVar[] = {"ParType", "NBodyOutput", "SystemName","Restart","ObliquityEvolution", "CarbonateSilicateCycle", "TidalHeating","PlanetaryIllumination","FullOutput"};
-    
     for (int i=0; i<sizeof(stringVar);i++)
     {
         variableLocations[stringVar[i]] = stringType;
     }
-
   
     // Of those, which are boolean?
-    
-    
-    string boolVar[] = {"Restart","ObliquityEvolution", "CarbonateSilicateCycle", "TidalHeating","PlanetaryIllumination","FullOutput"};
-    
     for (int i=0; i<sizeof(stringVar);i++)
     {
         boolVariables[boolVar[i]]=false;
@@ -132,7 +125,7 @@ void parFile::setVariableLocations()
     
     // scalar (int) variables
     
-    string intVar[] = {"NGridPoints","Number_Bodies"};
+    
     
     for (int i=0; i<sizeof(intVar);i++)
     {
@@ -399,10 +392,10 @@ void parFile::readFile()
     myfile.close();
     
     // Convert any variables read in degrees to radians
-    convertToRadians();
+    convertToRadians(intVariables["Number_Bodies"]);
     
-    systemTime = 0.0;
-    if(restart)
+    doubleVariables["SystemTime"] = 0.0;
+    if(boolVariables["Restart"])
     {
         setupRestartPositions();
     }

@@ -29,6 +29,19 @@ const string vectorIntType = "vectorInt";
 const string vectorDoubleType = "vectorDouble";
 const string vectorStringType = "vectorString";
 
+
+// All single string variables to read in
+const string stringVar[] = {"ParType", "NBodyOutput", "SystemName","Restart","ObliquityEvolution", "CarbonateSilicateCycle", "TidalHeating","PlanetaryIllumination","FullOutput"};
+
+// Of these, which are boolean?
+ const string boolVar[] = {"Restart","ObliquityEvolution", "CarbonateSilicateCycle", "TidalHeating","PlanetaryIllumination","FullOutput"};
+
+// Scalar ints
+const string intVar[] = {"NGridPoints","Number_Bodies"};
+
+// TODO - define more constants up here - variable strings
+
+
 class parFile {
 public:
 	parFile( );
@@ -159,8 +172,14 @@ public:
     double getDoubleVariable(string &par, int &bodyIndex){return vectorDoubleVariables[par][bodyIndex];}
     
 	void setupRestartPositions();
+    
+    void checkSetup(); // TODO - write checkSetup routine
+    
+    void printParameterOptions();// TODO - write Parameter options to screen (file?)
 
 
+    // TODO - create Body Objects from parFile object
+    
 };
 
 
