@@ -19,6 +19,9 @@ public:
 	Star(string &namestring, double &m, double &rad, Vector3D  &pos, Vector3D  &vel, double &lum, string &spec);
 	Star(string &namestring, double &m, double &rad, double semimaj, double ecc, double inc,
 			double longascend, double argper, double meananom, double G, double totalMass, double &lum, string &spec);
+    
+    Star(parFile input, int &bodyIndex, double &G);
+    
 	virtual ~Star();
 
 	void setLuminosity(double lum){luminosity = lum;}

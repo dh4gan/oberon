@@ -13,6 +13,7 @@
 #define BODY_H_
 
 #include <string>
+#include "parFile.h"
 //#include <vector>
 #include "math.h"
 #include "Vector3D.h"
@@ -26,6 +27,8 @@ public:
 
 	Body(string &namestring, double &m, double &rad, double semimaj, double ecc, double inc,
 		double longascend, double argper, double meananom, double G, double totalMass);
+    
+    Body(parFile input, int &bodyIndex, double &G);
 
 	virtual ~Body();
 

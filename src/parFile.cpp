@@ -124,39 +124,30 @@ void parFile::setVariableLocations()
     }
     
     // scalar (int) variables
-    
-    
-    
     for (int i=0; i<sizeof(intVar);i++)
     {
         variableLocations[intVar[i]] = intType;
     }
     
     // Scalar (double) variables
-    
-    string doubleVar[] = {"SnapshotTime","MaximumTime"};
-    
     for (int i=0; i<sizeof(doubleVar);i++)
     {
         variableLocations[doubleVar[i]] = doubleType;
     }
     
     // Vector (string) variables
-    
-    string vectorStringVar[] = {"BodyName", "BodyType", "IceMeltingOn"};
-
     for (int i=0; i<sizeof(vectorStringVar);i++)
     {
         variableLocations[vectorStringVar[i]] = vectorStringType;
     }
     
     // vector (int) variables
-    variableLocations["orbitCentre"] = vectorIntType;
     
+    for (int i=0; i<sizeof(vectorIntVar);i++)
+    {
+        variableLocations[vectorIntVar[i]] = vectorIntType;
+    }
     
-    // Vector (double) variables
-    
-    string vectorDoubleVar[] = {"Mass", "Radius", "Position", "XPosition", "YPosition", "ZPosition", "Velocity", "XVelocity", "YVelocity", "ZVelocity", "SemiMajorAxis", "Eccentricity", "Inclination", "LongAscend", "Periapsis", "MeanAnomaly", "RotationPeriod", "Obliquity", "WinterSolstice", "OceanFraction", "InitialTemperature", "Luminosity"};
     
     for (int i=0; i<sizeof(vectorDoubleVar);i++)
     {
@@ -167,7 +158,6 @@ void parFile::setVariableLocations()
 
 
 void parFile::readVariable(string &par, istringstream &iss, int &bodyIndex)
-
 
 {
     string value;
@@ -275,6 +265,14 @@ void parFile::readVectorStringVariable(string &par, istringstream &iss, int &bod
     
     vectorStringVariables[par][bodyIndex] = value;
 }
+
+
+string parFile::getVariable(string &par)
+{
+    return stringVariables[par];
+}
+
+
 
 void parFile::initialiseVectors(int nBodies)
 {

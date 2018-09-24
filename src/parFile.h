@@ -11,14 +11,15 @@
 #include <iostream>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
+#include <string>
 #include <map>
-#include "System.h"
-#include "Star.h"
+//#include "System.h"
+//#include "Star.h"
+#include "Vector3D.h"
 
 #include <fstream>
 #include <sstream>
-//using namespace std;
+using namespace std;
 
 // TODO - rewrite parFile class using STL map objects
 
@@ -39,22 +40,26 @@ const string stringVar[] = {"ParType", "NBodyOutput", "SystemName","Restart","Ob
 // Scalar ints
 const string intVar[] = {"NGridPoints","Number_Bodies"};
 
-// TODO - define more constants up here - variable strings
+// Scalar doubles
+const string doubleVar[] = {"TotalMass","SnapshotTime","MaximumTime"};
 
+// Vector (string) variables
+const string vectorStringVar[] = {"BodyName", "BodyType", "IceMeltingOn"};
+
+const string intStringVar[] = {"orbitCentre"};
+
+// Vector (double) variables
+const string vectorDoubleVar[] = {"Mass", "Radius", "Position", "XPosition", "YPosition", "ZPosition", "Velocity", "XVelocity", "YVelocity", "ZVelocity", "SemiMajorAxis", "Eccentricity", "Inclination", "LongAscend", "Periapsis", "MeanAnomaly", "RotationPeriod", "Obliquity", "WinterSolstice", "OceanFraction", "InitialTemperature", "Luminosity"};
 
 class parFile {
 public:
 	parFile( );
 	parFile(string name);
     
-
 	string NBodyFile;
 	string parFileName;
 	string SystemName;
 	string fileType;
-
-    
-    
     
     // Map objects to store variable data as it is read
     
@@ -71,8 +76,7 @@ public:
     // This map stores which map each variable lives in
     std::map< string, string > variableLocations;
     
-    
-	bool restart;
+	/*bool restart;
 	bool illuminationOn;
 	bool obliquityOn;
 	bool tidalHeatingOn;
@@ -125,10 +129,9 @@ public:
 	vector<bool> activateMelt;
 
 	vector<int> orbitCentre;
-
+*/
 	Vector3D getBodyPosition(int index);
 	Vector3D getBodyVelocity(int index);
-
     
     void readFile();
     
@@ -163,13 +166,18 @@ public:
     
     void initialiseAllBooleans();
     
-    string getStringVariable(string &par){return stringVariables[par];}
-    string getStringVariable(string &par, int bodyIndex){return vectorStringVariables[par][bodyIndex];}
     
-    int getIntVariable(string &par){return intVariables[par];}
-    int getIntVariable(string &par, int &bodyIndex){return vectorIntVariables[par][bodyIndex];}
-    double getDoubleVariable(string &par){return doubleVariables[par];}
-    double getDoubleVariable(string &par, int &bodyIndex){return vectorDoubleVariables[par][bodyIndex];}
+    string getStringVariable(const string &par){return stringVariables[par];}
+    string getStringVariable(const string &par, int &bodyIndex){return vectorStringVariables[par][bodyIndex];}
+    
+    int getIntVariable(const string &par){return intVariables[par];}
+    int getIntVariable(const string &par, int &bodyIndex){return vectorIntVariables[par][bodyIndex];}
+    double getDoubleVariable(const string &par){return doubleVariables[par];}
+    double getDoubleVariable(const string &par, int &bodyIndex){return vectorDoubleVariables[par][bodyIndex];}
+    
+    bool getBoolVariable(const string &par){return boolVariables[par];}
+   // bool getBoolVariable(string &par, index &bodyIndex){return boolVariables[par][bodyIndex];}
+
     
 	void setupRestartPositions();
     

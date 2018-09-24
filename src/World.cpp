@@ -182,6 +182,10 @@ World::World(string namestring, double m, double rad,
 
     }
 
+
+
+
+
 World::World(string namestring, double m, double rad,
 	double semimaj, double ecc, double inc, double longascend,
 	double argper, double meananom, double G, double totalMass, int n,
@@ -223,6 +227,43 @@ World::World(string namestring, double m, double rad,
     initialiseLEBM();
 
     }
+
+
+World(parFile input, int &bodyIndex, double &G):
+Body(input,bodyIndex,G)
+{
+    type = "World";
+    nPoints = input.getIntVariable("NGridPoints");
+    obliquity = input.getDoubleVariable("Obliquity",bodyIndex);
+    ellipticity = 0.00328005;
+    precession = input.getDoubleVariable("WinterSolstice",bodyIndex);
+    rotationPeriod = input.getDoubleVariable("RotationPeriod",bodyIndex);
+    oceanFraction = input.getDoubleVariable("OceanFraction",bodyIndex);
+    landFraction = 1.0-oceanFraction;
+    initialTemperature = input.getDoubleVariable("InitialTemperature",bodyIndex);
+    nFloat = float(nPoints);
+    nPoints1 = nPoints+1;
+    activateMelt = melt;
+    restart = start;
+    
+    tidalHeatingOn = input.getBoolVariable("TidalHeating",bodyIndex);
+    obliquityEvolutionOn = input.getBoolVariable("ObliquityEvolution",bodyIndex);
+    
+    luminosity = 0.0;
+    CSCycleOn = input.getBoolVariable("CarbonateSilicateCycle",bodyIndex);
+    
+    outgassingRate = input.getDoubleVariable("OutgassingRate",bodyIndex);
+    betaCO2 = input.getDoubleVariable("BetaCO2",bodyIndex);
+    W0 = input.getDoubleVariable("SeaWeatheringRate",bodyIndex);
+    gammaCO2 = input.getDoubleVariable("GammaCO2",bodyIndex);
+    
+    rho_moon = 5.0e-9; // density in kg m^-3
+    rigid = 4e9;
+    Qtidal = 100.0;
+    
+    initialiseLEBM();
+    
+}
 
 
 World::~World()

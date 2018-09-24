@@ -135,6 +135,93 @@ Body::Body(string &namestring, double &m, double &rad, double semimaj, double ec
     hostMass = mass;
   }
 
+
+Body::Body(parFile input, int &bodyIndex, double &G, double &totalMass)
+{
+    
+    Vector3D zero;
+    
+    if(input.getStringVariable("ParType")=="Orbital")
+    {
+        name = input.getStringVariable("BodyName",bodyIndex);
+        type = "Body";
+        mass = input.getDoubleVariable("Mass",bodyIndex);
+        radius = input.getDoubleVariable("Radius",bodyIndex);
+        collisionBounce = true;
+        
+        semiMajorAxis = input.getDoubleVariable("SemiMajorAxis",bodyIndex);
+        
+        eccentricityVector = zero; // Eccentricity Vector
+        eccentricity = input.getDoubleVariable("Eccentricity",bodyIndex); // Eccentricity = Absolute Magnitude of Eccentricity Vector
+        
+        orbitalAngularMomentum = zero;
+        magOrbitalAngularMomentum = 0.0;
+        
+        inclination = input.getDoubleVariable("Inclination",bodyIndex);
+        
+        position = zero;
+        velocity = zero;
+        meanAnomaly = input.getDoubleVariable("MeanAnomaly",bodyIndex);
+        eccentricAnomaly = 0.0;
+        
+        argumentPeriapsis = input.getDoubleVariable("Periapsis",bodyIndex);
+        
+        longitudeAscendingNode = input.getDoubleVariable("LongAscend",bodyIndex);
+        longitudePeriapsis = argper + longitudeAscendingNode;
+        
+        calcTrueAnomaly();
+        calcVectorFromOrbit(G, input.getDoubleVariable("TotalMass"));
+        
+        hostBody = 0;
+        hostMass = mass;
+        
+    }
+    
+    else if(input.getStringVariable("ParType")=="Positional")
+        
+    {
+        name = input.getStringVariable("BodyName",bodyIndex);
+        type = "Body";
+        mass = input.getDoubleVariable("Mass",bodyIndex);
+        radius = input.getDoubleVariable("Radius",bodyIndex);
+        collisionBounce = true;
+        
+        position = input.getPosition(bodyIndex);
+        velocity = input.getVelocity(bodyIndex);
+        
+        acceleration = zero;
+        jerk = zero;
+        snap = zero;
+        crackle = zero;
+        
+        semiMajorAxis = 0.0;
+        
+        eccentricityVector = zero;
+        eccentricity = 0.0;
+        
+        orbitalAngularMomentum = zero;
+        magOrbitalAngularMomentum = 0.0;
+        
+        inclination = 0.0;
+        trueAnomaly = 0.0;
+        eccentricAnomaly = 0.0;
+        meanAnomaly = 0.0;
+        period = 0.0;
+        
+        argumentPeriapsis = 0.0;
+        longitudePeriapsis = 0.0;
+        longitudeAscendingNode = 0.0;
+        
+        timestep = 0.0;
+        
+        hostBody = 0;
+        hostMass = mass;
+        
+        
+    }
+    
+}
+
 Body::~Body()
     {
     }

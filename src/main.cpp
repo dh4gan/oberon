@@ -75,7 +75,7 @@ int main(int argc, char* argv[])
 	    }
 	}
 
-    if(input.nPoints==0)
+    if(input.getIntVariable("NGridPoints")==0)
 	{
 	printf("ERROR! LEBM grid points not defined\n Is NGridPoints defined in paramsfile?\n");
 	return -1;
@@ -83,25 +83,25 @@ int main(int argc, char* argv[])
 
     // Record parameter data
 
-    tMax = input.maximumTime;
-    tSnap = input.snapshotTime;
+    tMax = input.getDoubleVariable("MaximumTime");
+    tSnap = input.getDoubleVariable("SnapshotTime");
 
-    if(input.restart == true)
+    if(input.getBoolVariable("Restart") == true)
 	{
 		cout << "Restart - Using vector data from nbody output" << endl;
 	}
     
 
-   if(input.CSCycleOn)
+   if(input.getBoolVariable("CarbonateSilicateCycle"))
 	{
 		cout << "CS cycle is ON" << endl;
 	}
 
     //First loop through each of the bodies in the system and set them up
     //adding them to the BodyArray
-    for (i = 0; i < input.number_bodies; i++)
+    for (i = 0; i < input.getIntVariable("Number_Bodies"); i++)
 	{
-	if (fileType == 0 or input.restart)
+	if (fileType == 0 or input.getBoolVariable("Restart"))
 	    {
 
 	    cout << "setting up body from vectors" << endl;
@@ -145,10 +145,10 @@ int main(int argc, char* argv[])
 			new World(input.BodyNames[i],
 				input.Mass[i], input.Radius[i], body_i_position,
 				body_i_velocity, input.nPoints, input.obliquity[i],input.rotationPeriod[i], input.precession[i],
-				input.oceanFraction[i], input.initialTemperature[i], input.activateMelt[i], input.restart,
+				input.oceanFraction[i], input.initialTemperature[i], input.activateMelt[i], input.getBoolVariable("Restart"),
 				input.tidalHeatingOn, input.obliquityOn, input.CSCycleOn,input.outgassingRate[i], input.betaCO2[i], input.seafloorWeathering[i], input.gammaCO2[i])); //Fed to parFile.cpp
 
-		if(input.restart)
+		if(input.getBoolVariable("Restart"))
 		    {
 		    cout << "Reading Temperature data for World " << BodyArray.back()->getName() << endl;
 		    snapshotNumber = BodyArray.back()->getRestartParameters();
@@ -164,7 +164,7 @@ int main(int argc, char* argv[])
 
 
 	    }
-	else if (fileType == 1 and input.restart==false)
+	else if (fileType == 1 and input.getBoolVariable("Restart")==false)
 	    {
 	    printf("setting up body %s with orbital parameters \n", input.BodyNames[i].c_str());
 
@@ -213,7 +213,7 @@ int main(int argc, char* argv[])
 				input.inclination[i], input.longAscend[i],
 				input.Periapsis[i], input.meanAnomaly[i], G,
 				input.totalMass,input.nPoints, input.obliquity[i],input.rotationPeriod[i], input.precession[i],
-				input.oceanFraction[i], input.initialTemperature[i], input.activateMelt[i], input.restart,
+				input.oceanFraction[i], input.initialTemperature[i], input.activateMelt[i], input.getBoolVariable("Restart"),
 				input.tidalHeatingOn, input.obliquityOn, input.CSCycleOn,
 				input.outgassingRate[i], input.betaCO2[i], input.seafloorWeathering[i], input.gammaCO2[i]));
 
@@ -237,7 +237,7 @@ int main(int argc, char* argv[])
 
     nBodySystem.setHostBodies(input.orbitCentre);
 
-    if(fileType ==1 and input.restart==false)
+    if(fileType ==1 and input.getBoolVariable("Restart")==false)
 	{
 	nBodySystem.setupOrbits(input.orbitCentre);
 	}
@@ -251,14 +251,14 @@ int main(int argc, char* argv[])
 
     // Set up the outputs
 
-    if (input.restart and snapshotNumber !=0)
+    if (input.getBoolVariable("Restart") and snapshotNumber !=0)
 	{
-	outputfile = fopen(input.NBodyFile.c_str(), "a");
+	outputfile = fopen(input.getStringVariable("NBodyOutput"), "a");
 	}
     else
 	{
-	outputfile = fopen(input.NBodyFile.c_str(), "w");
-	fprintf(outputfile, "Number of Bodies, %i \n", input.number_bodies);
+	outputfile = fopen(input.getStringVariable("NBodyOutput"), "w");
+	fprintf(outputfile, "Number of Bodies, %i \n", input.getIntVariable("Number_Bodies"));
 	}
 
 
@@ -275,7 +275,7 @@ int main(int argc, char* argv[])
 
 
     // If the system is restarting, ramp down the first timestep for stability
-    if(input.restart)
+    if(input.getBoolVariable("Restart"))
 	{
 	dtunit = dtunit/100.0;
 	}

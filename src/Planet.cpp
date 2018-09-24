@@ -39,6 +39,20 @@ Planet::Planet(string &namestring, double &m, double &rad,
     reflectiveLuminosity = 0.0;
     luminosity = 0.0;
     }
+
+Planet::Planet(parFile input, int &bodyIndex, double &G):
+Body(input,bodyIndex,G)
+{
+    
+    type="Planet";
+    albedo = input.getDoubleVariable("Albedo",bodyIndex);
+    temperature = 0.0;
+    reflectiveLuminosity=0.0;
+    luminosity = 0.0;
+    
+}
+
+
 Planet::~Planet()
     {
     }
