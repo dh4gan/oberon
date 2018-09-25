@@ -76,27 +76,16 @@ int main(int argc, char* argv[])
 	   // }
 	}
 
-    if(input.getIntVariable("NGridPoints")==0)
-	{
-	printf("ERROR! LEBM grid points not defined\n Is NGridPoints defined in paramsfile?\n");
-	return -1;
-	}
+        // Check and display input parameters
+        input.checkParameters();
+        input.displayParameters();
 
     // Record parameter data
 
     tMax = input.getDoubleVariable("MaximumTime");
     tSnap = input.getDoubleVariable("SnapshotTime");
 
-    if(input.getBoolVariable("Restart") == true)
-	{
-		cout << "Restart - Using vector data from nbody output" << endl;
-	}
-    
-
-   if(input.getBoolVariable("CarbonateSilicateCycle"))
-	{
-		cout << "CS cycle is ON" << endl;
-	}
+   
 
     //First loop through each of the bodies in the system and set them up
     //adding them to the BodyArray
@@ -145,17 +134,20 @@ int main(int argc, char* argv[])
         }
     nBodySystem.setHostBodies(orbitCentre);
 
-    if(fileType ==1 and input.getBoolVariable("Restart")==false)
+    if(input.getStringVariable("ParType").compare("Orbital")==0 and input.getBoolVariable("Restart")==false)
 	{
 	nBodySystem.setupOrbits(orbitCentre);
 	}
 
-    // Calculate its initial properties
+        
+    
+        
+    // Calculate the system's initial properties
     nBodySystem.calcInitialProperties();
 
+    
     // Switch Planetary Illumination on/off
     nBodySystem.setIllumination(input.getBoolVariable("PlanetaryIllumination"));
-
 
     // Set up the outputs
 
@@ -169,7 +161,6 @@ int main(int argc, char* argv[])
 	fprintf(outputfile, "Number of Bodies, %i \n", input.getIntVariable("Number_Bodies"));
 	}
 
-
     // Now loop over snap shots, outputting the system data each time
 
     tStop = 0.0;
@@ -181,15 +172,17 @@ int main(int argc, char* argv[])
     // Calculate the minimum LEBM timestep for all worlds and NBody timestep
     dtunit = nBodySystem.calcCombinedTimestep();
 
-
     // If the system is restarting, ramp down the first timestep for stability
     if(input.getBoolVariable("Restart"))
 	{
 	dtunit = dtunit/100.0;
 	}
 
-    dtsec = dtunit*unit2sec; // This will be the default timestep measure - derive dtunit = dtsec*2pi/(3.15e7)
-    timeunit = input.getDoubleVariable("SystemTime")*twopi;
+    // This will be the default timestep measure - derive dtunit = dtsec*2pi/(3.15e7)
+        
+    dtsec = dtunit*unit2sec;
+        
+    timeunit = input.getDoubleVariable("SystemTime")*twopi; // system time in code units
 
 
     printf("System set up: Running \n");
@@ -226,10 +219,13 @@ int main(int argc, char* argv[])
 	nBodySystem.outputLEBMData(snapshotNumber, timeyr, input.getBoolVariable("FullOutput"));
 	}
 
-    //Close the file before returning
+    //Close the N Body file before ending the simulation
 
     fclose(outputfile);
 
+    // TODO - write time elapsed to screen
+        
+        
     return 0;
     }
 

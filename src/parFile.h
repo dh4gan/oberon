@@ -21,8 +21,6 @@
 #include <sstream>
 using namespace std;
 
-// TODO - rewrite parFile class using STL map objects
-
 const string stringType = "string";
 const string intType = "int";
 const string doubleType = "double";
@@ -180,12 +178,11 @@ public:
     
 	void setupRestartPositions();
     
-    void checkSetup(); // TODO - write checkSetup routine
-    
-    void printParameterOptions();// TODO - write Parameter options to screen (file?)
-
-
-    // TODO - create Body Objects from parFile object
+    void checkParameters(); // TODO - write checkSetup routine
+    void displayParameters();
+    void reportError(const string &par, double &value);
+    void reportError(const string &par, int &value);
+    void reportError(const string &par, string &value);
     
 };
 

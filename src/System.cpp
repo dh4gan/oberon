@@ -1102,6 +1102,9 @@ return nbodymin;
 
     }
 
+
+
+
 void System::outputNBodyData(FILE *outputfile, double &time, vector<int> orbitCentre)
     {
     /*
@@ -1168,6 +1171,9 @@ void System::outputNBodyData(FILE *outputfile, double &time, vector<int> orbitCe
     fflush(outputfile);
 
     }
+
+
+
 
 void System::outputLEBMData(int &snapshotNumber, double &tSnap, bool fullOutput)
     {

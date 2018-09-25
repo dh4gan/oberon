@@ -254,20 +254,141 @@ void parFile::initialiseVectors(int nBodies)
     
     while(itd!=vectorDoubleVariables.end())
     {
-        itd->second.assign(nBodies,0);
+        itd->second.assign(nBodies,0.0);
     }
     
-    // Assign zeros to string vectors
+    // Assign blanks to string vectors
     
     std::map < string, vector<string> >:: iterator its = vectorStringVariables.begin();
     
     while(its!=vectorStringVariables.end())
     {
-        its->second.assign(nBodies,0);
+        its->second.assign(nBodies,"");
     }
     
 }
 
+
+void parFile::reportError(const string &par, double &value)
+
+{
+    printf("Error in parameter %s: invalid value %f \n",par.c_str(),value);
+    exit(1);
+}
+
+void parFile::reportError(const string &par, int &value)
+
+{
+    printf("Error in parameter %s: invalid value %i \n",par.c_str(),value);
+    exit(1);
+}
+
+
+void parFile::reportError(const string &par, string &value)
+
+{
+    printf("Error in parameter %s: invalid value %s \n",par.c_str(),value.c_str());
+    exit(1);
+}
+
+void parFile::checkParameters()
+
+{
+    
+    // Check number of grid points is defined
+    if(intVariables["NGridPoints"]==0)
+    {
+        reportError("NGridPoints",intVariables["nGridPoints"]);
+    }
+    
+    
+    // Set a default name for system if not specified
+    if(stringVariables["SystemName"].compare("")==0)
+    {
+        stringVariables["SystemName"] = "System";
+    }
+    
+    
+    // Check snapshot interval is defined
+    if(doubleVariables["SnapshotTime"]==0.0)
+    {
+        reportError("SnapshotTime",doubleVariables["SnapshotTime"]);
+    }
+    
+    // Check maximum time is defined
+    if(doubleVariables["MaximumTime"]==0.0)
+    {
+        reportError("MaximumTime", doubleVariables["MaximumTime"]);
+    }
+    
+}
+
+
+void parFile::displayParameters()
+
+{
+    
+    printf("Global Parameters: \n");
+    printf("*********************\n");
+    printf("System Name: %s \n",stringVariables["SystemName"].c_str());
+    printf("Number of Bodies: %i \n",intVariables["Number_Bodies"]);
+    printf("N Body Output File: %s \n",stringVariables["NBodyOutput"].c_str());
+    printf("Maximum Time: %f years \n", doubleVariables["MaximumTime"]);
+    printf("Snapshot Time: %f years \n", doubleVariables["SnapshotTime"]);
+    
+    
+    if(boolVariables["Restart"])
+    {
+        printf("This is a restart - using vector data from pre-existing nbody output file \n");
+    }
+    
+    if(boolVariables["PlanetaryIllumination"])
+    {
+        printf("Planetary Illumination is ON \n");
+    }
+    else
+    {
+        printf("Planetary Illumination is OFF \n");
+    }
+    
+    if(boolVariables["TidalHeating"])
+    {
+        printf("Tidal Heating is ON \n");
+    }
+    else
+    {
+        printf("Tidal Heating is OFF \n");
+    }
+    
+    
+    if(boolVariables["CarbonateSilicateCycle"])
+    {
+        printf("Carbonate Silicate Cycle is ON \n");
+    }
+    else
+    {
+        printf("Carbonate Silicate Cycle is OFF \n");
+    }
+    
+    
+    printf("Individual Body Parameters \n");
+    printf("*********************\n");
+    
+    for (int i=0; i<intVariables["Number_Bodies"]; i++)
+        
+    {
+        // Write Type, Position and Velocity
+        printf("Body %i: Type %s \n",i,vectorStringVariables["BodyType"][i].c_str());
+        printf("Position: \n");
+        getBodyPosition(i).printVector();
+        
+        printf("Velocity: \n");
+        getBodyVelocity(i).printVector();
+        
+    }
+    
+    
+}
 
 void parFile::convertToRadians(int nBodies)
 
