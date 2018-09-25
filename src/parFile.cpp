@@ -16,51 +16,16 @@
 
 parFile::parFile()
     {
-    totalMass = 0.0;
-
-    restart = false;
-
-    illuminationOn = false;
-    tidalHeatingOn = false;
-    obliquityOn = false;
-    CSCycleOn = false;
-    fullOutput = false;
-
-    systemTime = 0.0;
-    maximumTime = 0.0;
-    snapshotTime = 0.0;
-    snapshotNumber =0;
-    nPoints = 0;
-    number_bodies = 0;
-        
-    setVariableLocations();
+   setVariableLocations();
 
     }
 
 parFile::parFile(string name)
     {
     parFileName = name;
-    totalMass = 0.0;
-
-    restart = false;
-
-
-    illuminationOn = false;
-    tidalHeatingOn = false;
-    obliquityOn = false;
-    CSCycleOn = false;
-    fullOutput = false;
-
-    systemTime = 0.0;
-    maximumTime = 0.0;
-    snapshotTime = 0.0;
-    snapshotNumber = 0;
-
-    nPoints =0;
-    number_bodies = 0;
-        
+    
     setVariableLocations();
-
+        
     }
 
 Vector3D parFile::getBodyPosition(int index)
@@ -267,13 +232,6 @@ void parFile::readVectorStringVariable(string &par, istringstream &iss, int &bod
 }
 
 
-string parFile::getVariable(string &par)
-{
-    return stringVariables[par];
-}
-
-
-
 void parFile::initialiseVectors(int nBodies)
 {
     /*
@@ -359,6 +317,22 @@ void parFile::initialiseAllBooleans()
 void parFile::readFile()
 
 {
+
+    cout << "What is the input file? " << endl;
+
+    getline(cin, parFileName);
+
+    cout << "Reading input from file " << parFileName << endl;
+    
+    parFile(filename);
+}
+
+
+
+
+void parFile::readFile(string &filename)
+
+{
     /*
      * Written 20/09/18 by dh4gan
      * Read in data from the OBERON parameter file
@@ -370,8 +344,6 @@ void parFile::readFile()
     string line;
     
     int bodyIndex=-1;
-    
-    snapshotNumber = 0;
     
     ifstream myfile(parFileName.c_str());
     
@@ -400,7 +372,7 @@ void parFile::readFile()
     
 }
 
-
+/*
 void parFile::readPosFile()
     {
     /*
@@ -408,7 +380,7 @@ void parFile::readPosFile()
      * body
      *
      */
-    // First read in the user data file
+ /*   // First read in the user data file
     // Format must be,name of body followed by its parameters
 
     string par;
@@ -733,7 +705,7 @@ void parFile::readOrbFile()
     // First read in the user data file
     // Format must be,name of body followed by its parameters
 
-    int bodyIndex;
+/*    int bodyIndex;
     string par;
     string line;
     string BodyType, BodyName,spectral;
@@ -1050,8 +1022,8 @@ void parFile::readOrbFile()
 	}
 
 
-    }
-int parFile::parType()
+    }*.
+/*int parFile::parType()
     {
     /*
      * PURPOSE : TO DETERMINE THE TYPE OF PARAMETER FILE
@@ -1064,7 +1036,7 @@ int parFile::parType()
      *
      *
      */
-    char inputfile[100];
+/*    char inputfile[100];
     string parType;
     string line;
     string par;
@@ -1118,7 +1090,7 @@ int parFile::parType(string fileName)
      *
      *
      */
-    char inputfile[100];
+ /*   char inputfile[100];
     string parType;
     string line;
     string par;
@@ -1202,7 +1174,7 @@ int parFile::readParFile(string filename)
 	}
     return type;
     }
-
+*/
 void parFile::setupRestartPositions()
     {
     /*
@@ -1224,7 +1196,7 @@ void parFile::setupRestartPositions()
 
     cout << "Generating Positions for system restart " << endl;
     cout << "Reading input from file " << NBodyFile << endl;
-    cout << "Attempting data read for " << number_bodies << " bodies " << endl;
+    cout << "Attempting data read for " << Nbodies << " bodies " << endl;
 
     ifstream myfile(NBodyFile.c_str());
 
@@ -1272,11 +1244,11 @@ void parFile::setupRestartPositions()
 	iline++;
 
 	// If at last lines of file, then read information
-	if (iline > numLines - number_bodies)
+	if (iline > numLines - Nbodies)
 	    {
 
 	    ibody = numLines - iline;
-	    ibody = number_bodies - ibody - 1;
+	    ibody = Nbodies - ibody - 1;
 
 	    // Strip commas from line
 	    while (line.find(",") != line.npos)
@@ -1290,10 +1262,10 @@ void parFile::setupRestartPositions()
 	    iss >> blank;
 	    iss >> name;
 
-	    if (name != BodyNames[ibody])
+	    if (name.compare(vectorStringVariables["BodyName"][ibody])!=0)
 		{
 		cout << "WARNING! Body Names Mismatch: " << name << "  "
-			<< BodyNames[ibody] << endl;
+			<< vectorStringVariables["BodyName"][ibody] << endl;
 		}
 
 	    // Mass, Radius

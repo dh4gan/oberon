@@ -38,7 +38,7 @@ public:
 	    int n, double obliq, double rot, double prec,
 	    double ocean, double T0, bool melt, bool start, bool tide, bool obevol, bool CScycle, double outgas, double beta, double seaweather, double gamma);
 
-    World(parFile input, int &bodyIndex, double &G);
+    World(parFile &input, int &bodyIndex, double &G);
         
         
     virtual ~World();

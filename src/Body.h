@@ -28,7 +28,7 @@ public:
 	Body(string &namestring, double &m, double &rad, double semimaj, double ecc, double inc,
 		double longascend, double argper, double meananom, double G, double totalMass);
     
-    Body(parFile input, int &bodyIndex, double &G);
+    Body(parFile &input, int &bodyIndex, double &G);
 
 	virtual ~Body();
 

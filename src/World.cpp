@@ -229,7 +229,7 @@ World::World(string namestring, double m, double rad,
     }
 
 
-World(parFile input, int &bodyIndex, double &G):
+World::World(parFile &input, int &bodyIndex, double &G):
 Body(input,bodyIndex,G)
 {
     type = "World";
@@ -243,14 +243,14 @@ Body(input,bodyIndex,G)
     initialTemperature = input.getDoubleVariable("InitialTemperature",bodyIndex);
     nFloat = float(nPoints);
     nPoints1 = nPoints+1;
-    activateMelt = melt;
-    restart = start;
+    activateMelt = input.getBoolVariable("IceMeltingOn");
+    restart = input.getBoolVariable("Restart");
     
-    tidalHeatingOn = input.getBoolVariable("TidalHeating",bodyIndex);
-    obliquityEvolutionOn = input.getBoolVariable("ObliquityEvolution",bodyIndex);
+    tidalHeatingOn = input.getBoolVariable("TidalHeating");
+    obliquityEvolutionOn = input.getBoolVariable("ObliquityEvolution");
     
     luminosity = 0.0;
-    CSCycleOn = input.getBoolVariable("CarbonateSilicateCycle",bodyIndex);
+    CSCycleOn = input.getBoolVariable("CarbonateSilicateCycle");
     
     outgassingRate = input.getDoubleVariable("OutgassingRate",bodyIndex);
     betaCO2 = input.getDoubleVariable("BetaCO2",bodyIndex);

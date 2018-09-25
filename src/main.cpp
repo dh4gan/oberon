@@ -64,15 +64,16 @@ int main(int argc, char* argv[])
     if (argc == 2)
 	{
 	string fileString = string(argv[1]);
-	fileType = input.readParFile(fileString);
+	//fileType = input.readParFile(fileString);
+        input.readFile(fileString);
 	}
     else
 	{
-	fileType = input.readParFile();
-	if (fileType > 1)
-	    {
-	    return -1;
-	    }
+	input.readFile();
+	//if (fileType > 1)
+	 //   {
+	  //  return -1;
+	   // }
 	}
 
     if(input.getIntVariable("NGridPoints")==0)
@@ -101,126 +102,24 @@ int main(int argc, char* argv[])
     //adding them to the BodyArray
     for (i = 0; i < input.getIntVariable("Number_Bodies"); i++)
 	{
-	if (fileType == 0 or input.getBoolVariable("Restart"))
-	    {
-
-	    cout << "setting up body from vectors" << endl;
-
-	    body_i_position = input.getBodyPosition(i);
-	    body_i_velocity = input.getBodyVelocity(i);
-
-
-	    // If the Body is a Star, add a Star Object
-
-	    if (input.BodyTypes[i] == "Star")
-		{
-		BodyArray.push_back(
-			new Star(input.BodyNames[i],
-				input.Mass[i], input.Radius[i], body_i_position,
-				body_i_velocity, input.luminosity[i], input.spectralType[i]));
-		}
-
-	    // If the Body is a Planet, add a Planet Object
-	    if (input.BodyTypes[i] == "Planet")
-		{
-		BodyArray.push_back(
-			new Planet(input.BodyNames[i],
-				input.Mass[i], input.Radius[i], body_i_position,
-				body_i_velocity, input.albedo[i]));
-		}
-
-	    // If the Body is a World, add a World Object and set up LEBM
-
-	    if (input.BodyTypes[i] == "World")
-		{
-		// Code will halt if initial temperature zero
-		// this stops incomplete params files running successfully
-
-		if(input.initialTemperature[i]==0.0)
-		    {
-		    printf("ERROR in World %s Setup: initial T zero \nIs World fully specified in params file? ", input.BodyNames[i].c_str());
-		    return -1;
-		    }
-		BodyArray.push_back(
-			new World(input.BodyNames[i],
-				input.Mass[i], input.Radius[i], body_i_position,
-				body_i_velocity, input.nPoints, input.obliquity[i],input.rotationPeriod[i], input.precession[i],
-				input.oceanFraction[i], input.initialTemperature[i], input.activateMelt[i], input.getBoolVariable("Restart"),
-				input.tidalHeatingOn, input.obliquityOn, input.CSCycleOn,input.outgassingRate[i], input.betaCO2[i], input.seafloorWeathering[i], input.gammaCO2[i])); //Fed to parFile.cpp
-
-		if(input.getBoolVariable("Restart"))
-		    {
-		    cout << "Reading Temperature data for World " << BodyArray.back()->getName() << endl;
-		    snapshotNumber = BodyArray.back()->getRestartParameters();
-
-		    if(snapshotNumber==-1)
-			{
-			printf("ERROR in World %s temperature setup \n",input.BodyNames[i].c_str() );
-			return -1;
-			}
-		    }
-
-		}
-
-
-	    }
-	else if (fileType == 1 and input.getBoolVariable("Restart")==false)
-	    {
-	    printf("setting up body %s with orbital parameters \n", input.BodyNames[i].c_str());
-
-	    // If the Body is a Star, add a Star Object
-	    if (input.BodyTypes[i] == "Star")
-		{
-
-		BodyArray.push_back(
-			new Star(input.BodyNames[i],
-				input.Mass[i], input.Radius[i],
-				input.semiMajorAxis[i], input.eccentricity[i],
-				input.inclination[i], input.longAscend[i],
-				input.Periapsis[i], input.meanAnomaly[i], G,
-				input.totalMass, input.luminosity[i], input.spectralType[i]));
-
-		}
-
-	    // If the Body is a Planet, add a Planet Object
-	    if (input.BodyTypes[i] == "Planet")
-		{
-		BodyArray.push_back(
-			new Planet(input.BodyNames[i],
-				input.Mass[i], input.Radius[i],
-				input.semiMajorAxis[i], input.eccentricity[i],
-				input.inclination[i], input.longAscend[i],
-				input.Periapsis[i], input.meanAnomaly[i], G,
-				input.totalMass, input.albedo[i]));
-
-		}
-
-	    // If the Body is a World, add a World Object and set up LEBM
-	    if (input.BodyTypes[i] == "World")
-		{
-
-		if (input.initialTemperature[i] == 0.0)
-		    {
-		    printf(
-			    "ERROR in World %s Setup: initial T zero \nIs World fully specified in params file? \n",
-			    input.BodyNames[i].c_str());
-		    return -1;
-		    }
-		BodyArray.push_back(
-			new World(input.BodyNames[i],
-				input.Mass[i], input.Radius[i],
-				input.semiMajorAxis[i], input.eccentricity[i],
-				input.inclination[i], input.longAscend[i],
-				input.Periapsis[i], input.meanAnomaly[i], G,
-				input.totalMass,input.nPoints, input.obliquity[i],input.rotationPeriod[i], input.precession[i],
-				input.oceanFraction[i], input.initialTemperature[i], input.activateMelt[i], input.getBoolVariable("Restart"),
-				input.tidalHeatingOn, input.obliquityOn, input.CSCycleOn,
-				input.outgassingRate[i], input.betaCO2[i], input.seafloorWeathering[i], input.gammaCO2[i]));
-
-
-
-		}
-
+        if (input.getStringVariable("BodyType",i) == "Star")
+        {
+            BodyArray.push_back(new Star(input, i, G));
+        }
+        else if (input.getStringVariable("BodyType",i) == "Planet")
+        {
+        BodyArray.push_back(new Planet(input, i, G));
+        }
+        else if(input.getStringVariable("BodyType",i) == "World")
+        {
+            BodyArray.push_back(new World(input, i, G));
+            
+            if(input.getBoolVariable("Restart"))
+            {
+                cout << "Reading Temperature data for World " << BodyArray.back()->getName() << endl;
+                snapshotNumber = BodyArray.back()->getRestartParameters();
+        }
+        
 	    }
 
 	printf("body %s set up \n", BodyArray.back()->getName().c_str());
@@ -228,36 +127,45 @@ int main(int argc, char* argv[])
 	}
 
     // Set up System object using BodyArray
+        
+        string systemName = input.getStringVariable("SystemName");
 
-    printf("Setting up system %s \n", input.SystemName.c_str());
+    printf("Setting up system %s \n", systemName.c_str());
 
-    nBodySystem = System(input.SystemName, BodyArray);
+    nBodySystem = System(systemName, BodyArray);
 
     // If the System is created from orbital parameters, set up vectors here
+        vector<int> orbitCentre;
+        
+        for (int i=0; i<input.getIntVariable("Number_Bodies"); i++)
 
-    nBodySystem.setHostBodies(input.orbitCentre);
+        {
+            orbitCentre.push_back(input.getIntVariable("OrbitCentre",i));
+            
+        }
+    nBodySystem.setHostBodies(orbitCentre);
 
     if(fileType ==1 and input.getBoolVariable("Restart")==false)
 	{
-	nBodySystem.setupOrbits(input.orbitCentre);
+	nBodySystem.setupOrbits(orbitCentre);
 	}
 
     // Calculate its initial properties
     nBodySystem.calcInitialProperties();
 
     // Switch Planetary Illumination on/off
-    nBodySystem.setIllumination(input.illuminationOn);
+    nBodySystem.setIllumination(input.getBoolVariable("PlanetaryIllumination"));
 
 
     // Set up the outputs
 
     if (input.getBoolVariable("Restart") and snapshotNumber !=0)
 	{
-	outputfile = fopen(input.getStringVariable("NBodyOutput"), "a");
+	outputfile = fopen(input.getStringVariable("NBodyOutput").c_str(), "a");
 	}
     else
 	{
-	outputfile = fopen(input.getStringVariable("NBodyOutput"), "w");
+	outputfile = fopen(input.getStringVariable("NBodyOutput").c_str(), "w");
 	fprintf(outputfile, "Number of Bodies, %i \n", input.getIntVariable("Number_Bodies"));
 	}
 
@@ -281,7 +189,7 @@ int main(int argc, char* argv[])
 	}
 
     dtsec = dtunit*unit2sec; // This will be the default timestep measure - derive dtunit = dtsec*2pi/(3.15e7)
-    timeunit = input.systemTime*twopi;
+    timeunit = input.getDoubleVariable("SystemTime")*twopi;
 
 
     printf("System set up: Running \n");
@@ -311,11 +219,11 @@ int main(int argc, char* argv[])
 	timeyr = timeunit/twopi;
 
 	// N Body data goes to a single file
-	nBodySystem.outputNBodyData(outputfile, timeyr, input.orbitCentre);
+	nBodySystem.outputNBodyData(outputfile, timeyr, orbitCentre);
 
 	// LEBM data goes to separate files for each World in the System
 
-	nBodySystem.outputLEBMData(snapshotNumber, timeyr, input.fullOutput);
+	nBodySystem.outputLEBMData(snapshotNumber, timeyr, input.getBoolVariable("FullOutput"));
 	}
 
     //Close the file before returning

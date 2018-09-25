@@ -136,7 +136,7 @@ Body::Body(string &namestring, double &m, double &rad, double semimaj, double ec
   }
 
 
-Body::Body(parFile input, int &bodyIndex, double &G, double &totalMass)
+Body::Body(parFile &input, int &bodyIndex, double &G)
 {
     
     Vector3D zero;
@@ -167,7 +167,7 @@ Body::Body(parFile input, int &bodyIndex, double &G, double &totalMass)
         argumentPeriapsis = input.getDoubleVariable("Periapsis",bodyIndex);
         
         longitudeAscendingNode = input.getDoubleVariable("LongAscend",bodyIndex);
-        longitudePeriapsis = argper + longitudeAscendingNode;
+        longitudePeriapsis = argumentPeriapsis + longitudeAscendingNode;
         
         calcTrueAnomaly();
         calcVectorFromOrbit(G, input.getDoubleVariable("TotalMass"));
@@ -186,8 +186,8 @@ Body::Body(parFile input, int &bodyIndex, double &G, double &totalMass)
         radius = input.getDoubleVariable("Radius",bodyIndex);
         collisionBounce = true;
         
-        position = input.getPosition(bodyIndex);
-        velocity = input.getVelocity(bodyIndex);
+        position = input.getBodyPosition(bodyIndex);
+        velocity = input.getBodyVelocity(bodyIndex);
         
         acceleration = zero;
         jerk = zero;

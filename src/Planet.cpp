@@ -40,7 +40,7 @@ Planet::Planet(string &namestring, double &m, double &rad,
     luminosity = 0.0;
     }
 
-Planet::Planet(parFile input, int &bodyIndex, double &G):
+Planet::Planet(parFile &input, int &bodyIndex, double &G):
 Body(input,bodyIndex,G)
 {
     

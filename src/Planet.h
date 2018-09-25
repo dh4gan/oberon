@@ -21,7 +21,7 @@ public:
 	Planet(string &namestring, double &m, double &rad, double semimaj, double ecc, double inc,
 			double longascend, double argper, double meananom, double G, double totalMass, double &alb);
     
-    Planet(parFile input, int &bodyIndex, double &G);
+    Planet(parFile &input, int &bodyIndex, double &G);
     
 	virtual ~Planet();
 

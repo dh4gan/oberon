@@ -35,7 +35,7 @@ const string vectorStringType = "vectorString";
 const string stringVar[] = {"ParType", "NBodyOutput", "SystemName","Restart","ObliquityEvolution", "CarbonateSilicateCycle", "TidalHeating","PlanetaryIllumination","FullOutput"};
 
 // Of these, which are boolean?
- const string boolVar[] = {"Restart","ObliquityEvolution", "CarbonateSilicateCycle", "TidalHeating","PlanetaryIllumination","FullOutput"};
+ const string boolVar[] = {"Restart","ObliquityEvolution", "IceMeltingOn","CarbonateSilicateCycle", "TidalHeating","PlanetaryIllumination","FullOutput"};
 
 // Scalar ints
 const string intVar[] = {"NGridPoints","Number_Bodies"};
@@ -46,7 +46,8 @@ const string doubleVar[] = {"TotalMass","SnapshotTime","MaximumTime"};
 // Vector (string) variables
 const string vectorStringVar[] = {"BodyName", "BodyType", "IceMeltingOn"};
 
-const string intStringVar[] = {"orbitCentre"};
+// Vector (int) variables
+const string vectorIntVar[] = {"orbitCentre"};
 
 // Vector (double) variables
 const string vectorDoubleVar[] = {"Mass", "Radius", "Position", "XPosition", "YPosition", "ZPosition", "Velocity", "XVelocity", "YVelocity", "ZVelocity", "SemiMajorAxis", "Eccentricity", "Inclination", "LongAscend", "Periapsis", "MeanAnomaly", "RotationPeriod", "Obliquity", "WinterSolstice", "OceanFraction", "InitialTemperature", "Luminosity"};
@@ -56,11 +57,8 @@ public:
 	parFile( );
 	parFile(string name);
     
-	string NBodyFile;
 	string parFileName;
-	string SystemName;
-	string fileType;
-    
+	
     // Map objects to store variable data as it is read
     
     std::map < string, string > stringVariables;
@@ -134,6 +132,7 @@ public:
 	Vector3D getBodyVelocity(int index);
     
     void readFile();
+    void readFile(string &filename);
     
 	int readParFile();
 	int readParFile(string fileName);
