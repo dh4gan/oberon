@@ -45,10 +45,15 @@ Body(input,bodyIndex,G)
 {
     
     type="Planet";
+    albedo = 0.0;
+    if(input.getBoolVariable("PlanetaryIllumination"))
+    {
     albedo = input.getDoubleVariable("Albedo",bodyIndex);
+    }
     temperature = 0.0;
     reflectiveLuminosity=0.0;
     luminosity = 0.0;
+        
     
 }
 

@@ -42,6 +42,7 @@ Star::Star(string &namestring, double &m, double &rad, double semimaj, double ec
 			Body(namestring, m, rad, semimaj,ecc,inc,longascend,argper,meananom,G,totalMass) {
 	type = "Star";
 
+                
 	spectralType = spec;
 
 	loadAlbedoCoefficients();
@@ -61,10 +62,13 @@ Star::Star(string &namestring, double &m, double &rad, double semimaj, double ec
 Star::Star(parFile &input, int &bodyIndex, double &G):
 Body(input,bodyIndex,G) {
     type = "Star";
+        
+    if(input.getBoolVariable("CarbonateSilicateCycle"))
+    {
     spectralType = input.getStringVariable("SpectralType",bodyIndex);
     
     loadAlbedoCoefficients();
-    
+    }
     if(input.getDoubleVariable("Luminosity",bodyIndex) > 0.0)
     {
         luminosity = input.getDoubleVariable("Luminosity",bodyIndex);

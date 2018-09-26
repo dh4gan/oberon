@@ -64,8 +64,23 @@ Vector3D parFile::getBodyVelocity(int index)
 
     }
 
-void parFile::setVariableLocations()
 
+void parFile::setVariableType(const vector<const string> &variables, const string &type)
+
+{
+    
+    int nEntries = variables.size();
+    
+    for (int i=0;i<nEntries; i++)
+    {
+        variableLocations[variables[i]] = type;
+        //printf("%s %s \n",variables[i].c_str(), type.c_str());
+    }
+    
+}
+    
+
+void parFile::setVariableLocations()
 
 {
     
@@ -75,49 +90,16 @@ void parFile::setVariableLocations()
      *
      */
     
-    // String variables
-    
-    for (int i=0; i<sizeof(stringVar);i++)
-    {
-        variableLocations[stringVar[i]] = stringType;
-    }
-  
-    // Of those, which are boolean?
-    for (int i=0; i<sizeof(stringVar);i++)
-    {
-        boolVariables[boolVar[i]]=false;
-    }
-    
-    // scalar (int) variables
-    for (int i=0; i<sizeof(intVar);i++)
-    {
-        variableLocations[intVar[i]] = intType;
-    }
-    
-    // Scalar (double) variables
-    for (int i=0; i<sizeof(doubleVar);i++)
-    {
-        variableLocations[doubleVar[i]] = doubleType;
-    }
-    
-    // Vector (string) variables
-    for (int i=0; i<sizeof(vectorStringVar);i++)
-    {
-        variableLocations[vectorStringVar[i]] = vectorStringType;
-    }
-    
-    // vector (int) variables
-    
-    for (int i=0; i<sizeof(vectorIntVar);i++)
-    {
-        variableLocations[vectorIntVar[i]] = vectorIntType;
-    }
     
     
-    for (int i=0; i<sizeof(vectorDoubleVar);i++)
-    {
-        variableLocations[vectorDoubleVar[i]] = vectorDoubleType;
-    }
+    setVariableType(stringVar, stringType);             // string
+    setVariableType(boolVar, stringType);                 // bool
+    setVariableType(intVar, intType);                   // int
+    setVariableType(doubleVar, doubleType);             // double
+    setVariableType(vectorStringVar, vectorStringType); // vector<string>
+    setVariableType(vectorIntVar, vectorIntType);       // vector<int>
+    setVariableType(vectorDoubleVar, vectorDoubleType); // vector<double>
+
     
 }
 
@@ -126,8 +108,11 @@ void parFile::readVariable(string &par, istringstream &iss, int &bodyIndex)
 
 {
     string value;
-    iss >> value;
+    //iss >> value;
     
+   
+    printf("Reading %s \n", par.c_str());
+
     if(variableLocations[par]==stringType) {readStringVariable(par,iss);}
     
     else if(variableLocations[par]==intType){
@@ -135,11 +120,30 @@ void parFile::readVariable(string &par, istringstream &iss, int &bodyIndex)
     
         // If we have read Number of Bodies, then initialise vectors
         if(par=="Number_Bodies") {
+            printf("Number of Bodies read as %i \n", intVariables["Number_Bodies"]);
             initialiseVectors(intVariables["Number_Bodies"]);
         }
     }
     
     else if(variableLocations[par]==doubleType){
+        
+        readDoubleVariable(par,iss);
+    
+    }
+    else if(variableLocations[par]==vectorStringType){
+        
+        // If reading BodyName, assume we have moved on to the next body
+        if(par=="BodyName")
+        {
+            bodyIndex++;
+            printf("BodyIndex: %i\n",bodyIndex);
+        }
+        
+        readVectorStringVariable(par,iss,bodyIndex);
+    }
+    else if(variableLocations[par]==vectorIntType){readVectorIntVariable(par,iss,bodyIndex);}
+    else if(variableLocations[par]==vectorDoubleType)
+    {
         
         // If reading 3D vectors, ensure these are stored correctly
         if(par=="Position" or par=="Velocity")
@@ -148,25 +152,22 @@ void parFile::readVariable(string &par, istringstream &iss, int &bodyIndex)
         }
         else
         {
-        readDoubleVariable(par,iss);}
-    }
-    else if(variableLocations[par]==vectorStringType){
-        
-        // If reading BodyName, assume we have moved on to the next body
-        if(par=="BodyName")
-        {
-            bodyIndex++;
+        readVectorDoubleVariable(par,iss,bodyIndex);
         }
         
-        readVectorStringVariable(par,iss,bodyIndex);
+        if(par.compare("Mass")==0)
+        {
+            doubleVariables["TotalMass"] = doubleVariables["TotalMass"] + vectorDoubleVariables["Mass"][bodyIndex];
+            printf("Total mass at %i, %f",bodyIndex, doubleVariables["TotalMass"]);
+        }
+        
     }
-    else if(variableLocations[par]==vectorIntType){readVectorIntVariable(par,iss,bodyIndex);}
-    else if(variableLocations[par]==vectorDoubleType){readVectorDoubleVariable(par,iss,bodyIndex);}
     
     else
     {
         cout << "ERROR: parameter " << par << " not recognised " << endl;
     }
+    
     
 }
 
@@ -177,6 +178,7 @@ void parFile::read3DVector(string &par,istringstream &iss,int &bodyIndex)
     double x,y,z;
     iss >> x >> y >> z;
 
+    printf("3D VECTOR %f %f %f \n", x,y,z);
     doubleVariables["X"+par] = x;
     doubleVariables["X"+par] = y;
     doubleVariables["X"+par] = z;
@@ -196,6 +198,8 @@ void parFile::readIntVariable(string &par,istringstream &iss)
 {
     int value;
     iss >> value;
+    
+    printf("Reading: %s, %i \n", par.c_str(),value);
     intVariables[par] = value;
 }
 
@@ -225,10 +229,12 @@ void parFile::readVectorDoubleVariable(string &par, istringstream &iss, int &bod
 
 void parFile::readVectorStringVariable(string &par, istringstream &iss, int &bodyIndex)
 {
-    double value;
+    string value;
     iss>> value;
     
     vectorStringVariables[par][bodyIndex] = value;
+    
+    printf("Read vector string variable %s \n", vectorStringVariables[par][bodyIndex].c_str());
 }
 
 
@@ -241,31 +247,30 @@ void parFile::initialiseVectors(int nBodies)
     
     // Assign zeros to int vectors
     
+    printf("Initialising vectors %i\n",nBodies);
     std::map < string, vector<int> >:: iterator iti = vectorIntVariables.begin();
     
-    while(iti!=vectorIntVariables.end())
+    vector<int> emptyIntVector(nBodies,0);
+    vector<double> emptyDoubleVector(nBodies,0.0);
+    vector<string> emptyStringVector(nBodies,"");
+    
+    for (int i=0; i<int(vectorIntVar.size()); i++)
     {
-        iti->second.assign(nBodies,0);
+        vectorIntVariables[vectorIntVar[i]]=emptyIntVector;
     }
     
-    // Assign zeros to double vectors
-    
-    std::map < string, vector<double> >:: iterator itd = vectorDoubleVariables.begin();
-    
-    while(itd!=vectorDoubleVariables.end())
+    for (int i=0; i<int(vectorDoubleVar.size()); i++)
     {
-        itd->second.assign(nBodies,0.0);
+        vectorDoubleVariables[vectorDoubleVar[i]]=emptyDoubleVector;
     }
     
-    // Assign blanks to string vectors
-    
-    std::map < string, vector<string> >:: iterator its = vectorStringVariables.begin();
-    
-    while(its!=vectorStringVariables.end())
+    for (int i=0; i<int(vectorStringVar.size()); i++)
     {
-        its->second.assign(nBodies,"");
+        vectorStringVariables[vectorStringVar[i]]=emptyStringVector;
     }
+
     
+    printf("BodyNames size: %i \n", int(vectorStringVariables["BodyName"].size()));
 }
 
 
@@ -320,6 +325,10 @@ void parFile::checkParameters()
     {
         reportError("MaximumTime", doubleVariables["MaximumTime"]);
     }
+    
+    
+    // If Carbonate Silicate Cycle is on, are stellar spectral types read in?
+    // Are Weathering coefficents non-zero?
     
 }
 
@@ -377,15 +386,25 @@ void parFile::displayParameters()
     for (int i=0; i<intVariables["Number_Bodies"]; i++)
         
     {
+        
+        if(stringVariables["ParType"].compare("Positional")==0)
+        {
         // Write Type, Position and Velocity
-        printf("Body %i: Type %s \n",i,vectorStringVariables["BodyType"][i].c_str());
+        printf("Body %i: Name %s, Type %s \n",i,vectorStringVariables["BodyName"][i].c_str(),vectorStringVariables["BodyType"][i].c_str());
         printf("Position: \n");
         getBodyPosition(i).printVector();
         
         printf("Velocity: \n");
         getBodyVelocity(i).printVector();
-        
     }
+        
+        else if(stringVariables["ParType"].compare("Orbital")==0)
+        {
+            printf("Body %i: Name %s, Type %s \n",i,vectorStringVariables["BodyName"][i].c_str(),vectorStringVariables["BodyType"][i].c_str());
+            printf("Orbit: a e i LongAscend MeanAnomaly\n");
+            printf("%f %f %f %f %f %f \n",vectorDoubleVariables["SemiMajorAxis"][i], vectorDoubleVariables["Eccentricity"][i],vectorDoubleVariables["Inclination"][i],vectorDoubleVariables["LongAscend"][i],vectorDoubleVariables["Periapsis"][i],vectorDoubleVariables["MeanAnomaly"][i]);
+        }
+        }
     
     
 }
@@ -396,7 +415,7 @@ void parFile::convertToRadians(int nBodies)
     
     string degreeVariables[] = {"Obliquity","WinterSolstice"};
     
-    for (int i=0; i< sizeof(degreeVariables); i++)
+    for (int i=0; i< sizeof(degreeVariables)/sizeof(*degreeVariables); i++)
     {
         for (int ibody=0; ibody<nBodies; ibody++)
         {
@@ -466,31 +485,36 @@ void parFile::readFile(string &filename)
     
     int bodyIndex=-1;
     
-    ifstream myfile(parFileName.c_str());
+    ifstream myfile(filename.c_str());
     
     // Then loop through each line using getline and then
     //assign to vectors
-    
     
     while (getline(myfile, line))
     {
         istringstream iss(line);
         iss >> par;
         
+        if(par.compare("--")!=0)
+        {
         readVariable(par,iss,bodyIndex);
+        }
         
     }
     myfile.close();
     
+    printf("File Read complete\n");
+    
     // Convert any variables read in degrees to radians
     convertToRadians(intVariables["Number_Bodies"]);
+    printf("Quantities converted to Radians\n");
     
     doubleVariables["SystemTime"] = 0.0;
     if(boolVariables["Restart"])
     {
         setupRestartPositions();
     }
-    
+    printf("System time is %f\n", doubleVariables["SystemTime"]);
 }
 
 /*

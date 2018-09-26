@@ -146,6 +146,8 @@ Body::Body(parFile &input, int &bodyIndex, double &G)
         name = input.getStringVariable("BodyName",bodyIndex);
         type = "Body";
         mass = input.getDoubleVariable("Mass",bodyIndex);
+        
+        
         radius = input.getDoubleVariable("Radius",bodyIndex);
         collisionBounce = true;
         
@@ -171,9 +173,10 @@ Body::Body(parFile &input, int &bodyIndex, double &G)
         
         calcTrueAnomaly();
         calcVectorFromOrbit(G, input.getDoubleVariable("TotalMass"));
-        
         hostBody = 0;
         hostMass = mass;
+        
+        printf("Total Mass read %f\n",input.getDoubleVariable("TotalMass"));
         
     }
     

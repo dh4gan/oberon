@@ -243,20 +243,24 @@ Body(input,bodyIndex,G)
     initialTemperature = input.getDoubleVariable("InitialTemperature",bodyIndex);
     nFloat = float(nPoints);
     nPoints1 = nPoints+1;
+    
     activateMelt = input.getBoolVariable("IceMeltingOn");
     restart = input.getBoolVariable("Restart");
     
     tidalHeatingOn = input.getBoolVariable("TidalHeating");
     obliquityEvolutionOn = input.getBoolVariable("ObliquityEvolution");
-    
+    printf("HERE? \n");
     luminosity = 0.0;
     CSCycleOn = input.getBoolVariable("CarbonateSilicateCycle");
     
+    if(CSCycleOn)
+    {
     outgassingRate = input.getDoubleVariable("OutgassingRate",bodyIndex);
     betaCO2 = input.getDoubleVariable("BetaCO2",bodyIndex);
     W0 = input.getDoubleVariable("SeaWeatheringRate",bodyIndex);
     gammaCO2 = input.getDoubleVariable("GammaCO2",bodyIndex);
-    
+    }
+    printf("HERE? \n");
     rho_moon = 5.0e-9; // density in kg m^-3
     rigid = 4e9;
     Qtidal = 100.0;

@@ -64,11 +64,14 @@ int main(int argc, char* argv[])
     if (argc == 2)
 	{
 	string fileString = string(argv[1]);
+        
+        printf("Reading file %s\n", fileString.c_str());
 	//fileType = input.readParFile(fileString);
         input.readFile(fileString);
 	}
     else
 	{
+        printf("Empty Filename \n");
 	input.readFile();
 	//if (fileType > 1)
 	 //   {
@@ -85,14 +88,18 @@ int main(int argc, char* argv[])
     tMax = input.getDoubleVariable("MaximumTime");
     tSnap = input.getDoubleVariable("SnapshotTime");
 
-   
+        printf("Creating bodies \n");
 
     //First loop through each of the bodies in the system and set them up
     //adding them to the BodyArray
     for (i = 0; i < input.getIntVariable("Number_Bodies"); i++)
 	{
-        if (input.getStringVariable("BodyType",i) == "Star")
+        
+        printf("Creating Body %s \n",input.getStringVariable("BodyName",i).c_str());
+        printf("%i \n", input.getStringVariable("BodyType",i).compare("Star"));
+        if (input.getStringVariable("BodyType",i).compare("Star")==0)
         {
+            printf("HERE \n");
             BodyArray.push_back(new Star(input, i, G));
         }
         else if (input.getStringVariable("BodyType",i) == "Planet")

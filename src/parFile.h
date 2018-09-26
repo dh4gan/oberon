@@ -30,25 +30,36 @@ const string vectorStringType = "vectorString";
 
 
 // All single string variables to read in
-const string stringVar[] = {"ParType", "NBodyOutput", "SystemName","Restart","ObliquityEvolution", "CarbonateSilicateCycle", "TidalHeating","PlanetaryIllumination","FullOutput"};
+const string stringV[] = {"ParType", "NBodyOutput", "SystemName","Restart","ObliquityEvolution", "CarbonateSilicateCycle", "TidalHeating","PlanetaryIllumination","FullOutput"};
 
 // Of these, which are boolean?
- const string boolVar[] = {"Restart","ObliquityEvolution", "IceMeltingOn","CarbonateSilicateCycle", "TidalHeating","PlanetaryIllumination","FullOutput"};
+ const string boolV[] = {"Restart","ObliquityEvolution", "IceMeltingOn","CarbonateSilicateCycle", "TidalHeating","PlanetaryIllumination","FullOutput"};
 
 // Scalar ints
-const string intVar[] = {"NGridPoints","Number_Bodies"};
+const string intV[] = {"NGridPoints","Number_Bodies"};
 
 // Scalar doubles
-const string doubleVar[] = {"TotalMass","SnapshotTime","MaximumTime"};
+const string doubleV[] = {"TotalMass","SnapshotTime","MaximumTime"};
 
 // Vector (string) variables
-const string vectorStringVar[] = {"BodyName", "BodyType", "IceMeltingOn"};
+const string vectorStringV[] = {"BodyName", "BodyType", "IceMeltingOn"};
 
 // Vector (int) variables
-const string vectorIntVar[] = {"orbitCentre"};
+const string vectorIntV[] = {"OrbitCentre"};
 
 // Vector (double) variables
-const string vectorDoubleVar[] = {"Mass", "Radius", "Position", "XPosition", "YPosition", "ZPosition", "Velocity", "XVelocity", "YVelocity", "ZVelocity", "SemiMajorAxis", "Eccentricity", "Inclination", "LongAscend", "Periapsis", "MeanAnomaly", "RotationPeriod", "Obliquity", "WinterSolstice", "OceanFraction", "InitialTemperature", "Luminosity"};
+const string vectorDoubleV[] = {"Mass", "Radius", "Position", "XPosition", "YPosition", "ZPosition", "Velocity", "XVelocity", "YVelocity", "ZVelocity", "SemiMajorAxis", "Eccentricity", "Inclination", "LongAscend", "Periapsis", "MeanAnomaly", "RotationPeriod", "Obliquity", "WinterSolstice", "OceanFraction", "InitialTemperature", "Luminosity"};
+
+
+// Decant these into STL vectors for easier passing between functions
+const vector<const string> stringVar(stringV, stringV+sizeof(stringV)/sizeof(*stringV));
+const vector<const string> boolVar(boolV, boolV+sizeof(boolV)/sizeof(*boolV));
+const vector<const string> intVar(intV, intV+sizeof(intV)/sizeof(*intV));
+const vector<const string> doubleVar(doubleV, doubleV+sizeof(doubleV)/sizeof(*doubleV));
+
+const vector<const string> vectorStringVar(vectorStringV, vectorStringV+sizeof(vectorStringV)/sizeof(*vectorStringV));
+const vector<const string> vectorIntVar(vectorIntV, vectorIntV+sizeof(vectorIntV)/sizeof(*vectorIntV));
+const vector<const string> vectorDoubleVar(vectorDoubleV, vectorDoubleV+sizeof(vectorDoubleV)/sizeof(*vectorDoubleV));
 
 class parFile {
 public:
@@ -140,7 +151,7 @@ public:
 	int parType();
 	int parType(string fileName);
 
-    
+    void setVariableType(const vector<const string> &variables, const string &type);
     void setVariableLocations();
       
     void readVariable(string &par, istringstream &iss, int &bodyIndex);
