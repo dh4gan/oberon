@@ -66,17 +66,13 @@ int main(int argc, char* argv[])
 	string fileString = string(argv[1]);
         
         printf("Reading file %s\n", fileString.c_str());
-	//fileType = input.readParFile(fileString);
         input.readFile(fileString);
 	}
     else
 	{
-        printf("Empty Filename \n");
+    
 	input.readFile();
-	//if (fileType > 1)
-	 //   {
-	  //  return -1;
-	   // }
+	
 	}
 
         // Check and display input parameters
