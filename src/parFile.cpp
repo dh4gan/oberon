@@ -2,8 +2,9 @@
  * parFile.cpp
  *
  *  Created on: Sep 23, 2013
+ *  Majorly revised: Sep 19, 2018
  *
- *      Author: davidharvey
+ *      Author: dh4gan
  */
 
 #include "parFile.h"
@@ -50,7 +51,7 @@ Vector3D parFile::getBodyVelocity(int index)
     {
     /*
      * Author: dh4gan
-     * Extracts a Vector3D object containing the position of body index
+     * Extracts a Vector3D object containing the velocity of body index
      *
      */
 
@@ -68,6 +69,13 @@ Vector3D parFile::getBodyVelocity(int index)
 void parFile::setVariableType(const vector<const string> &variables, const string &type)
 
 {
+    /*
+     * Written 20/09/2018 by dh4gan
+     * Assigns a variable type to a vector array (used by setVariableLocations())
+     * This allows us to identify which map a given variable is stored in
+     *
+     */
+     
     
     int nEntries = variables.size();
     
@@ -90,8 +98,6 @@ void parFile::setVariableLocations()
      *
      */
     
-    
-    
     setVariableType(stringVar, stringType);             // string
     setVariableType(boolVar, stringType);                 // bool
     setVariableType(intVar, intType);                   // int
@@ -108,9 +114,6 @@ void parFile::readVariable(string &par, istringstream &iss, int &bodyIndex)
 
 {
     string value;
-    //iss >> value;
-    
-   
     printf("Reading %s \n", par.c_str());
 
     if(variableLocations[par]==stringType) {readStringVariable(par,iss);}
@@ -120,7 +123,6 @@ void parFile::readVariable(string &par, istringstream &iss, int &bodyIndex)
     
         // If we have read Number of Bodies, then initialise vectors
         if(par=="Number_Bodies") {
-            printf("Number of Bodies read as %i \n", intVariables["Number_Bodies"]);
             initialiseVectors(intVariables["Number_Bodies"]);
         }
     }
@@ -158,7 +160,6 @@ void parFile::readVariable(string &par, istringstream &iss, int &bodyIndex)
         if(par.compare("Mass")==0)
         {
             doubleVariables["TotalMass"] = doubleVariables["TotalMass"] + vectorDoubleVariables["Mass"][bodyIndex];
-            printf("Total mass at %i, %f",bodyIndex, doubleVariables["TotalMass"]);
         }
         
     }
@@ -178,10 +179,13 @@ void parFile::read3DVector(string &par,istringstream &iss,int &bodyIndex)
     double x,y,z;
     iss >> x >> y >> z;
 
+    // TODO - fix vector reads
     printf("3D VECTOR %f %f %f \n", x,y,z);
-    doubleVariables["X"+par] = x;
-    doubleVariables["X"+par] = y;
-    doubleVariables["X"+par] = z;
+    vectorDoubleVariables["X"+par][bodyIndex] = x;
+    vectorDoubleVariables["Y"+par][bodyIndex] = y;
+    vectorDoubleVariables["Z"+par][bodyIndex] = z;
+    
+    printf(" %s %f \n", ("Y"+par).c_str(),vectorDoubleVariables["Y"+par][bodyIndex]);
     
 }
 
@@ -199,7 +203,6 @@ void parFile::readIntVariable(string &par,istringstream &iss)
     int value;
     iss >> value;
     
-    printf("Reading: %s, %i \n", par.c_str(),value);
     intVariables[par] = value;
 }
 
@@ -234,7 +237,6 @@ void parFile::readVectorStringVariable(string &par, istringstream &iss, int &bod
     
     vectorStringVariables[par][bodyIndex] = value;
     
-    printf("Read vector string variable %s \n", vectorStringVariables[par][bodyIndex].c_str());
 }
 
 
@@ -247,7 +249,6 @@ void parFile::initialiseVectors(int nBodies)
     
     // Assign zeros to int vectors
     
-    printf("Initialising vectors %i\n",nBodies);
     std::map < string, vector<int> >:: iterator iti = vectorIntVariables.begin();
     
     vector<int> emptyIntVector(nBodies,0);
@@ -269,8 +270,14 @@ void parFile::initialiseVectors(int nBodies)
         vectorStringVariables[vectorStringVar[i]]=emptyStringVector;
     }
 
+    // Set useful default values here
     
-    printf("BodyNames size: %i \n", int(vectorStringVariables["BodyName"].size()));
+    for (int i=0; i<nBodies; i++)
+    {
+    vectorDoubleVariables["BetaCO2"][i] = betaCO2_0;
+    vectorDoubleVariables["GammaCO2"][i] = gammaCO2_0;
+    vectorDoubleVariables["OutgassingRate"][i] = outgassingRateEarth;
+    }
 }
 
 
@@ -403,6 +410,7 @@ void parFile::displayParameters()
             printf("Body %i: Name %s, Type %s \n",i,vectorStringVariables["BodyName"][i].c_str(),vectorStringVariables["BodyType"][i].c_str());
             printf("Orbit: a e i LongAscend MeanAnomaly\n");
             printf("%f %f %f %f %f %f \n",vectorDoubleVariables["SemiMajorAxis"][i], vectorDoubleVariables["Eccentricity"][i],vectorDoubleVariables["Inclination"][i],vectorDoubleVariables["LongAscend"][i],vectorDoubleVariables["Periapsis"][i],vectorDoubleVariables["MeanAnomaly"][i]);
+            
         }
         }
     

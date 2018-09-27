@@ -249,7 +249,7 @@ Body(input,bodyIndex,G)
     
     tidalHeatingOn = input.getBoolVariable("TidalHeating");
     obliquityEvolutionOn = input.getBoolVariable("ObliquityEvolution");
-    printf("HERE? \n");
+    
     luminosity = 0.0;
     CSCycleOn = input.getBoolVariable("CarbonateSilicateCycle");
     
@@ -257,10 +257,10 @@ Body(input,bodyIndex,G)
     {
     outgassingRate = input.getDoubleVariable("OutgassingRate",bodyIndex);
     betaCO2 = input.getDoubleVariable("BetaCO2",bodyIndex);
-    W0 = input.getDoubleVariable("SeaWeatheringRate",bodyIndex);
+    W0 = input.getDoubleVariable("SeafloorWeatheringRate",bodyIndex);
     gammaCO2 = input.getDoubleVariable("GammaCO2",bodyIndex);
     }
-    printf("HERE? \n");
+    
     rho_moon = 5.0e-9; // density in kg m^-3
     rigid = 4e9;
     Qtidal = 100.0;
@@ -305,7 +305,11 @@ void World::initialiseLEBM()
     double dtmax = 1.0e30;
     // Set length of vectors
 
+        
    // Set up diffusion constant
+   // erg cm^-2 s^-1 K^-1
+   // rotationPeriod is in units of Earth's rotation period
+
    //diffusion0 = 5.394e2 * rotationPeriod*rotationPeriod;
    diffusion0 = 5.8e2 * rotationPeriod*rotationPeriod;
 
@@ -339,7 +343,7 @@ void World::initialiseLEBM()
    T.resize(nPoints1,initialTemperature);
    T_old.resize(nPoints1, 0.0);
 
-   // Set up latitudes etc
+   // Set up latitude grids
 
    double dlat = pi/nFloat;
 
@@ -353,13 +357,7 @@ void World::initialiseLEBM()
        deltax[i] = coslat[i]*dlat;
        }
 
-
-
-   //erg cm^-2 s^-1 K^-1
-   //rotationPeriod is in units of Earth's rate
-
-
-
+   
    // Set up variables to handle ice melting
    meltTime.resize(nPoints1,0.0);
    melting.resize(nPoints1,false);
@@ -370,7 +368,8 @@ void World::initialiseLEBM()
    // Set up files
 
    initialiseOutputVariables(restart);
-   // Calculate initial parameters
+   
+    // Calculate initial parameters
 
 #pragma omp parallel default(none) \
 	shared(freeze,boil,cout)\
@@ -386,7 +385,6 @@ void World::initialiseLEBM()
 	    calcNetHeating(i);
 
 	    if(tidalHeatingOn && hostBody!=0){
-		cout << "calculating heating " << endl;
 		calcTidalHeating(i);}
 
 	    if(CSCycleOn) {calcCO2Rates(i);}

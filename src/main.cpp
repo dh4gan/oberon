@@ -92,10 +92,8 @@ int main(int argc, char* argv[])
 	{
         
         printf("Creating Body %s \n",input.getStringVariable("BodyName",i).c_str());
-        printf("%i \n", input.getStringVariable("BodyType",i).compare("Star"));
         if (input.getStringVariable("BodyType",i).compare("Star")==0)
         {
-            printf("HERE \n");
             BodyArray.push_back(new Star(input, i, G));
         }
         else if (input.getStringVariable("BodyType",i) == "Planet")

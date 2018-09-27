@@ -2,7 +2,13 @@
  * parFile.h
  *
  *  Created on: Sep 23, 2013
- *      Author: davidharvey
+ *  Majorly revised: Sep 19, 2018
+ *
+ *      Author: dh4gan
+ *
+ * This object reads in the input parameters for the simulation
+ * Parameters stored in <map> objects
+ *
  */
 
 #ifndef PARFILE_H_
@@ -13,8 +19,6 @@
 #include <stdlib.h>
 #include <string>
 #include <map>
-//#include "System.h"
-//#include "Star.h"
 #include "Vector3D.h"
 
 #include <fstream>
@@ -35,7 +39,7 @@ const string stringV[] = {"ParType", "NBodyOutput", "SystemName","Restart","Obli
 // Of these, which are boolean?
  const string boolV[] = {"Restart","ObliquityEvolution", "IceMeltingOn","CarbonateSilicateCycle", "TidalHeating","PlanetaryIllumination","FullOutput"};
 
-// Scalar ints
+// Scalar ints to be read in
 const string intV[] = {"NGridPoints","Number_Bodies"};
 
 // Scalar doubles
@@ -48,7 +52,7 @@ const string vectorStringV[] = {"BodyName", "BodyType", "IceMeltingOn"};
 const string vectorIntV[] = {"OrbitCentre"};
 
 // Vector (double) variables
-const string vectorDoubleV[] = {"Mass", "Radius", "Position", "XPosition", "YPosition", "ZPosition", "Velocity", "XVelocity", "YVelocity", "ZVelocity", "SemiMajorAxis", "Eccentricity", "Inclination", "LongAscend", "Periapsis", "MeanAnomaly", "RotationPeriod", "Obliquity", "WinterSolstice", "OceanFraction", "InitialTemperature", "Luminosity"};
+const string vectorDoubleV[] = {"Mass", "Radius", "Position", "XPosition", "YPosition", "ZPosition", "Velocity", "XVelocity", "YVelocity", "ZVelocity", "SemiMajorAxis", "Eccentricity", "Inclination", "LongAscend", "Periapsis", "MeanAnomaly", "RotationPeriod", "Obliquity", "WinterSolstice", "OceanFraction", "InitialTemperature", "Luminosity", "OutgassingRate", "BetaCO2", "GammaCO2","SeafloorWeatheringRate"};
 
 
 // Decant these into STL vectors for easier passing between functions
@@ -83,60 +87,6 @@ public:
     // This map stores which map each variable lives in
     std::map< string, string > variableLocations;
     
-	/*bool restart;
-	bool illuminationOn;
-	bool obliquityOn;
-	bool tidalHeatingOn;
-    bool CSCycleOn;
-	bool fullOutput;
-
-	int number_bodies;
-	int nPoints;
-	int snapshotNumber;
-	double snapshotTime;
-	double maximumTime;
-	double systemTime;
-	double totalMass;
-
-	vector<string> parameters;
-	vector<string> BodyNames;
-	vector<string> BodyTypes;
-
-	vector<double> Mass;
-	vector<double> Radius;
-
-	vector<double> x_position;
-	vector<double> y_position;
-	vector<double> z_position;
-
-	vector<double> x_velocity;
-	vector<double> y_velocity;
-	vector<double> z_velocity;
-
-	vector<double> semiMajorAxis;
-	vector<double> eccentricity;
-	vector<double> inclination;
-	vector<double> longAscend;
-	vector<double> Periapsis;
-	vector<double> meanAnomaly;
-
-	vector<string> spectralType;
-	vector<double> luminosity;
-	vector<double> albedo;
-
-	vector<double> rotationPeriod;
-	vector<double> obliquity;
-	vector<double> precession;
-	vector<double> oceanFraction;
-	vector<double> initialTemperature;
-	vector<double> outgassingRate;
-	vector<double> betaCO2;
-	vector<double> gammaCO2;
-	vector<double> seafloorWeathering;
-	vector<bool> activateMelt;
-
-	vector<int> orbitCentre;
-*/
 	Vector3D getBodyPosition(int index);
 	Vector3D getBodyVelocity(int index);
     

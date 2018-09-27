@@ -15,6 +15,9 @@ const double CO2Earth = 3.3e-4; // Earth's current CO2 partial pressure
 const double kactive = 0.09;
 const double krun = 0.045;
 const double outgassingRateEarth = 7.0e-8/year; // outgassing rate in bars per second
+const double betaCO2_0 = 1.0; // TODO Look up CS constants
+const double gammaCO2_0 = 0.5;
+
 
 const double aLand = 0.2;        // surface albedo of land
 const double aIceVisible = 0.8;  // surface albedo of water ice in optical
