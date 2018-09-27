@@ -179,13 +179,10 @@ void parFile::read3DVector(string &par,istringstream &iss,int &bodyIndex)
     double x,y,z;
     iss >> x >> y >> z;
 
-    // TODO - fix vector reads
-    printf("3D VECTOR %f %f %f \n", x,y,z);
     vectorDoubleVariables["X"+par][bodyIndex] = x;
     vectorDoubleVariables["Y"+par][bodyIndex] = y;
     vectorDoubleVariables["Z"+par][bodyIndex] = z;
     
-    printf(" %s %f \n", ("Y"+par).c_str(),vectorDoubleVariables["Y"+par][bodyIndex]);
     
 }
 
@@ -434,28 +431,26 @@ void parFile::convertToRadians(int nBodies)
     
 }
 
-bool parFile::initialiseBoolean(string &par)
+void parFile::initialiseBoolean(const string &par)
 
 {
-    bool choice=false;
+    
+    boolVariables[par] = false;
     if(stringVariables[par].compare("T")==0 or stringVariables[par].compare("t")==0 or stringVariables[par].compare("Y")==0 or stringVariables[par].compare("y")==0 )
     {
         boolVariables[par]=true;
     }
     
-    return choice;
 }
 
 
 void parFile::initialiseAllBooleans()
 
 {
-    // Booleans
-    string boolVar[] = {"Restart", "ObliquityEvolution","CarbonateSilicateCycle","TidalHeating","PlanetaryIllumination","FullOutput"};
     
-    for (int i=0; i<sizeof(boolVar); i++)
+    for (int i=0; i<boolVar.size(); i++)
     {
-        boolVariables[boolVar[i]] = initialiseBoolean(boolVar[i]);
+        initialiseBoolean(boolVar[i]);
     }
     
 }
@@ -514,9 +509,12 @@ void parFile::readFile(string &filename)
     
     // Convert any variables read in degrees to radians
     convertToRadians(intVariables["Number_Bodies"]);
-    printf("Quantities converted to Radians\n");
+    
+    // Set up boolean variables
+    initialiseAllBooleans();
     
     doubleVariables["SystemTime"] = 0.0;
+    
     if(boolVariables["Restart"])
     {
         setupRestartPositions();
@@ -585,6 +583,7 @@ void parFile::setupRestartPositions()
     vectorDoubleVariables["YVelocity"].assign(Nbodies, 0.0);
     vectorDoubleVariables["ZVelocity"].assign(Nbodies, 0.0);
 
+        printf("Here?\n");
     myfile.open(NBodyFile.c_str());
 
     int iline = 0;
@@ -607,9 +606,11 @@ void parFile::setupRestartPositions()
 		}
 	    istringstream iss(line);
 
-	    iss >> doubleVariables["systemTime"];
+	    iss >> doubleVariables["SystemTime"];
 	    iss >> blank;
 	    iss >> name;
+            
+            printf("Here?");
 
 	    if (name.compare(vectorStringVariables["BodyName"][ibody])!=0)
 		{
@@ -633,8 +634,8 @@ void parFile::setupRestartPositions()
 
 	    // Orbital Parameters
 
-	    iss >> vectorDoubleVariables["semiMajorAxis"][ibody];
-	    iss >> vectorDoubleVariables["eccentricity"][ibody];
+	    iss >> vectorDoubleVariables["SemiMajorAxis"][ibody];
+	    iss >> vectorDoubleVariables["Eccentricity"][ibody];
 	    iss >> vectorDoubleVariables["Inclination"][ibody];
 	    iss >> vectorDoubleVariables["LongAscend"][ibody];
 	    iss >> vectorDoubleVariables["Periapsis"][ibody];

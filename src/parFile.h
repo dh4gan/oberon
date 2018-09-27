@@ -120,7 +120,7 @@ public:
     void initialiseVectors(int nBodies);
     void convertToRadians(int nBodies);
     
-    bool initialiseBoolean(string &par);
+    void initialiseBoolean(const string &par);
     
     void initialiseAllBooleans();
     
