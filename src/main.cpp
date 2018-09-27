@@ -23,6 +23,8 @@
 
 #include <fstream>
 #include <sstream>
+#include <chrono>
+#include <time.h>
 using namespace std;
 
 int main(int argc, char* argv[])
@@ -51,13 +53,20 @@ int main(int argc, char* argv[])
     parFile input;
     FILE * outputfile;
 
+        
+    
+        
     printf("  \n");
-    printf("*********************************************** \n");
-    printf("    OBERON - OBliquity and Energy balance Run on Nbody systems \n ");
-    printf("    Date Created : 9th January 2014 \n");
-    printf("    Current Version: 20th September 2018 \n");
-    printf("*********************************************** \n");
+    printf("%s",screenBar.c_str());
+    printf("\t\tOBERON - OBliquity and Energy balance Run on Nbody systems\n");
+    printf("\t\tVersion: %s\n", VERSION);
+    printf("\t\tDate: %s\n", __DATE__);
+    printf("%s",screenBar.c_str());
     printf("  \n");
+        
+    // Record start time
+        std::chrono::high_resolution_clock::time_point start = std::chrono::high_resolution_clock::now();
+    
 
     // Read in parameters file
 
@@ -65,7 +74,7 @@ int main(int argc, char* argv[])
 	{
 	string fileString = string(argv[1]);
         
-        printf("Reading file %s\n", fileString.c_str());
+        printf("\tReading file %s\n", fileString.c_str());
         input.readFile(fileString);
 	}
     else
@@ -140,12 +149,8 @@ int main(int argc, char* argv[])
 	nBodySystem.setupOrbits(orbitCentre);
 	}
 
-        
-    
-        
     // Calculate the system's initial properties
     nBodySystem.calcInitialProperties();
-
     
     // Switch Planetary Illumination on/off
     nBodySystem.setIllumination(input.getBoolVariable("PlanetaryIllumination"));
@@ -220,11 +225,22 @@ int main(int argc, char* argv[])
 	nBodySystem.outputLEBMData(snapshotNumber, timeyr, input.getBoolVariable("FullOutput"));
 	}
 
-    //Close the N Body file before ending the simulation
+    //Close the N Body file
 
     fclose(outputfile);
 
-    // TODO - write time elapsed to screen
+    
+    // Simulation has now ended
+    // Write elapsed runtime to the screen
+    
+    std::chrono::high_resolution_clock::time_point finish = std::chrono::high_resolution_clock::now();
+        
+    std::chrono::duration<double> time_span = std::chrono::duration_cast<std::chrono::duration<double> >(finish - start);
+        
+    printf("%s",screenBar.c_str());
+    printf("Run %s complete \n", nBodySystem.getName().c_str());
+    printf("Wall Clock Runtime: %f s \n", time_span.count());
+    printf("%s",screenBar.c_str());
         
         
     return 0;

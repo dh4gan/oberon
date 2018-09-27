@@ -39,4 +39,7 @@ const double sigma_SB = 5.67e-5; //erg s^-1 cm^-2 K^-4
 const double c_cgs = 3.0e10;
 const double c_mau = c_cgs*year/(twopi*AU);
 
+
+const std::string screenBar="*************************************************************************\n";
+
 #endif /* CONSTANTS_H_ */

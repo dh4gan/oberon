@@ -498,7 +498,7 @@ void parFile::displayParameters()
      */
     
     printf("Global Parameters: \n");
-    printf("*********************\n");
+    printf("%s",screenBar.c_str());
     printf("System Name: %s \n",stringVariables["SystemName"].c_str());
     printf("Number of Bodies: %i \n",intVariables["Number_Bodies"]);
     printf("N Body Output File: %s \n",stringVariables["NBodyOutput"].c_str());
@@ -541,7 +541,7 @@ void parFile::displayParameters()
     
     
     printf("Individual Body Parameters \n");
-    printf("*********************\n");
+    printf("%s",screenBar.c_str());
     
     for (int i=0; i<intVariables["Number_Bodies"]; i++)
         
@@ -568,7 +568,8 @@ void parFile::displayParameters()
             printf("%f %f %f %f %f %f \n",vectorDoubleVariables["SemiMajorAxis"][i], vectorDoubleVariables["Eccentricity"][i],vectorDoubleVariables["Inclination"][i],vectorDoubleVariables["LongAscend"][i],vectorDoubleVariables["Periapsis"][i],vectorDoubleVariables["MeanAnomaly"][i]);
             
         }
-        }
+         printf("%s",screenBar.c_str());
+    }
     
     
 }

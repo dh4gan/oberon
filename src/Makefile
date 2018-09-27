@@ -10,8 +10,11 @@
 # Compiler variables:
 CC     = g++
 
+# Git version
+GIT_VERSION = $(shell git describe --abbrev=7 --dirty --always --tags)
+
 # TODO - appropriate compiler flags?
-CFLAGS = -O3
+CFLAGS = -O3 -DVERSION=\"$(GIT_VERSION)\"
 
 # Create object files:
 %.o: %.cpp
