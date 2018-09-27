@@ -55,6 +55,8 @@ const string vectorIntV[] = {"OrbitCentre"};
 const string vectorDoubleV[] = {"Mass", "Radius", "Position", "XPosition", "YPosition", "ZPosition", "Velocity", "XVelocity", "YVelocity", "ZVelocity", "SemiMajorAxis", "Eccentricity", "Inclination", "LongAscend", "Periapsis", "MeanAnomaly", "RotationPeriod", "Obliquity", "WinterSolstice", "OceanFraction", "InitialTemperature", "Luminosity", "OutgassingRate", "BetaCO2", "GammaCO2","SeafloorWeatheringRate"};
 
 
+const string degreeV[] = {"Obliquity","WinterSolstice"}; // Variables with units of degrees - these are eventually converted to radians
+
 // Decant these into STL vectors for easier passing between functions
 const vector<const string> stringVar(stringV, stringV+sizeof(stringV)/sizeof(*stringV));
 const vector<const string> boolVar(boolV, boolV+sizeof(boolV)/sizeof(*boolV));
@@ -65,11 +67,59 @@ const vector<const string> vectorStringVar(vectorStringV, vectorStringV+sizeof(v
 const vector<const string> vectorIntVar(vectorIntV, vectorIntV+sizeof(vectorIntV)/sizeof(*vectorIntV));
 const vector<const string> vectorDoubleVar(vectorDoubleV, vectorDoubleV+sizeof(vectorDoubleV)/sizeof(*vectorDoubleV));
 
+const vector<const string> degreeVar(degreeV, degreeV+sizeof(degreeV)/sizeof(*degreeV));
+
 class parFile {
 public:
 	parFile( );
 	parFile(string name);
     
+    virtual ~parFile();
+    
+    void readFile();
+    void readFile(string &filename);
+    
+    void readVariable(string &par, istringstream &iss, int &bodyIndex);
+    void readIntVariable(string &par, istringstream &iss);
+    void readStringVariable(string &par, istringstream &iss);
+    void readDoubleVariable(string &par, istringstream &iss);
+    
+    void readVectorIntVariable(string &par, istringstream &iss, int &bodyIndex);
+    void readVectorDoubleVariable(string &par, istringstream &iss, int &bodyIndex);
+    void readVectorStringVariable(string &par, istringstream &iss, int &bodyIndex);
+    void read3DVector(string &par, istringstream &iss, int &bodyIndex);
+    
+    string getStringVariable(const string &par){return stringVariables[par];}
+    string getStringVariable(const string &par, int &bodyIndex){return vectorStringVariables[par][bodyIndex];}
+    
+    int getIntVariable(const string &par){return intVariables[par];}
+    int getIntVariable(const string &par, int &bodyIndex){return vectorIntVariables[par][bodyIndex];}
+    double getDoubleVariable(const string &par){return doubleVariables[par];}
+    double getDoubleVariable(const string &par, int &bodyIndex){return vectorDoubleVariables[par][bodyIndex];}
+    
+    bool getBoolVariable(const string &par){return boolVariables[par];}
+    
+    void setVariableType(const vector<const string> &variables, const string &type);
+    void setVariableLocations();
+    
+    Vector3D getBodyPosition(int index);
+    Vector3D getBodyVelocity(int index);
+    
+    void initialiseVectors(int nBodies);
+    void convertToRadians(int nBodies);
+    
+    void initialiseBoolean(const string &par);
+    void initialiseAllBooleans();
+    
+    void setupRestartPositions();
+    
+    void checkParameters(); // TODO - write checkSetup routine
+    void displayParameters();
+    void reportError(const string &par, double &value);
+    void reportError(const string &par, int &value);
+    void reportError(const string &par, string &value);
+    
+private:
 	string parFileName;
 	
     // Map objects to store variable data as it is read
@@ -87,63 +137,7 @@ public:
     // This map stores which map each variable lives in
     std::map< string, string > variableLocations;
     
-	Vector3D getBodyPosition(int index);
-	Vector3D getBodyVelocity(int index);
-    
-    void readFile();
-    void readFile(string &filename);
-    
-	int readParFile();
-	int readParFile(string fileName);
-
-	void readPosFile();
-	void readOrbFile();
-	int parType();
-	int parType(string fileName);
-
-    void setVariableType(const vector<const string> &variables, const string &type);
-    void setVariableLocations();
-      
-    void readVariable(string &par, istringstream &iss, int &bodyIndex);
-    void readIntVariable(string &par, istringstream &iss);
-    void readStringVariable(string &par, istringstream &iss);
-    void readDoubleVariable(string &par, istringstream &iss);
-    
-    void read3DVector(string &par, istringstream &iss, int &bodyIndex);
-    
-    void readVectorVariable(string &par, istringstream &iss);
-    
-    void readVectorIntVariable(string &par, istringstream &iss, int &bodyIndex);
-    void readVectorDoubleVariable(string &par, istringstream &iss, int &bodyIndex);
-    void readVectorStringVariable(string &par, istringstream &iss, int &bodyIndex);
-    
-    void initialiseVectors(int nBodies);
-    void convertToRadians(int nBodies);
-    
-    void initialiseBoolean(const string &par);
-    
-    void initialiseAllBooleans();
-    
-    
-    string getStringVariable(const string &par){return stringVariables[par];}
-    string getStringVariable(const string &par, int &bodyIndex){return vectorStringVariables[par][bodyIndex];}
-    
-    int getIntVariable(const string &par){return intVariables[par];}
-    int getIntVariable(const string &par, int &bodyIndex){return vectorIntVariables[par][bodyIndex];}
-    double getDoubleVariable(const string &par){return doubleVariables[par];}
-    double getDoubleVariable(const string &par, int &bodyIndex){return vectorDoubleVariables[par][bodyIndex];}
-    
-    bool getBoolVariable(const string &par){return boolVariables[par];}
-   // bool getBoolVariable(string &par, index &bodyIndex){return boolVariables[par][bodyIndex];}
-
-    
-	void setupRestartPositions();
-    
-    void checkParameters(); // TODO - write checkSetup routine
-    void displayParameters();
-    void reportError(const string &par, double &value);
-    void reportError(const string &par, int &value);
-    void reportError(const string &par, string &value);
+	
     
 };
 

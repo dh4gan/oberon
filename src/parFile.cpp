@@ -15,6 +15,8 @@
 #include <string>
 
 
+// Constructors for the parFile object
+
 parFile::parFile()
     {
    setVariableLocations();
@@ -28,6 +30,159 @@ parFile::parFile(string name)
     setVariableLocations();
         
     }
+
+parFile::~parFile() {
+}
+
+// End of constructors
+
+void parFile::readFile(string &filename)
+
+{
+    /*
+     * Written 20/09/18 by dh4gan
+     * Read in data from the OBERON parameter file
+     *
+     */
+    
+    string par;
+    string line;
+    
+    int bodyIndex=-1;
+    
+    ifstream myfile(filename.c_str());
+    
+    // Then loop through each line using getline and then
+    //assign to vectors
+    
+    while (getline(myfile, line))
+    {
+        istringstream iss(line);
+        iss >> par;
+        
+        if(par.compare("--")!=0)
+        {
+            readVariable(par,iss,bodyIndex);
+        }
+        
+    }
+    myfile.close();
+    
+    printf("File Read complete\n");
+    
+    // Convert any variables read in degrees to radians
+    convertToRadians(intVariables["Number_Bodies"]);
+    
+    // Set up boolean variables
+    initialiseAllBooleans();
+    
+    doubleVariables["SystemTime"] = 0.0;
+    
+    if(boolVariables["Restart"])
+    {
+        setupRestartPositions();
+    }
+    printf("System time is %f\n", doubleVariables["SystemTime"]);
+}
+
+
+void parFile::readFile()
+
+{
+    /*
+     *
+     * Written 20/09/2019 by dh4gan
+     * Overloaded method for readFile(filename)
+     * allows the user to enter the parameter filename at the command line
+     * before reading in
+     *
+     */
+    
+    cout << "What is the input file? " << endl;
+    
+    getline(cin, parFileName);
+    
+    cout << "Reading input from file " << parFileName << endl;
+    
+    parFile(filename);
+    
+}
+
+
+void parFile::readVariable(string &par, istringstream &iss, int &bodyIndex)
+
+{
+    /*
+     * Written 20/09/2018 by dh4gan
+     * Given the input parameter in question, it reads data from the parameter file into the appropriate map
+     * Inputs:
+     *
+     * par - string describing the parameter
+     * iss - stringstream object doing the file read
+     * bodyIndex - which body are we currently reading data for?
+     *
+     */
+    
+    
+    string value;
+    
+    if(variableLocations[par]==stringType) {readStringVariable(par,iss);}
+    
+    else if(variableLocations[par]==intType){
+        readIntVariable(par,iss);
+        
+        // If we have read Number of Bodies, then initialise vectors
+        if(par=="Number_Bodies") {
+            initialiseVectors(intVariables["Number_Bodies"]);
+        }
+    }
+    
+    else if(variableLocations[par]==doubleType){
+        
+        readDoubleVariable(par,iss);
+        
+    }
+    else if(variableLocations[par]==vectorStringType){
+        
+        // If reading BodyName, assume we have moved on to the next body
+        if(par=="BodyName")
+        {
+            bodyIndex++;
+            printf("BodyIndex: %i\n",bodyIndex);
+        }
+        
+        readVectorStringVariable(par,iss,bodyIndex);
+    }
+    else if(variableLocations[par]==vectorIntType){readVectorIntVariable(par,iss,bodyIndex);}
+    else if(variableLocations[par]==vectorDoubleType)
+    {
+        
+        // If reading 3D vectors, ensure these are stored correctly
+        if(par=="Position" or par=="Velocity")
+        {
+            read3DVector(par,iss,bodyIndex);
+        }
+        else
+        {
+            readVectorDoubleVariable(par,iss,bodyIndex);
+        }
+        
+        if(par.compare("Mass")==0)
+        {
+            doubleVariables["TotalMass"] = doubleVariables["TotalMass"] + vectorDoubleVariables["Mass"][bodyIndex];
+        }
+        
+    }
+    
+    else
+    {
+        cout << "ERROR: parameter " << par << " not recognised " << endl;
+    }
+    
+    
+}
+
+
 
 Vector3D parFile::getBodyPosition(int index)
     {
@@ -66,26 +221,7 @@ Vector3D parFile::getBodyVelocity(int index)
     }
 
 
-void parFile::setVariableType(const vector<const string> &variables, const string &type)
 
-{
-    /*
-     * Written 20/09/2018 by dh4gan
-     * Assigns a variable type to a vector array (used by setVariableLocations())
-     * This allows us to identify which map a given variable is stored in
-     *
-     */
-     
-    
-    int nEntries = variables.size();
-    
-    for (int i=0;i<nEntries; i++)
-    {
-        variableLocations[variables[i]] = type;
-        //printf("%s %s \n",variables[i].c_str(), type.c_str());
-    }
-    
-}
     
 
 void parFile::setVariableLocations()
@@ -109,73 +245,42 @@ void parFile::setVariableLocations()
     
 }
 
-
-void parFile::readVariable(string &par, istringstream &iss, int &bodyIndex)
+void parFile::setVariableType(const vector<const string> &variables, const string &type)
 
 {
-    string value;
-    printf("Reading %s \n", par.c_str());
-
-    if(variableLocations[par]==stringType) {readStringVariable(par,iss);}
+    /*
+     * Written 20/09/2018 by dh4gan
+     * Assigns a variable type to a vector array (used by setVariableLocations())
+     * This allows us to identify which map a given variable is stored in
+     *
+     */
     
-    else if(variableLocations[par]==intType){
-        readIntVariable(par,iss);
     
-        // If we have read Number of Bodies, then initialise vectors
-        if(par=="Number_Bodies") {
-            initialiseVectors(intVariables["Number_Bodies"]);
-        }
-    }
+    int nEntries = variables.size();
     
-    else if(variableLocations[par]==doubleType){
-        
-        readDoubleVariable(par,iss);
-    
-    }
-    else if(variableLocations[par]==vectorStringType){
-        
-        // If reading BodyName, assume we have moved on to the next body
-        if(par=="BodyName")
-        {
-            bodyIndex++;
-            printf("BodyIndex: %i\n",bodyIndex);
-        }
-        
-        readVectorStringVariable(par,iss,bodyIndex);
-    }
-    else if(variableLocations[par]==vectorIntType){readVectorIntVariable(par,iss,bodyIndex);}
-    else if(variableLocations[par]==vectorDoubleType)
+    for (int i=0;i<nEntries; i++)
     {
-        
-        // If reading 3D vectors, ensure these are stored correctly
-        if(par=="Position" or par=="Velocity")
-        {
-            read3DVector(par,iss,bodyIndex);
-        }
-        else
-        {
-        readVectorDoubleVariable(par,iss,bodyIndex);
-        }
-        
-        if(par.compare("Mass")==0)
-        {
-            doubleVariables["TotalMass"] = doubleVariables["TotalMass"] + vectorDoubleVariables["Mass"][bodyIndex];
-        }
-        
+        variableLocations[variables[i]] = type;
+        //printf("%s %s \n",variables[i].c_str(), type.c_str());
     }
-    
-    else
-    {
-        cout << "ERROR: parameter " << par << " not recognised " << endl;
-    }
-    
     
 }
+
 
 
 void parFile::read3DVector(string &par,istringstream &iss,int &bodyIndex)
 
 {
+    
+    /*
+     * Written 20/09/2018 by dh4gan
+     *
+     * Given 3D data in the parameter file (position or velocity),
+     * correctly reads it in for decanting into a Vector3D object later
+     *
+     */
+     
+     
     double x,y,z;
     iss >> x >> y >> z;
 
@@ -189,6 +294,12 @@ void parFile::read3DVector(string &par,istringstream &iss,int &bodyIndex)
 void parFile::readStringVariable(string &par,istringstream &iss)
 
 {
+    /*
+     * Written 20/09/2018 by dh4gan
+     *
+     * Facilitates reading of string data into map object
+     */
+    
     string value;
     iss >> value;
     stringVariables[par] = value;
@@ -197,6 +308,12 @@ void parFile::readStringVariable(string &par,istringstream &iss)
 void parFile::readIntVariable(string &par,istringstream &iss)
 
 {
+    /*
+     * Written 20/09/2018 by dh4gan
+     *
+     * Facilitates reading of int data into map object
+     */
+    
     int value;
     iss >> value;
     
@@ -206,6 +323,12 @@ void parFile::readIntVariable(string &par,istringstream &iss)
 void parFile::readDoubleVariable(string &par,istringstream &iss)
 
 {
+    /*
+     * Written 20/09/2018 by dh4gan
+     *
+     * Facilitates reading of double data into map object
+     */
+    
     double value;
     iss >> value;
     doubleVariables[par] = value;
@@ -213,6 +336,13 @@ void parFile::readDoubleVariable(string &par,istringstream &iss)
 
 void parFile::readVectorIntVariable(string &par, istringstream &iss, int &bodyIndex)
 {
+    
+    /*
+     * Written 20/09/2018 by dh4gan
+     *
+     * Facilitates reading of int data specific to a body into map object
+     */
+    
     int value;
     iss>> value;
     
@@ -221,6 +351,13 @@ void parFile::readVectorIntVariable(string &par, istringstream &iss, int &bodyIn
 
 void parFile::readVectorDoubleVariable(string &par, istringstream &iss, int &bodyIndex)
 {
+    
+    /*
+     * Written 20/09/2018 by dh4gan
+     *
+     * Facilitates reading of double data specific to a body into map object
+     */
+    
     double value;
     iss>> value;
     
@@ -229,6 +366,13 @@ void parFile::readVectorDoubleVariable(string &par, istringstream &iss, int &bod
 
 void parFile::readVectorStringVariable(string &par, istringstream &iss, int &bodyIndex)
 {
+    
+    /*
+     * Written 20/09/2018 by dh4gan
+     *
+     * Facilitates reading of string data specific to a body into map object
+     */
+    
     string value;
     iss>> value;
     
@@ -304,6 +448,13 @@ void parFile::checkParameters()
 
 {
     
+    /*
+     * Written 20/09/2018 by dh4gan
+     *
+     * Performs consistency checks on all inputs
+     *
+     */
+    
     // Check number of grid points is defined
     if(intVariables["NGridPoints"]==0)
     {
@@ -340,6 +491,11 @@ void parFile::checkParameters()
 void parFile::displayParameters()
 
 {
+    /*
+     * Written 24/09/2018 by dh4gan
+     * Writes all inputted parameters to the screen
+     *
+     */
     
     printf("Global Parameters: \n");
     printf("*********************\n");
@@ -391,10 +547,13 @@ void parFile::displayParameters()
         
     {
         
+        printf("Body %i: Name %s, Type %s \n",i,vectorStringVariables["BodyName"][i].c_str(),vectorStringVariables["BodyType"][i].c_str());
+        printf("Mass: %f solar masses, \nRadius: %f solar radii\n",vectorDoubleVariables["Mass"][i], vectorDoubleVariables["Radius"][i]);
+        
         if(stringVariables["ParType"].compare("Positional")==0)
         {
         // Write Type, Position and Velocity
-        printf("Body %i: Name %s, Type %s \n",i,vectorStringVariables["BodyName"][i].c_str(),vectorStringVariables["BodyType"][i].c_str());
+        
         printf("Position: \n");
         getBodyPosition(i).printVector();
         
@@ -404,7 +563,7 @@ void parFile::displayParameters()
         
         else if(stringVariables["ParType"].compare("Orbital")==0)
         {
-            printf("Body %i: Name %s, Type %s \n",i,vectorStringVariables["BodyName"][i].c_str(),vectorStringVariables["BodyType"][i].c_str());
+            
             printf("Orbit: a e i LongAscend MeanAnomaly\n");
             printf("%f %f %f %f %f %f \n",vectorDoubleVariables["SemiMajorAxis"][i], vectorDoubleVariables["Eccentricity"][i],vectorDoubleVariables["Inclination"][i],vectorDoubleVariables["LongAscend"][i],vectorDoubleVariables["Periapsis"][i],vectorDoubleVariables["MeanAnomaly"][i]);
             
@@ -417,16 +576,40 @@ void parFile::displayParameters()
 void parFile::convertToRadians(int nBodies)
 
 {
+    /*
+     * Written 25/09/2018 by dh4gan
+     * Input angular variables are all in degrees - must be converted to radians
+     *
+     */
     
-    string degreeVariables[] = {"Obliquity","WinterSolstice"};
     
-    for (int i=0; i< sizeof(degreeVariables)/sizeof(*degreeVariables); i++)
+    for (int i=0; i<degreeVar.size(); i++)
     {
         for (int ibody=0; ibody<nBodies; ibody++)
         {
-        vectorDoubleVariables[degreeVariables[i]][ibody] = vectorDoubleVariables[degreeVariables[i]][ibody]*degToRad;
+        vectorDoubleVariables[degreeVar[i]][ibody] = vectorDoubleVariables[degreeVar[i]][ibody]*degToRad;
         
     }
+    }
+    
+}
+
+
+
+
+void parFile::initialiseAllBooleans()
+
+{
+    
+    /*
+     * Written 25/09/2018 by dh4gan
+     * Set up all boolean values
+     *
+     */
+    
+    for (int i=0; i<boolVar.size(); i++)
+    {
+        initialiseBoolean(boolVar[i]);
     }
     
 }
@@ -434,6 +617,11 @@ void parFile::convertToRadians(int nBodies)
 void parFile::initialiseBoolean(const string &par)
 
 {
+    /*
+     * Written 25/09/2018 by dh4gan
+     * Set up boolean value for parameter given by "par"
+     *
+     */
     
     boolVariables[par] = false;
     if(stringVariables[par].compare("T")==0 or stringVariables[par].compare("t")==0 or stringVariables[par].compare("Y")==0 or stringVariables[par].compare("y")==0 )
@@ -444,83 +632,6 @@ void parFile::initialiseBoolean(const string &par)
 }
 
 
-void parFile::initialiseAllBooleans()
-
-{
-    
-    for (int i=0; i<boolVar.size(); i++)
-    {
-        initialiseBoolean(boolVar[i]);
-    }
-    
-}
-
-
-
-void parFile::readFile()
-
-{
-
-    cout << "What is the input file? " << endl;
-
-    getline(cin, parFileName);
-
-    cout << "Reading input from file " << parFileName << endl;
-    
-    parFile(filename);
-}
-
-
-
-
-void parFile::readFile(string &filename)
-
-{
-    /*
-     * Written 20/09/18 by dh4gan
-     * Read in data from the OBERON parameter file
-     *
-     */
-    
-    string par;
-    string line;
-    
-    int bodyIndex=-1;
-    
-    ifstream myfile(filename.c_str());
-    
-    // Then loop through each line using getline and then
-    //assign to vectors
-    
-    while (getline(myfile, line))
-    {
-        istringstream iss(line);
-        iss >> par;
-        
-        if(par.compare("--")!=0)
-        {
-        readVariable(par,iss,bodyIndex);
-        }
-        
-    }
-    myfile.close();
-    
-    printf("File Read complete\n");
-    
-    // Convert any variables read in degrees to radians
-    convertToRadians(intVariables["Number_Bodies"]);
-    
-    // Set up boolean variables
-    initialiseAllBooleans();
-    
-    doubleVariables["SystemTime"] = 0.0;
-    
-    if(boolVariables["Restart"])
-    {
-        setupRestartPositions();
-    }
-    printf("System time is %f\n", doubleVariables["SystemTime"]);
-}
 
 void parFile::setupRestartPositions()
     {
