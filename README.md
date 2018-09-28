@@ -16,7 +16,7 @@ Features:
 * Ability to checkpoint/restart simulations (with a health warning at albedo transitions)
 * Algorithms to accommodate ice sheet melting
 * Carbonate Silicate Cycle Modelling (Williams and Kasting 1997, Haqq-Misra et al 2016)
-* Library of Python plotting scripts 
+* Library of Python 2.7 plotting scripts 
 * Library of example parameter setups to run
 
 Possible Future Features/Wishlist:
@@ -40,4 +40,4 @@ Once compiled, the code is executed with the command
 
 `> ./oberon input.params`
 
-The code was developed using the eclipse CDT, which auto-generates a Makefile to compile the code.  There is also a manual Makefile in `\src` to compile with g++.
+The code was originally developed using the eclipse CDT.  We now recommend using the Makefile in `\src` to compile with g++.
