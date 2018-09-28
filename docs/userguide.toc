@@ -1,9 +1,11 @@
-\contentsline {section}{\numberline {1}Getting OBERON}{3}
-\contentsline {section}{\numberline {2}Compiling OBERON}{3}
-\contentsline {section}{\numberline {3}Code Design}{3}
-\contentsline {section}{\numberline {4}Input Options}{3}
-\contentsline {subsection}{\numberline {4.1}Global Options}{3}
-\contentsline {subsection}{\numberline {4.2}Body Options (must be specified for each body)}{4}
-\contentsline {subsubsection}{\numberline {4.2.1}Star Options}{4}
-\contentsline {subsubsection}{\numberline {4.2.2}World Options}{4}
-\contentsline {section}{\numberline {5}Outputs}{5}
+\contentsline {section}{\numberline {1}Getting OBERON}{2}
+\contentsline {section}{\numberline {2}Compiling OBERON}{2}
+\contentsline {section}{\numberline {3}Running OBERON}{2}
+\contentsline {section}{\numberline {4}Code Design}{2}
+\contentsline {section}{\numberline {5}Input Options}{2}
+\contentsline {subsection}{\numberline {5.1}Global Options}{3}
+\contentsline {subsection}{\numberline {5.2}Body Options (must be specified for each body)}{3}
+\contentsline {subsubsection}{\numberline {5.2.1}Planet Options}{4}
+\contentsline {subsubsection}{\numberline {5.2.2}Star Options}{4}
+\contentsline {subsubsection}{\numberline {5.2.3}World Options}{4}
+\contentsline {section}{\numberline {6}Outputs}{4}
