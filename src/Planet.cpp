@@ -50,6 +50,7 @@ Body(input,bodyIndex,G)
     {
     albedo = input.getDoubleVariable("Albedo",bodyIndex);
     }
+    
     temperature = 0.0;
     reflectiveLuminosity=0.0;
     luminosity = 0.0;

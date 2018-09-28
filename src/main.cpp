@@ -121,8 +121,6 @@ int main(int argc, char* argv[])
         
 	    }
 
-	printf("body %s set up \n", BodyArray.back()->getName().c_str());
-
 	}
 
     // Set up System object using BodyArray

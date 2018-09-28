@@ -52,7 +52,7 @@ const string vectorStringV[] = {"BodyName", "BodyType", "IceMeltingOn"};
 const string vectorIntV[] = {"OrbitCentre"};
 
 // Vector (double) variables
-const string vectorDoubleV[] = {"Mass", "Radius", "Position", "XPosition", "YPosition", "ZPosition", "Velocity", "XVelocity", "YVelocity", "ZVelocity", "SemiMajorAxis", "Eccentricity", "Inclination", "LongAscend", "Periapsis", "MeanAnomaly", "RotationPeriod", "Obliquity", "WinterSolstice", "OceanFraction", "InitialTemperature", "Luminosity", "OutgassingRate", "BetaCO2", "GammaCO2","SeafloorWeatheringRate"};
+const string vectorDoubleV[] = {"Mass", "Radius", "Position", "XPosition", "YPosition", "ZPosition", "Velocity", "XVelocity", "YVelocity", "ZVelocity", "SemiMajorAxis", "Eccentricity", "Inclination", "LongAscend", "Periapsis", "MeanAnomaly", "RotationPeriod", "Obliquity", "WinterSolstice", "OceanFraction", "InitialTemperature", "Albedo","Luminosity", "OutgassingRate", "BetaCO2", "GammaCO2","SeafloorWeatheringRate"};
 
 
 const string degreeV[] = {"Obliquity","WinterSolstice"}; // Variables with units of degrees - these are eventually converted to radians

@@ -176,8 +176,6 @@ Body::Body(parFile &input, int &bodyIndex, double &G)
         hostBody = 0;
         hostMass = mass;
         
-        printf("Total Mass read %f\n",input.getDoubleVariable("TotalMass"));
-        
     }
     
     else if(input.getStringVariable("ParType")=="Positional")
