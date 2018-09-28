@@ -19,11 +19,20 @@ const double degToRad = pi/180.0;
 const double radToDeg = 1.0/degToRad;
 
 const double AU = 1.496e11;
-const double msol = 1.99e30;
-const double lsol = 3.8626e26;
-const double rsol = 6.955e8;
+const double msol = 1.99e30;    // Solar mass
+const double mearth = 5.89e24;  // Earth mass
+const double mjup = 1.989e27;   // Jupiter mass
 
-const double solradToAU = 0.00467580213904;
+const double rsol = 6.955e8;
+const double rearth = 6.371e6;
+const double rjup = 6.9911e7;
+
+const double lsol = 3.8626e26;
+
+const double msolToMEarth = msol/mearth;
+const double solradToAU = rsol/AU;
+const double solradToREarth = rsol/rearth;
+
 
 const double Gsi = 6.67e-11;
 const double Gmau = 1.0;  // Value of G for solar mass-AU units (time units...2pi units= 1 year)

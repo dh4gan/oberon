@@ -7,8 +7,6 @@
  *      A simple 3D Vector Class (holds useful vector operations)
  */
 
-using namespace std;
-
 #ifndef VECTOR3D_H_
 #define VECTOR3D_H_
 

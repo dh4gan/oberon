@@ -191,6 +191,8 @@ int main(int argc, char* argv[])
 
 
     printf("System set up: Running \n");
+    printf("%s",screenBar.c_str());
+        
     while (timeunit < tMax)
 	{
 	tStop = timeunit + tSnap;

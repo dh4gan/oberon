@@ -20,5 +20,7 @@ const double humanTooHot = 323.0;
 const double C_land = 5.25e9; //differs by factor 1000 to W&K due to units...
 const double C_ocean = 40.0 * C_land;
 
+const double diff_0 = 5.8e2; // Diffusion constant at Rotation Period = 1 day (erg s-1 cm-1 K-1)
+
 
 #endif /* LEBMCONSTANTS_H_ */

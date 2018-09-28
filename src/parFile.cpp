@@ -68,7 +68,8 @@ void parFile::readFile(string &filename)
     }
     myfile.close();
     
-    printf("File Read complete\n");
+    printf("\t\tFile Read complete\n");
+    printf("%s",screenBar.c_str());
     
     // Convert any variables read in degrees to radians
     convertToRadians(intVariables["Number_Bodies"]);
@@ -82,7 +83,6 @@ void parFile::readFile(string &filename)
     {
         setupRestartPositions();
     }
-    printf("System time is %f\n", doubleVariables["SystemTime"]);
 }
 
 
@@ -148,7 +148,6 @@ void parFile::readVariable(string &par, istringstream &iss, int &bodyIndex)
         if(par=="BodyName")
         {
             bodyIndex++;
-            printf("BodyIndex: %i\n",bodyIndex);
         }
         
         readVectorStringVariable(par,iss,bodyIndex);
@@ -506,12 +505,13 @@ void parFile::displayParameters()
     printf("Global Parameters: \n");
     printf("%s",screenBar.c_str());
     printf("System Name: %s \n",stringVariables["SystemName"].c_str());
+    printf("Initial Time: %.1E \n",doubleVariables["SystemTime"]);
     printf("Number of Bodies: %i \n",intVariables["Number_Bodies"]);
     printf("N Body Output File: %s \n",stringVariables["NBodyOutput"].c_str());
-    printf("Maximum Time: %f years \n", doubleVariables["MaximumTime"]);
-    printf("Snapshot Time: %f years \n", doubleVariables["SnapshotTime"]);
+    printf("Maximum Time: %.1E years \n", doubleVariables["MaximumTime"]);
+    printf("Snapshot Time: %.1E years \n", doubleVariables["SnapshotTime"]);
     
-    
+    printf("%s",screenBar.c_str());
     if(boolVariables["Restart"])
     {
         printf("This is a restart - using vector data from pre-existing nbody output file \n");
@@ -545,7 +545,7 @@ void parFile::displayParameters()
         printf("Carbonate Silicate Cycle is OFF \n");
     }
     
-    
+    printf("%s",screenBar.c_str());
     printf("Individual Body Parameters \n");
     printf("%s",screenBar.c_str());
     
@@ -554,7 +554,21 @@ void parFile::displayParameters()
     {
         
         printf("Body %i: Name %s, Type %s \n",i,vectorStringVariables["BodyName"][i].c_str(),vectorStringVariables["BodyType"][i].c_str());
-        printf("Mass: %f solar masses, \nRadius: %f solar radii\n",vectorDoubleVariables["Mass"][i], vectorDoubleVariables["Radius"][i]);
+        
+    
+        // Print stellar data in solar masses/radii
+        if(vectorStringVariables["BodyType"][i].compare("Star")==0)
+        {
+        printf("Mass: %.2f solar masses, \nRadius: %f solar radii\n",vectorDoubleVariables["Mass"][i], vectorDoubleVariables["Radius"][i]);
+        }
+        
+        // Otherwise print in earth masses/radii
+        else
+        {
+             printf("Mass: %.2f Earth masses, \nRadius: %f Earth radii\n",vectorDoubleVariables["Mass"][i]*msolToMEarth, vectorDoubleVariables["Radius"][i]*solradToREarth);
+        }
+        
+        
         
         if(stringVariables["ParType"].compare("Positional")==0)
         {

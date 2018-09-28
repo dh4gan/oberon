@@ -254,6 +254,6 @@ void Vector3D::rotateAboutAxis(Vector3D axisVector, double angle)
 void Vector3D::printVector()
     {
 
-    cout << elements[0] << "  " << elements[1] << "   " << elements[2] << endl;
+        std::cout << elements[0] << "  " << elements[1] << "   " << elements[2] << std::endl;
 
     }

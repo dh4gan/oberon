@@ -310,8 +310,7 @@ void World::initialiseLEBM()
    // erg cm^-2 s^-1 K^-1
    // rotationPeriod is in units of Earth's rotation period
 
-   //diffusion0 = 5.394e2 * rotationPeriod*rotationPeriod;
-   diffusion0 = 5.8e2 * rotationPeriod*rotationPeriod;
+   diffusion0 = diff_0 * rotationPeriod*rotationPeriod;
 
    lat.resize(nPoints1,0.0);
    x.resize(nPoints1,0.0);
@@ -558,17 +557,10 @@ if(fabs(domega)>0.5*year/dtLEBM)
     precession = precession + precdot*dtLEBM/year;
     obliquity = obliquity + obliqdot*dtLEBM/year;
 
-
- //   cout  << "p, q: " << p << "  " << q << "   " << pdot << "  " << qdot << endl;
-//    cout << "OBLIQUITY: " <<obliquity << "   " <<  obliqdot<<"  " << Bfunc <<  "  " << Afunc << "  " << precession << endl;
     precession = fmod(precession,twopi);
-
     if(precession < 0.0){precession = twopi+precession;}
-
     obliquity = fmod(obliquity,twopi);
     if(obliquity < 0.0){obliquity = twopi+precession;}
-    //cout << "PRECESSION " << precession << endl;
-
 
     }
 
@@ -718,31 +710,18 @@ void World::calcInsolation(Body* star, double &eclipsefrac)
     // Obtain declination angle
 
     double rdotn = unitpos.dotProduct(decVector);
-    //Vector3D rcrossn = unitpos.crossProduct(decVector);
-    //double rcrossnMag = rcrossn.dotProduct(rcrossn.unitVector());
-
-
     double declination = safeAcos(rdotn);
 
     declination = piby2-declination;
-     //cout << "ROTATIONS: " << endl;
-    //orbitalAngularMomentum.printVector();
-    //decVector.printVector();
-
+     
     // Allowed range of declinations: -pi, pi
     // cos is an even function!
 
-
     if(declination > obliquity) declination = pi-declination;
-
-    //if (decVector.elements[1] <0.0) declination = -1*declination;
 
     double sind = sin(declination);
     double cosd = cos(declination);
     double tand = tan(declination);
-
-
-    //cout <<"Declination: " << trueAnomaly << "   " <<  obliquity << "   " << rdotn << "   " << rcrossnMag << "   "<< declination << "   " << decCross << endl;
 
     // Insolation prefactor depends on luminosity and separation only
 
@@ -768,11 +747,6 @@ void World::calcInsolation(Body* star, double &eclipsefrac)
 
 	    meanZenith[i] = (H*x[i] * sind + coslat[i] * cosd * sin(H))/pi;
 
-	    /*if(H<=0.0)
-		{
-	    meanZenith[i] = 0.0;
-		}*/
-
 	    insol[i] = insol[i]
 		    + fluxsolcgs * lstar * (1.0 - eclipsefrac)
 			    / (magpos * magpos)
@@ -783,10 +757,10 @@ void World::calcInsolation(Body* star, double &eclipsefrac)
 		if(insol[i]<0.0) {insol[i]=0.0;}
 	    if(insol[i]>1.0e10 or insol[i]!=insol[i] or insol[i] < 0.0){
 
-	      cout << "ERROR: Negative insolation calculated " << endl;
-	      cout << i << "  " << star->getName () << "  " << insol[i] << "  "
-		  << precession << "  " << obliquity << "   " << "   " << cosd << "  "
-		  << sind << "  " << tand << "  " << cos_H << "   " << meanZenith[i] << endl;
+            printf("ERROR: Invalid Insolation for World %s: %f \n",name.c_str(), insol[i]);
+            printf("Latitude %i, Star %s \n",i,star->getName().c_str());
+            printf("Precession %f, obliquity %f\n", precession,obliquity);
+            printf("Angles: cos d %f sin d %f tan d %f \n",cosd,sind,tand);
 	    }
 
 
