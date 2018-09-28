@@ -10,11 +10,13 @@
 # Compiler variables:
 CC     = g++
 
+VERSION = $(shell git describe --tags --abbrev=0)
+
 # Git version
-GIT_VERSION = $(shell git describe --abbrev=7 --dirty --always --tags)
+GIT_HASH = $(shell git describe --abbrev=9 --dirty --always)
 
 # TODO - appropriate compiler flags?
-CFLAGS = -O3 -DVERSION=\"$(GIT_VERSION)\"
+CFLAGS = -O3 -DVERSION=\"$(VERSION)\" -DGIT_HASH=\"${GIT_HASH}\"
 
 # Create object files:
 %.o: %.cpp

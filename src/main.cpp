@@ -58,9 +58,10 @@ int main(int argc, char* argv[])
         
     printf("  \n");
     printf("%s",screenBar.c_str());
-    printf("\t\tOBERON - OBliquity and Energy balance Run on Nbody systems\n");
-    printf("\t\tVersion: %s\n", VERSION);
-    printf("\t\tDate: %s\n", __DATE__);
+    printf("\tOBERON - OBliquity and Energy balance Run on Nbody systems\n");
+    printf("\t\t\tVersion: %s\n", VERSION);
+    printf("\t\t\tCompiled: %s\n", __DATE__);
+    printf("\t\t\tgit commit: %s \n", GIT_HASH);
     printf("%s",screenBar.c_str());
     printf("  \n");
         
