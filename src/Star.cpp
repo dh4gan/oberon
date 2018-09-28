@@ -62,11 +62,11 @@ Star::Star(string &namestring, double &m, double &rad, double semimaj, double ec
 Star::Star(parFile &input, int &bodyIndex, double &G):
 Body(input,bodyIndex,G) {
     type = "Star";
-        
+    printf("Spectral Type read as %s \n",spectralType.c_str());
     if(input.getBoolVariable("CarbonateSilicateCycle"))
     {
     spectralType = input.getStringVariable("SpectralType",bodyIndex);
-    
+        printf("Spectral Type read as %s \n",spectralType.c_str());
     loadAlbedoCoefficients();
     }
     if(input.getDoubleVariable("Luminosity",bodyIndex) > 0.0)

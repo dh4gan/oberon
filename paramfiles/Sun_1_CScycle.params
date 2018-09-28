@@ -1,0 +1,47 @@
+ParType Orbital
+NBodyOutput Sun_1nbody.output
+SnapshotTime	1.0e-1
+MaximumTime	100.0
+NGridPoints	144
+SystemName EarthSun
+Number_Bodies 2
+Restart F
+CarbonateSilicateCycle T
+--
+BodyName Sun
+BodyType Star
+Mass 1.0
+Radius 1.0
+SemiMajorAxis 0.0
+Eccentricity 0.0
+Inclination 0.0
+LongAscend 0.0
+Periapsis 0.0
+MeanAnomaly 0.0
+SpectralType G
+Luminosity 1.0
+OrbitCentre -1
+--
+BodyName Earth
+BodyType World
+Mass 1.0e-6
+Radius 1.0e-4
+SemiMajorAxis 1.0
+Eccentricity 0.0
+Inclination 0.0
+LongAscend 0.0
+Periapsis 0.0
+MeanAnomaly 0.0
+--
+OutgassingRate 1.0 (units of Earth weathering)
+SeafloorWeatheringRate 0.0
+BetaCO2  1.0 
+GammaCO2 0.5
+--
+RotationPeriod 1.0  (days)
+Obliquity  23.7   (degrees)
+WinterSolstice 0.0	(longitude,degrees)
+OceanFraction 0.7
+InitialTemperature 250.0
+OrbitCentre 1
+

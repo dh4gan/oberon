@@ -172,6 +172,11 @@ void parFile::readVariable(string &par, istringstream &iss, int &bodyIndex)
             doubleVariables["TotalMass"] = doubleVariables["TotalMass"] + vectorDoubleVariables["Mass"][bodyIndex];
         }
         
+        if(par.compare("OutgassingRate")==0)
+        {
+            vectorDoubleVariables["OutgassingRate"][bodyIndex] *= outgassingRateEarth;
+        }
+        
     }
     
     else
@@ -418,6 +423,7 @@ void parFile::initialiseVectors(int nBodies)
     vectorDoubleVariables["BetaCO2"][i] = betaCO2_0;
     vectorDoubleVariables["GammaCO2"][i] = gammaCO2_0;
     vectorDoubleVariables["OutgassingRate"][i] = outgassingRateEarth;
+    vectorDoubleVariables["SeafloorWeatheringRate"][i] = seaFloorWeathering_0;
     }
 }
 
@@ -695,7 +701,6 @@ void parFile::setupRestartPositions()
     vectorDoubleVariables["YVelocity"].assign(Nbodies, 0.0);
     vectorDoubleVariables["ZVelocity"].assign(Nbodies, 0.0);
 
-        printf("Here?\n");
     myfile.open(NBodyFile.c_str());
 
     int iline = 0;
@@ -722,7 +727,6 @@ void parFile::setupRestartPositions()
 	    iss >> blank;
 	    iss >> name;
             
-            printf("Here?");
 
 	    if (name.compare(vectorStringVariables["BodyName"][ibody])!=0)
 		{
