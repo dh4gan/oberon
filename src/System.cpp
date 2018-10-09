@@ -570,27 +570,48 @@ void System::setupOrbits(vector<int> orbitCentre)
 
     for (int b = 0; b < bodyCount; b++)
 	{
+        
+        // Identify hosts and compute total mass belonging to each host
 	if (orbitCentre[b] > 0)
 	    {
 
 	    int ihost = orbitCentre[b]-1;
 	    hosts[ihost]=1;  // Record host status for later
 
-		// Setup bodies in orbit around the host
+		totalMassAroundHost[ihost] = totalMassAroundHost[ihost]+bodies[b]->getMass();
 
+	    }
+	}
+
+
+        // Add host mass to totals
+	for(int b=0; b< bodyCount; b++)
+
+	{
+	if(hosts[b]==1)
+
+	{totalMassAroundHost[b] = totalMassAroundHost[b] + bodies[b]->getMass();}
+	}
+
+
+    // Setup bodies in orbit around each host
+   for (int b=0; b<bodyCount; b++)
+
+	{
+
+	if(orbitCentre[b]>0)
+
+	{
+		int ihost = orbitCentre[b]-1;
 
 	    bodies[b]->calcVectorFromOrbit(G,
-		    bodies[ihost]->getHostMass());
+		    totalMassAroundHost[ihost]);
 
 	    Vector3D framepos =
 		    bodies[ihost]->getPosition().scaleVector(-1.0);
 	    Vector3D framevel =
 		    bodies[ihost]->getVelocity().scaleVector(-1.0);
 	    bodies[b]->changeFrame(framepos, framevel);
-
-	    // Compute additions to total mass for this host
-
-	    totalMassAroundHost[ihost] = totalMassAroundHost[ihost]+bodies[b]->getMass();
 
 	    // Compute COM of host system (minus host contribution)
 	    xCOMroundHost[ihost] = xCOMroundHost[ihost].addVector(bodies[b]->getPosition().scaleVector(bodies[b]->getMass()));
@@ -612,8 +633,6 @@ void System::setupOrbits(vector<int> orbitCentre)
 	// If this body is a host, then alter its position and velocity
 	if (hosts[b]==1)
 	  {
-
-	    totalMassAroundHost[b] = totalMassAroundHost[b]+ bodies[b]->getMass();
 
 	    Vector3D newPosition = bodies[b]->getPosition().scaleVector(totalMassAroundHost[b]).subtractVector(xCOMroundHost[b]);
 	    newPosition = newPosition.scaleVector(1.0/bodies[b]->getMass());

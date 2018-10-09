@@ -13,7 +13,7 @@ matplotlib.use('TkAgg')
 import numpy as np
 from sys import argv
 from matplotlib import pyplot as plt
-import io_nbody
+import io_oberon.io_nbody
 from time import sleep
 
 def show_orbit():
@@ -26,7 +26,7 @@ def show_orbit():
         input_file = argv[1]
     
     tmax = 0.0
-    time, bodyarray, number_bodies = io_nbody.read_nbody_datafile(input_file, tmax)    
+    time, bodyarray, number_bodies = io_oberon.io_nbody.read_nbody_datafile(input_file, tmax)    
     
     # First set up the figure, the axis, and the plot element we want to animate            
 
