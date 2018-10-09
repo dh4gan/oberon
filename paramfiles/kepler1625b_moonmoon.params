@@ -1,0 +1,65 @@
+ParType Orbital
+SystemName  MoonMoon
+NBodyOutput moonmoon.nbody
+SnapshotTime	1.0e-3
+MaximumTime	1000.0
+NGridPoints	144
+Number_Bodies 4
+Restart F
+PlanetaryIllumination F
+TidalHeating F
+--
+BodyName Kepler-1625
+BodyType Star
+Mass 1.04
+Radius 1.0
+SemiMajorAxis 0.0
+Eccentricity 0.0
+Inclination 0.0
+LongAscend 0.0
+Periapsis 0.0
+MeanAnomaly 0.0
+Luminosity 0.0
+OrbitCentre 0
+--
+BodyName Kepler-1625b
+BodyType Planet
+Mass 0.00954
+Radius 0.102
+SemiMajorAxis 0.98
+Eccentricity 0.0
+Inclination 0.0
+LongAscend 0.0
+Periapsis 0.0
+MeanAnomaly 0.0
+OrbitCentre 0
+--
+BodyName Moon
+BodyType Planet
+Mass 5.15e-5
+Radius 0.0354
+SemiMajorAxis 0.02149
+Eccentricity 0.0
+Inclination 0.0
+LongAscend 0.0
+Periapsis 3.14
+MeanAnomaly 0.0
+OrbitCentre 2
+--
+BodyName MoonMoon
+BodyType World
+Mass	3.0e-6
+Radius  4.2e-5
+SemiMajorAxis 0.0004966 
+Eccentricity 0.0
+Inclination 0.0
+LongAscend  0.0
+Periapsis   0.0	
+MeanAnomaly 0.0
+RotationPeriod 1.0  (days)
+Obliquity  0.0   (degrees)
+WinterSolstice 0.0	(longitude,degrees)
+OceanFraction 0.7
+InitialTemperature 288.0
+OrbitCentre	3
+IceMeltingOn F
