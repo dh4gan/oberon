@@ -57,9 +57,11 @@ void parFile::readFile(string &filename)
     
     while (getline(myfile, line))
     {
+	par ="";
         istringstream iss(line);
         iss >> par;
-        
+
+	if(par.compare("")==0) break;        
         if(par.compare("--")!=0)
         {
             readVariable(par,iss,bodyIndex);
