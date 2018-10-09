@@ -249,7 +249,7 @@ void parFile::setVariableLocations()
     
 }
 
-void parFile::setVariableType(const vector<const string> &variables, const string &type)
+void parFile::setVariableType(const vector<string> &variables, const string &type)
 
 {
     /*

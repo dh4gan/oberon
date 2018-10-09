@@ -58,16 +58,16 @@ const string vectorDoubleV[] = {"Mass", "Radius", "Position", "XPosition", "YPos
 const string degreeV[] = {"Obliquity","WinterSolstice"}; // Variables with units of degrees - these are eventually converted to radians
 
 // Decant these into STL vectors for easier passing between functions
-const vector<const string> stringVar(stringV, stringV+sizeof(stringV)/sizeof(*stringV));
-const vector<const string> boolVar(boolV, boolV+sizeof(boolV)/sizeof(*boolV));
-const vector<const string> intVar(intV, intV+sizeof(intV)/sizeof(*intV));
-const vector<const string> doubleVar(doubleV, doubleV+sizeof(doubleV)/sizeof(*doubleV));
+const vector<string> stringVar(stringV, stringV+sizeof(stringV)/sizeof(*stringV));
+const vector<string> boolVar(boolV, boolV+sizeof(boolV)/sizeof(*boolV));
+const vector<string> intVar(intV, intV+sizeof(intV)/sizeof(*intV));
+const vector<string> doubleVar(doubleV, doubleV+sizeof(doubleV)/sizeof(*doubleV));
 
-const vector<const string> vectorStringVar(vectorStringV, vectorStringV+sizeof(vectorStringV)/sizeof(*vectorStringV));
-const vector<const string> vectorIntVar(vectorIntV, vectorIntV+sizeof(vectorIntV)/sizeof(*vectorIntV));
-const vector<const string> vectorDoubleVar(vectorDoubleV, vectorDoubleV+sizeof(vectorDoubleV)/sizeof(*vectorDoubleV));
+const vector<string> vectorStringVar(vectorStringV, vectorStringV+sizeof(vectorStringV)/sizeof(*vectorStringV));
+const vector<string> vectorIntVar(vectorIntV, vectorIntV+sizeof(vectorIntV)/sizeof(*vectorIntV));
+const vector<string> vectorDoubleVar(vectorDoubleV, vectorDoubleV+sizeof(vectorDoubleV)/sizeof(*vectorDoubleV));
 
-const vector<const string> degreeVar(degreeV, degreeV+sizeof(degreeV)/sizeof(*degreeV));
+const vector<string> degreeVar(degreeV, degreeV+sizeof(degreeV)/sizeof(*degreeV));
 
 class parFile {
 public:
@@ -99,7 +99,7 @@ public:
     
     bool getBoolVariable(const string &par){return boolVariables[par];}
     
-    void setVariableType(const vector<const string> &variables, const string &type);
+    void setVariableType(const vector<string> &variables, const string &type);
     void setVariableLocations();
     
     Vector3D getBodyPosition(int index);
