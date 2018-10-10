@@ -487,11 +487,7 @@ void parFile::checkParameters()
     {
         reportError("MaximumTime", doubleVariables["MaximumTime"]);
     }
-    
-    
-    // If Carbonate Silicate Cycle is on, are stellar spectral types read in?
-    // Are Weathering coefficents non-zero?
-    
+               
 }
 
 

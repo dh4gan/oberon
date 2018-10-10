@@ -113,7 +113,7 @@ public:
     
     void setupRestartPositions();
     
-    void checkParameters(); // TODO - write checkSetup routine
+    void checkParameters();
     void displayParameters();
     void reportError(const string &par, double &value);
     void reportError(const string &par, int &value);

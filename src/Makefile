@@ -15,7 +15,7 @@ VERSION = $(shell git describe --tags --abbrev=0)
 # Git version
 GIT_HASH = $(shell git describe --abbrev=9 --dirty --always)
 
-# TODO - appropriate compiler flags?
+# Define compiler flags
 CFLAGS = -O3 -DVERSION=\"$(VERSION)\" -DGIT_HASH=\"${GIT_HASH}\"
 
 # Create object files:
