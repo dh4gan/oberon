@@ -1,7 +1,7 @@
 ParType Orbital
 SystemName  MoonMoon
 NBodyOutput moonmoon.nbody
-SnapshotTime	1.0e-3
+SnapshotTime	1.0e-1
 MaximumTime	1000.0
 NGridPoints	144
 Number_Bodies 4
@@ -37,7 +37,7 @@ OrbitCentre 0
 BodyName Moon
 BodyType Planet
 Mass 5.15e-5
-Radius 0.0354
+Radius 0.04
 SemiMajorAxis 0.02149
 Eccentricity 0.0
 Inclination 0.0
@@ -49,13 +49,13 @@ OrbitCentre 2
 BodyName MoonMoon
 BodyType World
 Mass	3.0e-6
-Radius  4.2e-5
+Radius  1.0e-2
 SemiMajorAxis 0.0004966 
 Eccentricity 0.0
 Inclination 0.0
 LongAscend  0.0
 Periapsis   0.0	
-MeanAnomaly 0.0
+MeanAnomaly 1.57
 RotationPeriod 1.0  (days)
 Obliquity  0.0   (degrees)
 WinterSolstice 0.0	(longitude,degrees)

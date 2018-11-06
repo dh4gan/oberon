@@ -26,7 +26,7 @@ def show_orbit():
         input_file = argv[1]
     
     tmax = 0.0
-    time, bodyarray, number_bodies = io_oberon.io_nbody.read_nbody_datafile(input_file, tmax)    
+    time, bodyarray, number_bodies = io_oberon.io_nbody.read_nbody_datafile(input_file, tmax)
     
     # First set up the figure, the axis, and the plot element we want to animate            
 
@@ -208,5 +208,5 @@ def calc_orbit_track(semimaj,ecc,inc,longascend,argper, npoints):
     
     
     
-if __name__ == '__main__':
-    show_orbit()
+    #if __name__ == '__main__':
+#show_orbit()
